@@ -1,0 +1,194 @@
+2025-02-05T09:18:40.327Z [32minfo[39m: GET / [200] - 17ms
+2025-02-05T09:18:40.370Z [32minfo[39m: GET /favicon.ico [404] - 2ms
+2025-02-05T09:19:17.278Z [32minfo[39m: GET / [200] - 4ms
+2025-02-05T09:52:49.406Z [32minfo[39m: GET / [304] - 10ms
+2025-02-05T09:52:55.977Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [products, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         skip: NaN,
+       + take: Int
+       })
+
+Argument `take` is missing.
+2025-02-05T09:52:55.983Z [32minfo[39m: GET /api/master/user [500] - 99ms
+2025-02-05T09:54:13.098Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         skip: NaN,
+       + take: Int
+       })
+
+Argument `take` is missing.
+2025-02-05T09:54:13.105Z [32minfo[39m: GET /api/master/user [500] - 42ms
+2025-02-05T09:54:15.616Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         skip: NaN,
+       + take: Int
+       })
+
+Argument `take` is missing.
+2025-02-05T09:54:15.619Z [32minfo[39m: GET /api/master/user [500] - 6ms
+2025-02-05T09:54:16.870Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         skip: NaN,
+       + take: Int
+       })
+
+Argument `take` is missing.
+2025-02-05T09:54:16.872Z [32minfo[39m: GET /api/master/user [500] - 5ms
+2025-02-05T09:55:16.902Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         take: 10,
+       + skip: Int
+       })
+
+Argument `skip` is missing.
+2025-02-05T09:55:16.910Z [32minfo[39m: GET /api/master/user [500] - 52ms
+2025-02-05T09:55:17.943Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         take: 10,
+       + skip: Int
+       })
+
+Argument `skip` is missing.
+2025-02-05T09:55:17.945Z [32minfo[39m: GET /api/master/user [500] - 7ms
+2025-02-05T09:55:19.174Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         select: {
+           id: true,
+           name: true,
+           email: true,
+           role: true,
+           createdAt: true,
+           updatedAt: true
+         },
+         take: 10,
+       + skip: Int
+       })
+
+Argument `skip` is missing.
+2025-02-05T09:55:19.177Z [32minfo[39m: GET /api/master/user [500] - 5ms
+2025-02-05T09:56:24.295Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:17:21
+
+  14 );
+  15 
+  16 const [userData, count] = await Promise.all([
+→ 17   prisma.user.findMany({
+         take: 10,
+         orderBy: {
+           id: "desc"
+         },
+       + skip: Int
+       })
+
+Argument `skip` is missing.
+2025-02-05T09:56:24.303Z [32minfo[39m: GET /api/master/user [500] - 45ms
+2025-02-05T09:56:47.897Z [31merror[39m: 
+Invalid `prisma.user.findMany()` invocation in
+D:\code\startter\express-starter\starter-express-2025\src\controllers\master\UserController.ts:19:21
+
+  16 console.log(page);
+  17 
+  18 const [userData, count] = await Promise.all([
+→ 19   prisma.user.findMany({
+         take: 10,
+         orderBy: {
+           id: "desc"
+         },
+       + skip: Int
+       })
+
+Argument `skip` is missing.
+2025-02-05T09:56:47.903Z [32minfo[39m: GET /api/master/user [500] - 55ms
+2025-02-05T10:00:49.300Z [32minfo[39m: GET /api/master/user [200] - 98ms
+2025-02-05T10:01:28.865Z [32minfo[39m: GET /api/master/user [304] - 45ms
