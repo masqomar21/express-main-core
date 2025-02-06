@@ -4,18 +4,18 @@ interface PaginationInterface<T> {
 }
 
 export class Pagination {
-  page: number;
-  limit: number;
-  offset: number;
+  page: number
+  limit: number
+  offset: number
 
   constructor(page: number | string, size: number | string) {
-    this.page = parseInt(page as string) || 1;
-    this.limit = parseInt(size as string) || 10;
-    this.offset = (this.page - 1) * this.limit;
+    this.page = parseInt(page as string) || 1
+    this.limit = parseInt(size as string) || 10
+    this.offset = (this.page - 1) * this.limit
   }
 
   paginate<T>(data: PaginationInterface<T>): any {
-    const totalPages = Math.ceil(data.count / this.limit);
+    const totalPages = Math.ceil(data.count / this.limit)
     return {
       total_items: data.count,
       page: this.page,
@@ -30,6 +30,6 @@ export class Pagination {
             ? `?page=${this.page + 1}&limit=${this.limit}`
             : null,
       },
-    };
+    }
   }
 }

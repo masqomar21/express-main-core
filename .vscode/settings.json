@@ -1,4 +1,9 @@
 {
   "files.autoSave": "onFocusChange",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.validate": ["typescript"],
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint"
 }

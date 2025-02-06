@@ -1,11 +1,11 @@
-import { createLogger, transports, format, Logger } from "winston";
-import { addColors } from "winston/lib/winston/config";
+import { createLogger, transports, format, Logger } from "winston"
+import { addColors } from "winston/lib/winston/config"
 
-const { combine, timestamp, printf, colorize } = format;
+const { combine, timestamp, printf, colorize } = format
 
 const myFormat = printf(
-  ({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`
-);
+  ({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`,
+)
 
 const customLevels = {
   levels: {
@@ -18,9 +18,9 @@ const customLevels = {
     info: "green",
     db: "blue", // custom color for db logs
   },
-};
+}
 
-addColors(customLevels.colors);
+addColors(customLevels.colors)
 
 const logger: Logger = createLogger({
   levels: customLevels.levels,
@@ -31,6 +31,6 @@ const logger: Logger = createLogger({
     new transports.File({ filename: "info.log", level: "info" }),
     new transports.File({ filename: "db.log", level: "db" }),
   ],
-});
+})
 
-export default logger;
+export default logger

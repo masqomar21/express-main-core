@@ -8,11 +8,13 @@
         "dev": "nodemon app.ts",
         "build": "tsc",
         "start": "node dist/app.js",
-        "test": "test"
+        "test": "test",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix"
     },
     "repository": {},
     "keywords": [],
-    "author": "masqomar21",
+    "author": "newus-tect",
     "license": "ISC",
     "devDependencies": {
         "@faker-js/faker": "^9.0.3",
@@ -26,14 +28,15 @@
         "@types/node": "^22.5.1",
         "@types/winston": "^2.4.4",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
-        "eslint": "^8.57.0",
+        "@typescript-eslint/parser": "^6.21.0",
+        "eslint": "^8.57.1",
         "eslint-plugin-import": "^2.29.1",
         "eslint-plugin-n": "^16.6.2",
         "eslint-plugin-promise": "^6.6.0",
         "nodemon": "^3.1.4",
         "prisma": "^5.19.0",
         "ts-node": "^10.9.2",
-        "typescript": "^5.5.4"
+        "typescript": "^5.7.3"
     },
     "dependencies": {
         "@prisma/client": "^5.19.0",

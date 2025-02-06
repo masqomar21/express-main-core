@@ -1,19 +1,50 @@
+// {
+//   "env": {
+//     "browser": false,
+//     "es2021": true
+//   },
+//   // "extends": "standard-with-typescript",
+//   "parserOptions": {
+//     "sourceType": "module",
+//     "ecmaVersion": "latest",
+//     "project": "./tsconfig.json"
+//   },
+//   "rules": {
+//     "semi": ["error", "never"],
+//     "no-extra-semi": "error",
+//     "indent": ["error", 2],
+//     "@typescript-eslint/no-misused-promises": "off",
+//     "@typescript-eslint/non-nullable-type-assertion-style": "off"
+//   }
+// }
+
 {
   "env": {
-    "browser": true,
-    "es2021": true
+    "browser": false,
+    "es2021": true,
+    "node": true
   },
-  // "extends": "standard-with-typescript",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": "latest"
+    "ecmaVersion": "latest",
+    "sourceType": "module"
   },
+  "plugins": ["@typescript-eslint"],
   "rules": {
-    "semi": "error",
-    "indent": "error",
-    "@typescript-eslint/indent": "error",
-    "space-before-function-paren": "off",
-    "@typescript-eslint/space-before-function-paren": "error",
-    "@typescript-eslint/no-misused-promises": "off",
-    "@typescript-eslint/non-nullable-type-assertion-style": "off"
+    "indent": ["error", 2],
+    "quotes": ["error", "double"],
+    "semi": ["error", "never"],
+    "comma-dangle": ["error", "always-multiline"],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
   }
 }

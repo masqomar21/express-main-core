@@ -1,1 +1,2 @@
 src/config/index.ts
+src/db/seeder/*
