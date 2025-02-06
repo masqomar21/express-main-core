@@ -4,8 +4,8 @@ import { Request, Response } from 'express'
 import { ResponseData } from '../../utilities'
 import { Pagination } from '../../utilities/pagination'
 import prisma from '../../config/database'
-import { z } from 'zod'
 import { validateInput } from '../../utilities/ValidateHandler'
+import { UserSchemaForCreate, UserSchemaForUpdate } from '../../Schema/UserSchema'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {
@@ -95,14 +95,7 @@ const UserController = {
     try {
       const reqBody = req.body
 
-      const schema = z.object({
-        name: z.string(),
-        email: z.string().email(),
-        password: z.string(),
-        roleId: z.number(),
-      })
-
-      const validationResult = validateInput(schema, reqBody)
+      const validationResult = validateInput(UserSchemaForCreate, reqBody)
 
       if (!validationResult.success) {
         return res
@@ -117,12 +110,165 @@ const UserController = {
       }
 
       const userData = await prisma.user.create({
-        data: schema.parse(reqBody),
+        data: UserSchemaForCreate.parse(reqBody),
       })
 
       return res
         .status(StatusCodes.CREATED)
         .json(ResponseData(StatusCodes.CREATED, 'Success', userData))
+    } catch (error: any) {
+      logger.error(error)
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          ResponseData(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            'Internal server error' + error.message,
+          ),
+        )
+    }
+  },
+
+  updateUser: async (req: Request, res: Response): Promise<any> => {
+    const userId = parseInt(req.params.id as string)
+    const reqBody = req.body
+
+    const validationResult = validateInput(UserSchemaForUpdate, reqBody)
+
+    if (!validationResult.success) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(
+          ResponseData(
+            StatusCodes.BAD_REQUEST,
+            'Invalid Input',
+            validationResult.errors,
+          ),
+        )
+    }
+    try {
+
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!userData) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+      }
+
+      const updatedUserData = await prisma.user.update({
+        where: { id: userId },
+        data: reqBody,
+      })
+
+      return res
+        .status(StatusCodes.OK)
+        .json(ResponseData(StatusCodes.OK, 'Success', updatedUserData))
+    } catch (error: any) {
+      logger.error(error)
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          ResponseData(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            'Internal server error' + error.message,
+          ),
+        )
+    }
+  },
+  softDeleteUser: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const userId = parseInt(req.params.id as string)
+
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!userData) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+      }
+
+      const deletedUserData = await prisma.user.update({
+        where: { id: userId },
+        data: { deletedAt: new Date() },
+      })
+
+      return res
+        .status(StatusCodes.OK)
+        .json(ResponseData(StatusCodes.OK, 'Success', deletedUserData))
+    } catch (error: any) {
+      logger.error(error)
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          ResponseData(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            'Internal server error' + error.message,
+          ),
+        )
+    }
+  },
+
+  restoreUser: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const userId = parseInt(req.params.id as string)
+
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!userData) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+      }
+
+      const deletedUserData = await prisma.user.update({
+        where: { id: userId },
+        data: { deletedAt: null },
+      })
+
+      return res
+        .status(StatusCodes.OK)
+        .json(ResponseData(StatusCodes.OK, 'Success', deletedUserData))
+    } catch (error: any) {
+      logger.error(error)
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          ResponseData(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            'Internal server error' + error.message,
+          ),
+        )
+    }
+  },
+
+  deleteUser: async (req: Request, res: Response): Promise<any> => {
+    try {
+      const userId = parseInt(req.params.id as string)
+
+      const userData = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!userData) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+      }
+
+      await prisma.user.delete({
+        where: { id: userId },
+      })
+
+      return res
+        .status(StatusCodes.OK)
+        .json(ResponseData(StatusCodes.OK, 'Success'))
     } catch (error: any) {
       logger.error(error)
       return res
