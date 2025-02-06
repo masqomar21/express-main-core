@@ -1,5 +1,5 @@
-import { createLogger, transports, format, Logger } from "winston"
-import { addColors } from "winston/lib/winston/config"
+import { createLogger, transports, format, Logger } from 'winston'
+import { addColors } from 'winston/lib/winston/config'
 
 const { combine, timestamp, printf, colorize } = format
 
@@ -14,9 +14,9 @@ const customLevels = {
     db: 2, // custom level for db logs
   },
   colors: {
-    error: "red",
-    info: "green",
-    db: "blue", // custom color for db logs
+    error: 'red',
+    info: 'green',
+    db: 'blue', // custom color for db logs
   },
 }
 
@@ -27,9 +27,9 @@ const logger: Logger = createLogger({
   format: combine(timestamp(), colorize(), myFormat),
   transports: [
     new transports.Console(),
-    new transports.File({ filename: "error.log", level: "error" }),
-    new transports.File({ filename: "info.log", level: "info" }),
-    new transports.File({ filename: "db.log", level: "db" }),
+    new transports.File({ filename: 'error.log', level: 'error' }),
+    new transports.File({ filename: 'info.log', level: 'info' }),
+    new transports.File({ filename: 'db.log', level: 'db' }),
   ],
 })
 

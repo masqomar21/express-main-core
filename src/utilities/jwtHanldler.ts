@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken"
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 export interface jwtPayloadInterface extends JwtPayload {
   id: string;
@@ -20,7 +20,7 @@ export const verifyAccesToken = function (
   try {
     const decoded = jwt.verify(token, secretToken)
 
-    if (typeof decoded === "object" && decoded !== null && "id" in decoded) {
+    if (typeof decoded === 'object' && decoded !== null && 'id' in decoded) {
       return decoded as jwtPayloadInterface
     }
 

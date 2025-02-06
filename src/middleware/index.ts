@@ -1,6 +1,6 @@
-import { errorMiddleware, notFoundMiddleware } from "./globalErrMiddleware"
-import { fileUploadMiddleware } from "./fileUploadMiddleware"
-import { ResponseMiddleware } from "./responseMiddleware"
+import { errorMiddleware, notFoundMiddleware } from './globalErrMiddleware'
+import { fileUploadMiddleware } from './fileUploadMiddleware'
+import { ResponseMiddleware } from './responseMiddleware'
 
 export const middleware = {
   errorMiddleware,

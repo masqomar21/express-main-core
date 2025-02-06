@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express"
-import logger from "../utilities/log"
+import { Request, Response, NextFunction } from 'express'
+import logger from '../utilities/log'
 
 const ResponseMiddleware = async (
   req: Request,
@@ -8,7 +8,7 @@ const ResponseMiddleware = async (
 ): Promise<void> => {
   const start = new Date()
 
-  res.on("finish", () => {
+  res.on('finish', () => {
     const ms = new Date().getTime() - start.getTime()
     logger.info(
       `${req.method} ${req.originalUrl} [${res.statusCode}] - ${ms}ms`,

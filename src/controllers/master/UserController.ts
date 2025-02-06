@@ -1,11 +1,11 @@
-import { StatusCodes } from "http-status-codes"
-import logger from "../../utilities/log"
-import { Request, Response } from "express"
-import { ResponseData } from "../../utilities"
-import { Pagination } from "../../utilities/pagination"
-import prisma from "../../config/database"
-import { z } from "zod"
-import { validateInput } from "../../utilities/ValidateHandler"
+import { StatusCodes } from 'http-status-codes'
+import logger from '../../utilities/log'
+import { Request, Response } from 'express'
+import { ResponseData } from '../../utilities'
+import { Pagination } from '../../utilities/pagination'
+import prisma from '../../config/database'
+import { z } from 'zod'
+import { validateInput } from '../../utilities/ValidateHandler'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {
@@ -34,7 +34,7 @@ const UserController = {
           },
           skip: page.offset,
           take: page.limit,
-          orderBy: { id: "desc" },
+          orderBy: { id: 'desc' },
         }),
         prisma.user.count({
           where: whereCondition,
@@ -46,7 +46,7 @@ const UserController = {
         .json(
           ResponseData(
             StatusCodes.OK,
-            "Success",
+            'Success',
             page.paginate({ count, rows: userData }),
           ),
         )
@@ -57,7 +57,7 @@ const UserController = {
         .json(
           ResponseData(
             StatusCodes.INTERNAL_SERVER_ERROR,
-            "Internal server error" + error.message,
+            'Internal server error' + error.message,
           ),
         )
     }
@@ -72,12 +72,12 @@ const UserController = {
       if (!userData) {
         return res
           .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, "User not found"))
+          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
       }
 
       return res
         .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, "Success", userData))
+        .json(ResponseData(StatusCodes.OK, 'Success', userData))
     } catch (error: any) {
       logger.error(error)
       return res
@@ -85,7 +85,7 @@ const UserController = {
         .json(
           ResponseData(
             StatusCodes.INTERNAL_SERVER_ERROR,
-            "Internal server error" + error.message,
+            'Internal server error' + error.message,
           ),
         )
     }
@@ -110,7 +110,7 @@ const UserController = {
           .json(
             ResponseData(
               StatusCodes.BAD_REQUEST,
-              "Invalid Input",
+              'Invalid Input',
               validationResult.errors,
             ),
           )
@@ -122,7 +122,7 @@ const UserController = {
 
       return res
         .status(StatusCodes.CREATED)
-        .json(ResponseData(StatusCodes.CREATED, "Success", userData))
+        .json(ResponseData(StatusCodes.CREATED, 'Success', userData))
     } catch (error: any) {
       logger.error(error)
       return res
@@ -130,7 +130,7 @@ const UserController = {
         .json(
           ResponseData(
             StatusCodes.INTERNAL_SERVER_ERROR,
-            "Internal server error" + error.message,
+            'Internal server error' + error.message,
           ),
         )
     }

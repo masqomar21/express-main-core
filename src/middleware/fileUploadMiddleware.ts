@@ -1,17 +1,17 @@
-import multer from "multer"
-import path from "path"
+import multer from 'multer'
+import path from 'path'
 
 export const fileUploadMiddleware = {
   fileUploadHandler: function (destinationFolder: string, maxFileSize: number) {
     const storage = multer.diskStorage({
       destination: function (req, file, cb) {
-        cb(null, "./public/" + destinationFolder)
+        cb(null, './public/' + destinationFolder)
       },
       filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
         cb(
           null,
-          file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname),
+          file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname),
         )
       },
     })
@@ -28,7 +28,7 @@ export const fileUploadMiddleware = {
         if (extName && mimeType) {
           cb(null, true)
         } else {
-          cb(new Error("File type not supported"))
+          cb(new Error('File type not supported'))
         }
       },
     })

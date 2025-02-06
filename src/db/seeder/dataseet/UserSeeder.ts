@@ -1,21 +1,21 @@
-import { PrismaClient, User } from "@prisma/client";
-import { hashPassword } from "../../../utilities/passwordHandler";
+import { PrismaClient } from '@prisma/client'
+import { hashPassword } from '../../../utilities/passwordHandler'
 // import bcrypt from "bcrypt"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 export async function seedUser() {
-  console.log("Seed data inserted user");
+  console.log('Seed data inserted user')
 
   const data = [
     {
-      name: "Test User",
-      email: "user.test@app.com",
-      password: await hashPassword("password"),
+      name: 'Test User',
+      email: 'user.test@app.com',
+      password: await hashPassword('password'),
       roleId: (await prisma.role
         .findFirst({
           where: {
-            name: "user",
+            name: 'user',
           },
         })
         .then((data) => data?.id)) as number,
@@ -24,13 +24,13 @@ export async function seedUser() {
       deletedAt: null,
     },
     {
-      name: "Test Admin",
-      email: "admin.test@app.com",
-      password: await hashPassword("password"),
+      name: 'Test Admin',
+      email: 'admin.test@app.com',
+      password: await hashPassword('password'),
       roleId: (await prisma.role
         .findFirst({
           where: {
-            name: "admin",
+            name: 'admin',
           },
         })
         .then((data) => data?.id)) as number,
@@ -38,9 +38,9 @@ export async function seedUser() {
       updatedAt: new Date(),
       deletedAt: null,
     },
-  ];
+  ]
 
   await prisma.user.createMany({
     data,
-  });
+  })
 }
