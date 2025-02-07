@@ -1,4 +1,4 @@
-# API SISARPRAS
+# API SIPAKGURU
 
 ## Teknologi yang Digunakan
 
