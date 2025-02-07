@@ -9,8 +9,12 @@ import {
   notFoundMiddleware,
 } from './src/middleware/globalErrMiddleware'
 import { ResponseMiddleware } from './src/middleware/responseMiddleware'
+import http from 'http'
+import { init } from './src/config/socket'
 
 const app: Express = express()
+const server = http.createServer(app)
+const io = init(server)
 
 app.use(cors({ origin: true, credentials: true }))
 // app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
@@ -24,6 +28,14 @@ app.use(function (req, res, next) {
   next()
 })
 
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id)
+
+  socket.on('disconnect', () => {
+    console.log('Clinet disconnected:', socket.id)
+  })
+})
+
 app.use(ResponseMiddleware)
 
 app.use('/public', express.static('public'))
@@ -33,6 +45,6 @@ appRouter(app)
 app.all('*', notFoundMiddleware)
 app.use(errorMiddleware)
 
-app.listen(CONFIG.port, () => {
+server.listen(CONFIG.port, () => {
   console.log(`Server running on port ${CONFIG.port}`)
 })

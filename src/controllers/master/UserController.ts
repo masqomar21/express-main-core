@@ -8,6 +8,7 @@ import { validateInput } from '../../utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '../../Schema/UserSchema'
 import { logActivity } from '../../utilities/logActivity'
 import { jwtPayloadInterface } from '../../utilities/jwtHanldler'
+import { getIO } from '../../config/socket'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {
@@ -124,6 +125,9 @@ const UserController = {
       const userData = await prisma.user.create({
         data: UserSchemaForCreate.parse(reqBody),
       })
+
+      // soket create user
+      getIO().emit('create-user', userData)
 
       // loger create user wajib untuk setiap create 
       await logActivity(userLogin.id, 'create', `Create user ${userData.name}`)
