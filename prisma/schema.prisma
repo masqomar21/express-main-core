@@ -24,6 +24,7 @@ model User {
     updatedAt DateTime @updatedAt
     deletedAt DateTime?
     sessions Session[]
+    logers   Loger[]
 }
 
 model Session {
@@ -34,4 +35,21 @@ model Session {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     deletedAt DateTime?
+}
+
+enum Process {
+    create 
+    update
+    delete
+    restore
+    login
+    logout
+}
+model Loger {
+    id        Int      @id @default(autoincrement())
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id])
+    process   Process
+    detail    String
+    createdAt DateTime @default(now())
 }

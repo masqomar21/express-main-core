@@ -6,6 +6,8 @@ import { Pagination } from '../../utilities/pagination'
 import prisma from '../../config/database'
 import { validateInput } from '../../utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '../../Schema/UserSchema'
+import { logActivity } from '../../utilities/logActivity'
+import { jwtPayloadInterface } from '../../utilities/jwtHanldler'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {
@@ -44,6 +46,9 @@ const UserController = {
           where: whereCondition,
         }),
       ])
+
+      //loger crete user
+      
 
       return res
         .status(StatusCodes.OK)
@@ -99,6 +104,9 @@ const UserController = {
     try {
       const reqBody = req.body
 
+      const userLogin = req.user as jwtPayloadInterface
+
+
       const validationResult = validateInput(UserSchemaForCreate, reqBody)
 
       if (!validationResult.success) {
@@ -116,6 +124,9 @@ const UserController = {
       const userData = await prisma.user.create({
         data: UserSchemaForCreate.parse(reqBody),
       })
+
+      // loger create user wajib untuk setiap create 
+      await logActivity(userLogin.id, 'create', `Create user ${userData.name}`)
 
       return res
         .status(StatusCodes.CREATED)
@@ -167,6 +178,9 @@ const UserController = {
         data: reqBody,
       })
 
+      const userLogin = req.user as jwtPayloadInterface
+      await logActivity(userLogin.id, 'update', `update user ${userData.name}`)
+
       return res
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success', updatedUserData))
@@ -200,6 +214,10 @@ const UserController = {
         where: { id: userId },
         data: { deletedAt: new Date() },
       })
+
+
+      const userLogin = req.user as jwtPayloadInterface
+      await logActivity(userLogin.id, 'delete', `delete user ${userData.name}`)
 
       return res
         .status(StatusCodes.OK)
@@ -265,10 +283,14 @@ const UserController = {
           .status(StatusCodes.NOT_FOUND)
           .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
       }
+      
 
       await prisma.user.delete({
         where: { id: userId },
       })
+
+      const userLogin = req.user as jwtPayloadInterface
+      await logActivity(userLogin.id, 'delete', `delete user ${userData.name}`)
 
       return res
         .status(StatusCodes.OK)

@@ -8,6 +8,7 @@ import logger from '../../utilities/log'
 import { comparePassword, hashPassword } from '../../utilities/passwordHandler'
 import { generateAccesToken } from '../../utilities/jwtHanldler'
 import { CONFIG } from '../../config'
+import { logActivity } from '../../utilities/logActivity'
 
 const AuthController = {
   register : async (req: Request, res: Response) => {
@@ -124,6 +125,8 @@ const AuthController = {
         },
       })
 
+      await logActivity(userData.id, 'login', 'User login')
+
       const responseData = {
         ...userData,
         token,
@@ -144,6 +147,36 @@ const AuthController = {
           ))
     }
   },
+  
+  logout : async (req: Request, res: Response) => {
+    const userLogin = req.user as any
+
+    try {
+      await prisma.session.deleteMany({
+        where: {
+          userId: userLogin.id,
+        },
+      })
+
+      await logActivity(userLogin.id, 'logout', 'User logout')
+
+      return res
+        .status(StatusCodes.OK)
+        .json(ResponseData(StatusCodes.OK, 'Success'))
+
+    } catch (error : any) {
+      logger.error(error)
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json(
+          ResponseData(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            'Internal server error' + error.message,
+          ),
+        )
+    }
+  },
+
 }
 
 
