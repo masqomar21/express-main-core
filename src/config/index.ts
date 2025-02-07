@@ -12,4 +12,8 @@ export const CONFIG = {
   appMode: process.env.APP_MODE || "development",
   appLOg: Boolean(process.env.APP_LOG) || true,
   maxFileSize: process.env.MAX_FILE_SIZE || 10 * 1024 * 1024, //10MB
+
+  secret : {
+    jwtSecret : process.env.AUTH_JWT_SECRET || 'qwerty',
+  }
 };

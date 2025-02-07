@@ -15,6 +15,10 @@ const UserController = {
         parseInt(req.query.limit as string),
       )
 
+      const userLogin = req.user
+
+      console.log(userLogin?.role)
+
       const whereCondition = {
         deletedAt: null,
       }

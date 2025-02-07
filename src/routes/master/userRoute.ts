@@ -1,8 +1,11 @@
 import { Router } from 'express'
 import UserController from '../../controllers/master/UserController'
+import { AuthMiddleware } from '../../middleware/AuthMiddleware'
 
 export const UserRouter = (): Router => {
   const router = Router()
+
+  router.use(AuthMiddleware)
 
   router.get('/', UserController.getAllUser)
   router.get('/:id', UserController.getUserById)

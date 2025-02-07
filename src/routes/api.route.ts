@@ -2,7 +2,6 @@ import {
   type Express,
   type Request,
   type Response,
-  NextFunction,
 } from 'express'
 import { ResponseData } from '../utilities'
 import { StatusCodes } from 'http-status-codes'
@@ -19,5 +18,9 @@ export const appRouter = async function (app: Express): Promise<void> {
   })
 
   // other route
+  // auth route
+  app.use(CONFIG.apiUrl + 'auth', UserRouter())
+
+  // master route
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
 }

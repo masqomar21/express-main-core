@@ -3,7 +3,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import { CONFIG } from './src/config'
-import { appRouter } from './src/routes'
+import { appRouter } from './src/routes/api.route'
 import {
   errorMiddleware,
   notFoundMiddleware,

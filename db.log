@@ -195,3 +195,6 @@ Argument `skip` is missing.
 2025-02-05T10:25:18.858Z [32minfo[39m: GET /api/master/user [200] - 39ms
 2025-02-05T10:33:18.196Z [32minfo[39m: GET /api/master/user [200] - 39ms
 2025-02-05T10:34:23.613Z [32minfo[39m: GET /api/master/user [304] - 51ms
+2025-02-07T03:44:47.958Z [32minfo[39m: GET /api/master/user [401] - 4ms
+2025-02-07T03:44:48.066Z [32minfo[39m: GET /favicon.ico [404] - 1ms
+2025-02-07T03:45:04.711Z [32minfo[39m: GET /api/master/user [304] - 61ms
