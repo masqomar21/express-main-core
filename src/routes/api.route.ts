@@ -7,6 +7,7 @@ import { ResponseData } from '../utilities'
 import { StatusCodes } from 'http-status-codes'
 import { CONFIG } from '../config'
 import { UserRouter } from './master/userRoute'
+import { AuthRoute } from './auth/authRoute'
 
 export const appRouter = async function (app: Express): Promise<void> {
   app.get('/', (req: Request, res: Response) => {
@@ -19,7 +20,7 @@ export const appRouter = async function (app: Express): Promise<void> {
 
   // other route
   // auth route
-  app.use(CONFIG.apiUrl + 'auth', UserRouter())
+  app.use(CONFIG.apiUrl + 'auth', AuthRoute())
 
   // master route
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())

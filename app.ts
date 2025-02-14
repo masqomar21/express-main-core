@@ -12,6 +12,8 @@ import { ResponseMiddleware } from './src/middleware/responseMiddleware'
 import http from 'http'
 import { init } from './src/config/socket'
 
+process.env.TZ = 'Asia/Jakarta'
+
 const app: Express = express()
 const server = http.createServer(app)
 const io = init(server)
