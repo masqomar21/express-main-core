@@ -1,7 +1,12 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 node_modules
+package-lock.json
+yarn.lock
+bun.*
 #dist
 dist
+
+
 
 #env
 .env
