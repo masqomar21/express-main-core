@@ -8,6 +8,10 @@ import { StatusCodes } from 'http-status-codes'
 import { CONFIG } from '../config'
 import { UserRouter } from './master/userRoute'
 import { AuthRoute } from './auth/authRoute'
+import { fileUploadMiddleware } from '../middleware/fileUploadMiddleware'
+import TestController from '../controllers/master/testController'
+
+const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', 5 * 1024 * 1024) // 5MB
 
 export const appRouter = async function (app: Express): Promise<void> {
   app.get('/', (req: Request, res: Response) => {
@@ -24,4 +28,6 @@ export const appRouter = async function (app: Express): Promise<void> {
 
   // master route
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
+
+  app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('images'), TestController.testFileUploadToS3)
 }

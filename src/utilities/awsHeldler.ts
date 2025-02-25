@@ -13,7 +13,7 @@ const s3Client = new S3Client({
 
 const pathToFolder: string = process.env.PATH_AWS || 'uploads'
 
-type FileType = {
+export type FileType = {
   mimetype: string;
   buffer: Buffer;
   originalname: string;
