@@ -1,23 +1,28 @@
-export default function parsingArgs(validArgs: string[]): { [key: string]: string } {
+export default function parsingArgs(validArgs: string[]): { [key: string]: string | boolean } {
   const args = process.argv.slice(2)
-  const argsObj: { [key: string]: string } = {}
+  const argsObj: { [key: string]: string | boolean } = {}
 
   for (let i = 0; i < args.length; i++) {
     const key = args[i]
-
     if (!key.startsWith('--')) continue
 
+    const cleanKey = key.slice(2)
     const value = args[i + 1]
+
     if (!value || value.startsWith('--')) {
-      console.error(`Invalid value for argument: ${key}`)
+      // Boolean flag
+      if (validArgs.includes(key)) {
+        argsObj[cleanKey] = true
+        continue
+      }
+      console.error(`❌ Missing value for: ${key}`)
       process.exit(1)
     }
 
     if (validArgs.includes(key)) {
-      argsObj[key.slice(2)] = value
+      argsObj[cleanKey] = value
+      i++
     }
-
-    i++ // skip the value on next loop
   }
 
   return argsObj

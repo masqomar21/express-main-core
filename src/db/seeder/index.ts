@@ -7,6 +7,7 @@ import parsingArgs from '../../utilities/ParseArgs'
 const prisma = new PrismaClient()
 
 const seedData = [
+  // key is the name of the seeder, value is the function to run
   { key: 'role', value: seedRole },
   { key: 'user', value: seedUser },
 
@@ -38,7 +39,7 @@ async function main() {
   const argsObj = parsingArgs(['--seed'])
 
   if (argsObj.seed) {
-    await seedSpecific(argsObj.seed)
+    await seedSpecific(argsObj.seed as string)
   } else {
     await seedAll()
   }
