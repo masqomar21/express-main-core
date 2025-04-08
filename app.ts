@@ -13,8 +13,23 @@ import {
 import { ResponseMiddleware } from './src/middleware/responseMiddleware'
 import http from 'http'
 import { init } from './src/config/socket'
+import parsingArgs from './src/utilities/ParseArgs'
 
 process.env.TZ = 'Asia/Jakarta'
+
+const argsObj = parsingArgs(['--port'])
+
+if (argsObj.port) {
+  if (isNaN(Number(argsObj.port))) {
+    console.error('Port must be a number')
+    process.exit(1)
+  }
+  if (Number(argsObj.port) < 0 || Number(argsObj.port) > 65535) {
+    console.error('Port must be between 0 and 65535')
+    process.exit(1)
+  }  
+  CONFIG.port = Number(argsObj.port)
+}
 
 const app: Express = express()
 const server = http.createServer(app)
