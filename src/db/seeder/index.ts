@@ -35,8 +35,8 @@ async function seedSpecific(key: string) {
 
 async function main() {
   // Parsing arguments from command line
-  // Example: node src/db/seeder/index.js --seed=user
-  const argsObj = parsingArgs(['--seed'])
+  // Example: node src/db/seeder/index.js ::seed=user
+  const argsObj = parsingArgs(['::seed'])
 
   if (argsObj.seed) {
     await seedSpecific(argsObj.seed as string)
