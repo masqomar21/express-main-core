@@ -1,12 +1,17 @@
 import { PrismaClient } from '@prisma/client'
+import { logger } from '../core/logger'
 
-interface CostumeNodeGlobal extends Global {
-  prisma: PrismaClient;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
 }
 
-declare const global: CostumeNodeGlobal
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ['query', 'error', 'warn'],
+  })
 
-const prisma = global.prisma || new PrismaClient()
-global.prisma = prisma
-
-export default prisma
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = prisma
+  logger.info('🟢 Prisma Client initialized')
+}

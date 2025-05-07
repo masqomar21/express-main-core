@@ -5,18 +5,13 @@ let io: Server | null = null
 
 export const init = (server: HttpServer, options: Partial<ServerOptions> = {}): Server => {
   io = new Server(server, {
-    cors: {
-      origin: '*',
-    },
-    ...options, // Memungkinkan opsi tambahan saat inisialisasi
+    cors: { origin: '*' },
+    ...options,
   })
-
   return io
 }
 
 export const getIO = (): Server => {
-  if (!io) {
-    throw new Error('Socket.io is not initialized!')
-  }
+  if (!io) throw new Error('Socket.io is not initialized!')
   return io
 }

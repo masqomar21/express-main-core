@@ -1,22 +1,33 @@
 {
-  "name": "test-product",
+  "name": "express-main-core",
   "version": "1.0.0",
-  "description": "test produck",
+  "description": "Starter Backend API Newus 2025",
   "main": "index.js",
   "scripts": {
-    "db:seed": "ts-node ./src/db/seeder/index.ts",
+    "db:seed": "ts-node ./src/db/seeders/index.ts",
     "migrate": "prisma migrate dev",
     "migration:deploy": "prisma migrate deploy",
-    "dev": "nodemon app.ts",
-    "build": "tsc",
+    "dev": "nodemon src/app.ts",
     "start": "node dist/app.js",
-    "test": "test",
+    "build": "npm run update:version && tsc",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate",
+    "update:version": "bash scripts/update-version.sh",
+    "test": "echo \"No test specified\" && exit 0"
   },
-  "repository": {},
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/newus-tech/express-main-core.git"
+  },
+  "keywords": [
+    "express",
+    "typescript",
+    "backend",
+    "newus",
+    "starter"
+  ],
   "author": "newus-tect",
   "license": "ISC",
   "devDependencies": {
@@ -26,7 +37,6 @@
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/ioredis": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.5.1",
@@ -40,13 +50,13 @@
     "eslint-plugin-promise": "^6.6.0",
     "husky": "^9.1.7",
     "nodemon": "^3.1.4",
-    "prisma": "^5.19.0",
+    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.743.0",
-    "@prisma/client": "^5.19.0",
+    "@prisma/client": "^5.22.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
