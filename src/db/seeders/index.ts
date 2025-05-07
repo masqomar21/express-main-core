@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
-import { seedUser } from './dataseet/UserSeeder'
-import { seedRole } from './dataseet/RoleSeeder'
-import parsingArgs from '../../utilities/ParseArgs'
+import { seedRole } from './RoleSeeder'
+import { seedUser } from './UserSeeder'
+import parsingArgs from '../../utils/parseArgs'
 
 
 const prisma = new PrismaClient()

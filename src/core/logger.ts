@@ -1,16 +1,16 @@
-import { createLogger, transports, format, Logger } from 'winston';
-import { addColors } from 'winston/lib/winston/config';
-import path from 'path';
-import fs from 'fs';
+import { createLogger, transports, format, Logger } from 'winston'
+import { addColors } from 'winston/lib/winston/config'
+import path from 'path'
+import fs from 'fs'
 
-const { combine, timestamp, printf, colorize } = format;
+const { combine, timestamp, printf, colorize } = format
 
-const logFormat = printf(({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`);
+const logFormat = printf(({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`)
 
 // Pastikan folder logs/ ada
-const logDir = path.join(__dirname, '../../logs');
+const logDir = path.join(__dirname, '../../logs')
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir)
 }
 
 const customLevels = {
@@ -26,9 +26,9 @@ const customLevels = {
     info: 'green',
     db: 'blue',
   },
-};
+}
 
-addColors(customLevels.colors);
+addColors(customLevels.colors)
 
 export const logger: Logger = createLogger({
   levels: customLevels.levels,
@@ -40,4 +40,4 @@ export const logger: Logger = createLogger({
     new transports.File({ filename: path.join(logDir, 'info.log'), level: 'info' }),
     new transports.File({ filename: path.join(logDir, 'db.log'), level: 'db' }),
   ],
-});
+})

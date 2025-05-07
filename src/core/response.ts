@@ -13,14 +13,14 @@ export function ResponseData<T>(
   status: number,
   message: string | null,
   response?: T,
-  additionalMeta?: Record<string, any>
+  additionalMeta?: Record<string, any>,
 ): ApiResponse<T> {
   return {
     meta: {
       status,
       message,
-      ...additionalMeta
+      ...additionalMeta,
     },
     response,
-  };
+  }
 }
