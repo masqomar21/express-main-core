@@ -1,7 +1,7 @@
 import { NextFunction, Response, Request } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { ResponseData } from '../utilities'
-import { jwtPayloadInterface, verifyAccesToken } from '../utilities/jwtHanldler'
+import { jwtPayloadInterface, verifyAccesToken } from '../utilities/JwtHanldler'
 import { CONFIG } from '../config'
 import prisma from '../config/database'
 

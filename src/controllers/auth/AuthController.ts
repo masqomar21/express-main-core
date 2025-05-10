@@ -5,10 +5,10 @@ import { StatusCodes } from 'http-status-codes'
 import { ResponseData } from '../../utilities'
 import prisma from '../../config/database'
 import logger from '../../utilities/log'
-import { comparePassword, hashPassword } from '../../utilities/passwordHandler'
-import { generateAccesToken } from '../../utilities/jwtHanldler'
+import { comparePassword, hashPassword } from '../../utilities/PasswordHandler'
+import { generateAccesToken, jwtPayloadInterface } from '../../utilities/JwtHanldler'
 import { CONFIG } from '../../config'
-import { logActivity } from '../../utilities/logActivity'
+import { logActivity } from '../../utilities/LogActivity'
 
 const AuthController = {
   register : async (req: Request, res: Response) => {
@@ -149,7 +149,7 @@ const AuthController = {
   },
   
   logout : async (req: Request, res: Response) => {
-    const userLogin = req.user as any
+    const userLogin = req.user as jwtPayloadInterface
 
     try {
       await prisma.session.deleteMany({

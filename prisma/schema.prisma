@@ -7,11 +7,32 @@ generator client {
     provider = "prisma-client-js"
 }
 
+model permissions {
+    id   Int    @id @default(autoincrement())
+    name String
+    rolePermissions RolePermission[]
+}
+
 model Role {
     id   Int    @id @default(autoincrement())
     name String
+    rolePermissions RolePermission[]
     users User[]
 }
+
+model RolePermission {
+    id Int @id @default(autoincrement())
+    roleId Int
+    role Role @relation(fields: [roleId], references: [id])
+    permissionId Int
+    permission permissions @relation(fields: [permissionId], references: [id])
+    canRead Boolean @default(false)
+    canWrite Boolean @default(false)
+    canUpdate Boolean @default(false)
+    canDelete Boolean @default(false)
+    canRestore Boolean @default(false)
+}
+
 
 model User {
     id       Int      @id @default(autoincrement())

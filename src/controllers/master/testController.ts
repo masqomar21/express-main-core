@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { ResponseData } from '../../utilities'
-import { FileType, uploadFileToS3WithOutRedis } from '../../utilities/awsHeldler'
 import fs from 'fs'
+import { ResponseData } from '@/utilities'
+import { FileType, uploadFileToS3WithOutRedis } from '@/utilities/AwsHandler'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {

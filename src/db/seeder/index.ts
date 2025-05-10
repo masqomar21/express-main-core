@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
-import { seedUser } from './dataseet/UserSeeder'
-import { seedRole } from './dataseet/RoleSeeder'
+import { seedUser } from './dataseed/UserSeeder'
+import { seedRole } from './dataseed/RoleSeeder'
 import parsingArgs from '../../utilities/ParseArgs'
 
 

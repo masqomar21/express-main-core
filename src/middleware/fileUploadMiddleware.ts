@@ -1,8 +1,32 @@
 import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
+import { CONFIG } from '../config'
+
+type ConfigType = {
+  maxFileSize: number
+  allowwedFileTypes?: RegExp
+  saveToBucket?: boolean
+}
+
+
+const config : ConfigType = {
+  maxFileSize: CONFIG.maxFileSize as number,
+  allowwedFileTypes: /jpeg|jpg|png|pdf/,
+  saveToBucket: CONFIG.saveToBucket,
+}
+
+
 export const fileUploadMiddleware = {
-  fileUploadHandler : function (destinationFolder: string, maxFileSize: number) {
+  fileUploadHandler : function (destinationFolder: string, otherOptions: ConfigType = {
+    maxFileSize: config.maxFileSize,
+  }) {
+    
+    const finalConfig = {
+      ...config,
+      ...otherOptions,
+    }
+    
     const uploadPath = path.join(process.cwd(), 'public', destinationFolder)
     
     // Buat folder jika belum ada
@@ -21,10 +45,10 @@ export const fileUploadMiddleware = {
     })
     
     return multer({
-      storage: storage,
-      limits: { fileSize: maxFileSize },
+      storage: finalConfig.saveToBucket ? multer.memoryStorage() : storage,
+      limits: { fileSize: finalConfig.maxFileSize },
       fileFilter: function (req, file, cb) {
-        const fileTypes = /jpeg|jpg|png|pdf/
+        const fileTypes = finalConfig.allowwedFileTypes || /jpeg|jpg|png|pdf/
         const extName = fileTypes.test(path.extname(file.originalname).toLowerCase())
         const mimeType = fileTypes.test(file.mimetype)
         if (extName && mimeType) {

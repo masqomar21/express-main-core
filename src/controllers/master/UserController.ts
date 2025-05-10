@@ -1,14 +1,15 @@
 import { StatusCodes } from 'http-status-codes'
-import logger from '../../utilities/log'
 import { Request, Response } from 'express'
-import { ResponseData } from '../../utilities'
-import { Pagination } from '../../utilities/pagination'
-import prisma from '../../config/database'
-import { validateInput } from '../../utilities/ValidateHandler'
-import { UserSchemaForCreate, UserSchemaForUpdate } from '../../Schema/UserSchema'
-import { logActivity } from '../../utilities/logActivity'
-import { jwtPayloadInterface } from '../../utilities/jwtHanldler'
-import { getIO } from '../../config/socket'
+import { Pagination } from '@/utilities/Pagination'
+import prisma from '@/config/database'
+import { ResponseData } from '@/utilities'
+import logger from '@/utilities/log'
+import { jwtPayloadInterface } from '@/utilities/JwtHanldler'
+import { validateInput } from '@/utilities/ValidateHandler'
+import { UserSchemaForCreate, UserSchemaForUpdate } from '@/Schema/UserSchema'
+import { hashPassword } from '@/utilities/PasswordHandler'
+import { getIO } from '@/config/socket'
+import { logActivity } from '@/utilities/LogActivity'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {
@@ -121,6 +122,26 @@ const UserController = {
             ),
           )
       }
+
+      const existingUser = await prisma.user.findUnique({
+        where: { email: reqBody.email },
+      })
+      if (existingUser) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json(ResponseData(StatusCodes.BAD_REQUEST, 'Email already exists'))
+      }
+
+      const cekRole = await prisma.role.findUnique({
+        where: { id: reqBody.roleId },
+      })
+      if (!cekRole) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json(ResponseData(StatusCodes.BAD_REQUEST, 'Role not found'))
+      }
+
+      reqBody.password = await hashPassword(reqBody.password)
 
       const userData = await prisma.user.create({
         data: UserSchemaForCreate.parse(reqBody),

@@ -13,6 +13,8 @@ export const CONFIG = {
   appLOg: Boolean(process.env.APP_LOG) || true,
   maxFileSize: process.env.MAX_FILE_SIZE || 10 * 1024 * 1024, //10MB
 
+  saveToBucket: process.env.FILE_SAVE_TO_BUCKET  ? process.env.FILE_SAVE_TO_BUCKET === 'true' : false,
+
   secret : {
     jwtSecret : process.env.AUTH_JWT_SECRET || 'qwerty',
   },

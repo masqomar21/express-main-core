@@ -4,20 +4,18 @@ import express, { type Express } from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
-import { CONFIG } from './src/config'
-import { appRouter } from './src/routes/api.route'
-import {
-  errorMiddleware,
-  notFoundMiddleware,
-} from './src/middleware/globalErrMiddleware'
-import { ResponseMiddleware } from './src/middleware/responseMiddleware'
 import http from 'http'
-import { init } from './src/config/socket'
-import parsingArgs from './src/utilities/ParseArgs'
+import parsingArgs from '@/utilities/ParseArgs'
+import { CONFIG } from '@/config'
+import { init } from '@/config/socket'
+import { ResponseMiddleware } from '@/middleware/ResponseMiddleware'
+import { appRouter } from '@/routes/api.route'
+import { errorMiddleware, notFoundMiddleware } from '@/middleware/GlobalErrMiddleware'
+
 
 process.env.TZ = 'Asia/Jakarta'
 
-const argsObj = parsingArgs(['--port'])
+const argsObj = parsingArgs(['::port'])
 
 if (argsObj.port) {
   if (isNaN(Number(argsObj.port))) {
