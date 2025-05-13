@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand, ObjectCannedACL } from '@aws-sdk/client-s3'
-import logger from './log'
+import logger from './Log'
 
 
 const s3Client = new S3Client({

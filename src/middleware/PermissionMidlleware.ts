@@ -1,6 +1,6 @@
 import prisma from '@/config/database'
 import { ResponseData } from '@/utilities'
-import logger from '@/utilities/log'
+import logger from '@/utilities/Log'
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
