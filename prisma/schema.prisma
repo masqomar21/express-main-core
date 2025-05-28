@@ -1,76 +1,83 @@
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
-model permissions {
-    id   Int    @id @default(autoincrement())
-    name String
-    rolePermissions RolePermission[]
+model Permissions {
+  id              Int              @id @default(autoincrement())
+  name            String
+  rolePermissions RolePermission[]
+}
+
+enum RoleType {
+  USER
+  ADMIN
+  SUPER_ADMIN
 }
 
 model Role {
-    id   Int    @id @default(autoincrement())
-    name String
-    rolePermissions RolePermission[]
-    users User[]
+  id              Int              @id @default(autoincrement())
+  name            String
+  roleType        RoleType         @default(USER)
+  rolePermissions RolePermission[]
+  users           User[]
 }
 
 model RolePermission {
-    id Int @id @default(autoincrement())
-    roleId Int
-    role Role @relation(fields: [roleId], references: [id])
-    permissionId Int
-    permission permissions @relation(fields: [permissionId], references: [id])
-    canRead Boolean @default(false)
-    canWrite Boolean @default(false)
-    canUpdate Boolean @default(false)
-    canDelete Boolean @default(false)
-    canRestore Boolean @default(false)
+  id           Int         @id @default(autoincrement())
+  roleId       Int
+  role         Role        @relation(fields: [roleId], references: [id])
+  permissionId Int
+  permission   Permissions @relation(fields: [permissionId], references: [id])
+  canRead      Boolean     @default(false)
+  canWrite     Boolean     @default(false)
+  canUpdate    Boolean     @default(false)
+  canDelete    Boolean     @default(false)
+  canRestore   Boolean     @default(false)
 }
 
-
 model User {
-    id       Int      @id @default(autoincrement())
-    email    String   @unique
-    name     String?
-    password String?
-    roleId   Int
-    role     Role     @relation(fields: [roleId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    deletedAt DateTime?
-    sessions Session[]
-    logers   Loger[]
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  password  String?
+  roleId    Int
+  role      Role      @relation(fields: [roleId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  sessions  Session[]
+  logers    Loger[]
 }
 
 model Session {
-    id        Int      @id @default(autoincrement())
-    token     String   @unique
-    userId    Int
-    user      User     @relation(fields: [userId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    deletedAt DateTime?
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 enum Process {
-    create 
-    update
-    delete
-    restore
-    login
-    logout
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+  LOGIN
+  LOGOUT
 }
+
 model Loger {
-    id        Int      @id @default(autoincrement())
-    userId    Int
-    user      User     @relation(fields: [userId], references: [id])
-    process   Process
-    detail    String
-    createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  process   Process
+  detail    String
+  createdAt DateTime @default(now())
 }

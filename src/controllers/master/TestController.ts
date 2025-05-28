@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { ResponseData } from '@/utilities'
+import { ResponseData, serverErrorResponse } from '@/utilities'
 import { deleteFileFromS3 } from '@/utilities/AwsHandler'
 import { handleUpload } from '@/utilities/UploadHandler'
 
@@ -18,8 +18,7 @@ const TestController = {
 
       return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File uploaded successfully', fileName))
     } catch (error) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, 'Internal server error'))
-        
+      return serverErrorResponse(res, error)
     }
   },
   deleteFileFromS3: async (req : Request, res :Response) => {
@@ -32,7 +31,7 @@ const TestController = {
       await deleteFileFromS3(fileUrl)
       return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File deleted successfully'))
     } catch (error) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, 'Internal server error'))
+      return serverErrorResponse(res, error)
     }
   },
 }

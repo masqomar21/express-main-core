@@ -6,8 +6,7 @@ pnpm*
 bun.*
 #dist
 dist
-
-
+build
 
 #env
 .env

@@ -1,7 +1,11 @@
 import prisma from '@/config/database'
 
-
-
+/**
+  * Log user activity in the database
+  * @param userId - The ID of the user performing the action
+  * @param process - The type of action being logged (e.g., 'login', 'logout', 'create', 'update', 'delete', 'restore')
+  * @param detail - Additional details about the action
+  */
 export const logActivity = async ( userId: number,
   process : 'login' | 'logout' | 'create' | 'update' | 'delete' | 'restore',
   detail: string) => {

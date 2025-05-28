@@ -2,9 +2,8 @@ import { Request, Response } from 'express'
 import { validateInput } from '../../utilities/ValidateHandler'
 import { LoginSchema, RegisterSchema } from '../../Schema/UserSchema'
 import { StatusCodes } from 'http-status-codes'
-import { ResponseData } from '../../utilities'
+import { ResponseData, serverErrorResponse } from '../../utilities'
 import prisma from '../../config/database'
-import logger from '../../utilities/Log'
 import { comparePassword, hashPassword } from '../../utilities/PasswordHandler'
 import { generateAccesToken, jwtPayloadInterface } from '../../utilities/JwtHanldler'
 import { CONFIG } from '../../config'
@@ -58,16 +57,8 @@ const AuthController = {
       return res
         .status(StatusCodes.CREATED)
         .json(ResponseData(StatusCodes.CREATED, 'Success', userData))
-    } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+    } catch (error) {
+      return serverErrorResponse(res, error)
     }
   },
   login : async (req: Request, res: Response) => {
@@ -136,15 +127,8 @@ const AuthController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success', responseData))
 
-    } catch (error : any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ))
+    } catch (error ) {
+      return serverErrorResponse(res, error)
     }
   },
   
@@ -164,16 +148,8 @@ const AuthController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success'))
 
-    } catch (error : any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+    } catch (error) {
+      return serverErrorResponse(res, error)
     }
   },
 

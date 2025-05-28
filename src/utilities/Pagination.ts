@@ -14,6 +14,11 @@ export class Pagination {
     this.offset = (this.page - 1) * this.limit
   }
 
+  /**
+   * Paginate the data based on the provided pagination interface.
+   * @param data - The data to paginate, which includes count and rows.
+   * @returns An object containing pagination details.
+   */
   paginate<T>(data: PaginationInterface<T>): any {
     const totalPages = Math.ceil(data.count / this.limit)
     return {

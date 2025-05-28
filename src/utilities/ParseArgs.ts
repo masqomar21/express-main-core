@@ -1,3 +1,12 @@
+/**
+ * Parses command line arguments starting with `::` and returns an object.
+ * Valid arguments must be specified in the `validArgs` array.
+ * If an argument is boolean (no value provided), it will be set to true.
+ * If a required value is missing, the process will exit with an error message.
+ *
+ * @param {string[]} validArgs - Array of valid argument names (without `::` prefix).
+ * @returns {Object} Parsed arguments as key-value pairs.
+ */
 export default function parsingArgs(validArgs: string[]): { [key: string]: string | boolean } {
   const args = process.argv.slice(2)
   const argsObj: { [key: string]: string | boolean } = {}

@@ -2,8 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
 import { Pagination } from '@/utilities/Pagination'
 import prisma from '@/config/database'
-import { ResponseData } from '@/utilities'
-import logger from '@/utilities/Log'
+import { ResponseData, serverErrorResponse } from '@/utilities'
 import { jwtPayloadInterface } from '@/utilities/JwtHanldler'
 import { validateInput } from '@/utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '@/Schema/UserSchema'
@@ -49,9 +48,6 @@ const UserController = {
         }),
       ])
 
-      //loger crete user
-      
-
       return res
         .status(StatusCodes.OK)
         .json(
@@ -62,15 +58,7 @@ const UserController = {
           ),
         )
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
   getUserById: async (req: Request, res: Response): Promise<any> => {
@@ -90,24 +78,14 @@ const UserController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success', userData))
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
 
   createUser: async (req: Request, res: Response): Promise<any> => {
     try {
       const reqBody = req.body
-
       const userLogin = req.user as jwtPayloadInterface
-
 
       const validationResult = validateInput(UserSchemaForCreate, reqBody)
 
@@ -141,10 +119,10 @@ const UserController = {
           .json(ResponseData(StatusCodes.BAD_REQUEST, 'Role not found'))
       }
 
-      reqBody.password = await hashPassword(reqBody.password)
+      validationResult.data!.password = await hashPassword(reqBody.password)
 
       const userData = await prisma.user.create({
-        data: UserSchemaForCreate.parse(reqBody),
+        data: validationResult.data!,
       })
 
       // soket create user
@@ -157,15 +135,7 @@ const UserController = {
         .status(StatusCodes.CREATED)
         .json(ResponseData(StatusCodes.CREATED, 'Success', userData))
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
 
@@ -200,7 +170,7 @@ const UserController = {
 
       const updatedUserData = await prisma.user.update({
         where: { id: userId },
-        data: reqBody,
+        data: validationResult.data!,
       })
 
       const userLogin = req.user as jwtPayloadInterface
@@ -210,15 +180,7 @@ const UserController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success', updatedUserData))
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
   softDeleteUser: async (req: Request, res: Response): Promise<any> => {
@@ -248,15 +210,7 @@ const UserController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success', deletedUserData))
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
 
@@ -283,15 +237,7 @@ const UserController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success', deletedUserData))
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
 
@@ -321,15 +267,7 @@ const UserController = {
         .status(StatusCodes.OK)
         .json(ResponseData(StatusCodes.OK, 'Success'))
     } catch (error: any) {
-      logger.error(error)
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json(
-          ResponseData(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Internal server error' + error.message,
-          ),
-        )
+      return serverErrorResponse(res, error)
     }
   },
 }

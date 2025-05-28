@@ -27,7 +27,5 @@ export const errorMiddleware = (
 }
 
 export const notFoundMiddleware = (req: Request, res: Response) => {
-  const response = ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, 'Not found')
-
-  return res.status(StatusCodes.NOT_FOUND).json(response)
+  return res.status(StatusCodes.NOT_FOUND).json(ResponseData(StatusCodes.NOT_FOUND, 'Not found'))
 }

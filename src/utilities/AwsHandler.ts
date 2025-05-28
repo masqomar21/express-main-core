@@ -23,6 +23,13 @@ export type FileType = {
   originalname: string;
 };
 
+
+/**
+ * Upload file ke S3 tanpa menggunakan Redis
+ * @param file - File yang akan diupload
+ * @param folderPath - Path folder tujuan di S3
+ * @returns URL file yang diupload atau null jika gagal
+ */
 const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): Promise<string | null> => {
   try {
     const { mimetype, buffer, originalname } = file
@@ -47,6 +54,11 @@ const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): P
   }
 }
 
+
+/**
+ * Hapus file dari S3 berdasarkan URL
+ * @param fileUrl - URL file yang akan dihapus
+ */
 const deleteFileFromS3 = async (fileUrl: string): Promise<void> => {
 
   const filePath = fileUrl.split('/').slice(4).join('/') // Mengambil path file dari URL
