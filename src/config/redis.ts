@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
 import { CONFIG } from '.'
-import logger from '@/utilities/log'
+import logger from '@/utilities/Log'
 
 
 class RedisService {

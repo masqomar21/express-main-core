@@ -1,4 +1,4 @@
-import logger from './log'
+import logger from './Log'
 
 interface ResponseDataAttributes<T> {
   status: number;

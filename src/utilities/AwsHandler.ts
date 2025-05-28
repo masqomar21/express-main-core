@@ -1,5 +1,7 @@
+
 import { S3Client, PutObjectCommand, ObjectCannedACL, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import logger from './log'
+import logger from './Log'
+
 
 
 const s3Client = new S3Client({
@@ -36,7 +38,7 @@ const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): P
 
     const command = new PutObjectCommand(uploadParams)
     await s3Client.send(command)
-    
+
     return  `${process.env.AWS_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${pathToFolder}/${folderPath}/${uniqueFilename}`
   } catch (error) {
     console.error('Error uploading file to S3:', error)
