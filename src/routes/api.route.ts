@@ -14,7 +14,7 @@ import TestController from '@/controllers/master/TestController'
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
   maxFileSize: CONFIG.maxFileSize as number,
-  allowwedFileTypes: /jpeg|jpg|png|pdf/,
+  allowedFileTypes : ['image/webp', 'image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'application/csv'],
   saveToBucket: CONFIG.saveToBucket,
 })
 
@@ -35,4 +35,5 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
 
   app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('images'), TestController.testFileUploadToS3)
+  app.post(CONFIG.apiUrl + 'test-up-delete', fileUpload.single('images'), TestController.deleteFileFromS3)
 }

@@ -1,50 +1,38 @@
 import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import fs from 'fs'
 import { ResponseData } from '@/utilities'
-import { FileType, uploadFileToS3WithOutRedis } from '@/utilities/AwsHandler'
+import { deleteFileFromS3 } from '@/utilities/AwsHandler'
+import { handleUpload } from '@/utilities/UploadHandler'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {
     if (!req.file) {
       return res.status(StatusCodes.BAD_REQUEST).json(ResponseData(StatusCodes.BAD_REQUEST, 'File not found'))
     }
-    
 
     try {
-      let fileBuffer: Buffer | string
-      if (req.file.buffer) {
-        fileBuffer = req.file.buffer
-      } else if (req.file.path) {
-        fileBuffer = fs.readFileSync(req.file.path)
-      } else {
-        return res.status(StatusCodes.BAD_REQUEST).json(
-          ResponseData(StatusCodes.BAD_REQUEST, 'Invalid file data'),
-        )
-      }
-
-      const fileUpload : FileType = {
-        mimetype: req.file.mimetype,
-        buffer: fileBuffer,
-        originalname: req.file.originalname,
-      }
-
       // Upload file ke S3
-      const fileName = await uploadFileToS3WithOutRedis(fileUpload, 'test')
+      const fileName = await handleUpload(req, 'file', 'test', undefined)
 
       console.log('fileName', req.file)
-
-      if (fileName) {
-        if (req.file.path) {
-          fs.unlinkSync(req.file.path)
-          console.log('file deleted')
-        }
-      }
 
       return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File uploaded successfully', fileName))
     } catch (error) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, 'Internal server error'))
         
+    }
+  },
+  deleteFileFromS3: async (req : Request, res :Response) => {
+    if (!req.body.fileUrl) {
+      return res.status(StatusCodes.BAD_REQUEST).json(ResponseData(StatusCodes.BAD_REQUEST, 'File URL not found'))
+    }
+
+    try {
+      const fileUrl = req.body.fileUrl
+      await deleteFileFromS3(fileUrl)
+      return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File deleted successfully'))
+    } catch (error) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, 'Internal server error'))
     }
   },
 }

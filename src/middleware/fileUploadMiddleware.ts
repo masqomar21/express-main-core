@@ -3,58 +3,76 @@ import path from 'path'
 import fs from 'fs'
 import { CONFIG } from '../config'
 
+export type AllowedMimeType =
+  | 'image/jpeg'
+  | 'image/png'
+  | 'image/jpg'
+  | 'image/webp'
+  | 'application/pdf'
+  | 'application/msword'
+  | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  | 'application/vnd.ms-excel'
+  | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  | 'text/csv'
+  | 'application/csv';
+
 type ConfigType = {
-  maxFileSize: number
-  allowwedFileTypes?: RegExp
-  saveToBucket?: boolean
-}
+  maxFileSize: number;
+  allowedFileTypes?: AllowedMimeType[];
+  saveToBucket?: boolean;
+};
 
-
-const config : ConfigType = {
+const defaultConfig: ConfigType = {
   maxFileSize: CONFIG.maxFileSize as number,
-  allowwedFileTypes: /jpeg|jpg|png|pdf/,
+  allowedFileTypes: [
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+    'image/webp',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/csv',
+    'application/csv',
+  ],
   saveToBucket: CONFIG.saveToBucket,
 }
 
-
 export const fileUploadMiddleware = {
-  fileUploadHandler : function (destinationFolder: string, otherOptions: ConfigType = {
-    maxFileSize: config.maxFileSize,
-  }) {
-    
-    const finalConfig = {
-      ...config,
-      ...otherOptions,
+  fileUploadHandler(destinationFolder: string, options: Partial<ConfigType> = {}) {
+    const finalConfig: ConfigType = {
+      ...defaultConfig,
+      ...options,
     }
-    
+
     const uploadPath = path.join(process.cwd(), 'public', destinationFolder)
-    
-    // Buat folder jika belum ada
+
+    // Ensure the upload directory exists
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true })
     }
-    
-    const storage = multer.diskStorage({
-      destination: function (req, file, cb) {
-        cb(null, uploadPath)
-      },
-      filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+
+    const diskStorage = multer.diskStorage({
+      destination: (_, __, cb) => cb(null, uploadPath),
+      filename: (_, file, cb) => {
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
+        const fileExt = path.extname(file.originalname)
+        cb(null, `${file.fieldname}-${uniqueSuffix}${fileExt}`)
       },
     })
-    
+
     return multer({
-      storage: finalConfig.saveToBucket ? multer.memoryStorage() : storage,
+      storage: finalConfig.saveToBucket ? multer.memoryStorage() : diskStorage,
       limits: { fileSize: finalConfig.maxFileSize },
-      fileFilter: function (req, file, cb) {
-        const fileTypes = finalConfig.allowwedFileTypes || /jpeg|jpg|png|pdf/
-        const extName = fileTypes.test(path.extname(file.originalname).toLowerCase())
-        const mimeType = fileTypes.test(file.mimetype)
-        if (extName && mimeType) {
+      fileFilter: (_, file, cb) => {
+        const mime = file.mimetype.toLowerCase()
+        const allowed = finalConfig.allowedFileTypes?.some(type => type === mime)
+        if (allowed) {
           cb(null, true)
         } else {
-          cb(new Error('File type not supported'))
+          cb(new Error(`Unsupported file type: ${mime}`))
         }
       },
     })
