@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { PrismaClient, Role, RoleType } from '@prisma/client'
 // import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient()
@@ -6,33 +6,37 @@ const prisma = new PrismaClient()
 export async function seedRole() {
   console.log('Seed data inserted role')
 
-  const RoleData :Array< Omit<Role, 'id'>> = [
-    {
-      name: 'admin',
-      roleType: 'ADMIN',
-    },
-    {
-      name: 'user',
-      roleType: 'USER',
-    },
-    {
-      name: 'superadmin',
-      roleType: 'SUPER_ADMIN',
-    },
-  ]
+  const roleTypes = RoleType as typeof RoleType & {
+    [key: string]: RoleType
+  }
 
-  for (const role of RoleData) {
+  function formatRoleName(role) {
+    return role
+      .toLowerCase()
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
+  for(const item of Object.values(roleTypes)) {
+    const role: Omit<Role, 'id'> = {
+      name: formatRoleName(item),
+      roleType: item,
+    }
+
+    // Check if the role already exists
     const existingRole = await prisma.role.findFirst({
       where: { name: role.name },
     })
 
     if (!existingRole) {
-      await prisma.role.create({
-        data: role,
-      })
-      console.log(`Role ${role.name} created successfully`)
+      // Create the role if it does not exist
+      await prisma.role.create({ data: role })
+      console.log(`Role ${item} created`)
     } else {
-      console.log(`Role ${role.name} already exists, skipping creation`)
+      console.log(`Role ${item} already exists`)
     }
+    
   }
+  
 }
