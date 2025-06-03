@@ -1,4 +1,5 @@
 import prisma from '@/config/database'
+import { Process } from '@prisma/client'
 
 /**
   * Log user activity in the database
@@ -7,7 +8,7 @@ import prisma from '@/config/database'
   * @param detail - Additional details about the action
   */
 export const logActivity = async ( userId: number,
-  process : 'login' | 'logout' | 'create' | 'update' | 'delete' | 'restore',
+  process : Process,
   detail: string) => {
   await prisma.loger.create({
     data: {

@@ -116,7 +116,7 @@ const AuthController = {
         },
       })
 
-      await logActivity(userData.id, 'login', 'User login')
+      await logActivity(userData.id, 'LOGIN', 'User login')
 
       const responseData = {
         ...userData,
@@ -142,7 +142,7 @@ const AuthController = {
         },
       })
 
-      await logActivity(userLogin.id, 'logout', 'User logout')
+      await logActivity(userLogin.id, 'LOGOUT', 'User logout')
 
       return res
         .status(StatusCodes.OK)

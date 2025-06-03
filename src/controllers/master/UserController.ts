@@ -129,7 +129,7 @@ const UserController = {
       getIO().emit('create-user', userData)
 
       // loger create user wajib untuk setiap create 
-      await logActivity(userLogin.id, 'create', `Create user ${userData.name}`)
+      await logActivity(userLogin.id, 'CREATE', `Create user ${userData.name}`)
 
       return res
         .status(StatusCodes.CREATED)
@@ -174,7 +174,7 @@ const UserController = {
       })
 
       const userLogin = req.user as jwtPayloadInterface
-      await logActivity(userLogin.id, 'update', `update user ${userData.name}`)
+      await logActivity(userLogin.id, 'UPDATE', `update user ${userData.name}`)
 
       return res
         .status(StatusCodes.OK)
@@ -204,7 +204,7 @@ const UserController = {
 
 
       const userLogin = req.user as jwtPayloadInterface
-      await logActivity(userLogin.id, 'delete', `delete user ${userData.name}`)
+      await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)
 
       return res
         .status(StatusCodes.OK)
@@ -261,7 +261,7 @@ const UserController = {
       })
 
       const userLogin = req.user as jwtPayloadInterface
-      await logActivity(userLogin.id, 'delete', `delete user ${userData.name}`)
+      await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)
 
       return res
         .status(StatusCodes.OK)

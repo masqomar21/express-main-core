@@ -15,3 +15,6 @@ build
 
 # Logs
 *.log
+
+# prisma
+client_generated
