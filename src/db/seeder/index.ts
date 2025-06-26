@@ -4,8 +4,6 @@ import { seedRole } from './dataseed/SeedRole'
 import parsingArgs from '../../utilities/ParseArgs'
 import fs from 'fs'
 import path from 'path'
-import { pathToFileURL } from 'url'
-
 const prisma = new PrismaClient()
 
 const seedData = [

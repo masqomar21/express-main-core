@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { FileType, uploadFileToS3WithOutRedis } from './AwsHandler'
 import { CONFIG } from '@/config'
 import { AllowedMimeType } from '@/middleware/FileUploadMiddleware'
+import { awsUploadQueue } from '@/queues/awsUploadQueue'
 // import { awsUploadQueue } from 'queues/awsUploadQueue'
 
 // Config
@@ -26,15 +27,31 @@ const ALLOWED_MIME_TYPES : AllowedMimeType[] = [
   'application/csv',
 ]
 
+/**
+ * Generate nama file unik berdasarkan original name
+ *  @param originalname - Nama asli file yang diupload
+ *  @returns Nama file baru dengan UUID
+ */
 function generateFileName(originalname: string): string {
   const ext = path.extname(originalname)
   return `${uuidv4()}${ext}`
 }
 
+/**
+ * Pastikan folder tujuan ada, jika tidak buat secara rekursif
+ *  @param folderPath - Path folder yang akan dibuat
+ */
 function ensureFolderExists(folderPath: string) {
   if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true })
 }
 
+/**
+ * Validasi file yang diupload
+ *  @param file - File yang akan divalidasi
+ *  @param allowedTypes - Array MIME type yang diizinkan
+ *  @param maxSize - Ukuran maksimum file dalam byte (default: 5 MB)
+ *  @returns Objek validasi dengan status dan alasan jika tidak valid
+ */
 function validateFile(
   file: Express.Multer.File,
   allowedTypes: string[],
@@ -47,6 +64,9 @@ function validateFile(
 
 /**
  * Simpan file ke folder lokal (uploads) langsung, untuk mode local
+ *  @param file - File yang akan disimpan
+ *  @param folder - Folder tujuan di dalam uploads
+ *  @returns URL file yang disimpan
  */
 async function storeFileLocally(file: FileType, folder: string): Promise<string> {
   const newFileName = generateFileName(file.originalname)
@@ -60,6 +80,9 @@ async function storeFileLocally(file: FileType, folder: string): Promise<string>
 
 /**
  * Simpan file ke folder temp, untuk keperluan upload async worker
+ *  @param file - File yang akan disimpan
+ *  @returns Path file yang disimpan di folder temp
+ * 
  */
 async function saveFileToTemp(file: FileType): Promise<string> {
   ensureFolderExists(TEMP_STORAGE_PATH)
@@ -71,6 +94,10 @@ async function saveFileToTemp(file: FileType): Promise<string> {
 
 /**
  * Upload file ke S3 langsung (sinkron)
+ *  @param file - File yang akan diupload
+ *  @param folder - Folder tujuan di S3
+ *  @returns URL file yang diupload
+ *  @throws Error jika upload gagal
  */
 async function uploadToS3(file: FileType, folder: string): Promise<string> {
   const newFileName = generateFileName(file.originalname)
@@ -81,6 +108,12 @@ async function uploadToS3(file: FileType, folder: string): Promise<string> {
 
 /**
  * Fungsi enqueue job upload async ke BullMQ
+ *  @param file - File yang akan diupload
+ *  @param folder - Folder tujuan di S3 atau lokal
+ *  @param modelName - Nama model untuk update data
+ *  @param recordId - ID record yang akan diupdate
+ *  @param updateFieldName - Nama field yang akan diupdate
+ *  @returns Promise<void>
  */
 export async function enqueueUpload(
   file: FileType,
@@ -92,14 +125,14 @@ export async function enqueueUpload(
   const tempFilePath = await saveFileToTemp(file)
   const destinationKey = `${folder}/${updateFieldName}-${Date.now()}-${file.originalname}`
 
-//   await awsUploadQueue.add('upload', {
-//     tempFilePath,
-//     destinationKey,
-//     modelName,
-//     recordId,
-//     updateData: {},
-//     fieldNameToUpdate: updateFieldName,
-//   })
+  await awsUploadQueue.add('upload', {
+    tempFilePath,
+    destinationKey,
+    modelName,
+    recordId,
+    updateData: {},
+    fieldNameToUpdate: updateFieldName,
+  })
 }
 
 type UploadOptions = {

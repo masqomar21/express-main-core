@@ -4,16 +4,25 @@ import fs from 'fs'
 import { CONFIG } from '../config'
 
 export type AllowedMimeType =
+  | 'text/html'
+  | 'application/javascript'
+  | 'application/json'
+  | 'text/css'
+  | 'text/csv'
+  | 'text/plain'
+  | 'image/jpg'
   | 'image/jpeg'
   | 'image/png'
-  | 'image/jpg'
-  | 'image/webp'
+  | 'image/gif'
   | 'application/pdf'
+  | 'application/zip'
+  | 'audio/mpeg'
+  | 'video/mp4'
+  | 'image/webp'
   | 'application/msword'
   | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   | 'application/vnd.ms-excel'
   | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  | 'text/csv'
   | 'application/csv';
 
 type ConfigType = {
