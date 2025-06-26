@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "db:seed": "ts-node ./src/db/seeder/index.ts",
+    "db:seed:reverse": "ts-node ./scripts/generate-seeders.ts",
     "prisma:lint": "ts-node scripts/lint-prisma-schema.ts",
     "prisma:format": "npx prisma format",
     "migrate": "npm run prisma:format && npm run prisma:lint && prisma migrate dev",
