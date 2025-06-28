@@ -24,7 +24,6 @@ export const AuthRoute = () : Router => {
         if (err) {
           console.error('Google Auth Error:', err)
           return res.redirect(`${CONFIG.client.callBackGoogleOAuth}?status=fail&msg=${encodeURIComponent('Terjadi kesalahan autentikasi.')}`)
-
         }
   
         if (!user) {
