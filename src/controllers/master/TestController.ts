@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { ResponseData, serverErrorResponse } from '@/utilities'
 import { deleteFileFromS3 } from '@/utilities/AwsHandler'
 import { handleUpload } from '@/utilities/UploadHandler'
+import { TemplateHtml } from '@/Template/TestPrint'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {
@@ -30,6 +31,16 @@ const TestController = {
       const fileUrl = req.body.fileUrl
       await deleteFileFromS3(fileUrl)
       return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File deleted successfully'))
+    } catch (error) {
+      return serverErrorResponse(res, error)
+    }
+  },
+  testPrintWithTemplate: async (req: Request, res: Response) => {
+    try {
+      const data = req.body
+
+      const result =  TemplateHtml(data)
+      
     } catch (error) {
       return serverErrorResponse(res, error)
     }
