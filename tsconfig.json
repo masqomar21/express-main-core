@@ -114,5 +114,9 @@
     "transpileOnly": true, // Speeds up development
     "require": ["tsconfig-paths/register"] // Enable path aliases in ts-node
   },
+  "ts-node-dev": {
+    "transpileOnly": true,
+    "require": ["tsconfig-paths/register"]
+  },
   "exclude": ["node_modules", "./src/db/seeder/*"]
 }

@@ -4,6 +4,7 @@ import { ResponseData, serverErrorResponse } from '@/utilities'
 import { deleteFileFromS3 } from '@/utilities/AwsHandler'
 import { handleUpload } from '@/utilities/UploadHandler'
 import { TemplateHtml } from '@/Template/TestPrint'
+import { PDFExportService } from '@/Services/PdfPrintService'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {
@@ -39,7 +40,22 @@ const TestController = {
     try {
       const data = req.body
 
-      const result =  TemplateHtml(data)
+      const page =  TemplateHtml(data)
+
+      const PDFService = new PDFExportService()
+      const buffer = await PDFService.exportFormPageSourceToBuffer(page, {
+        pageSize: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20mm',
+          right: '20mm',
+          bottom: '20mm',
+          left: '20mm',
+        },
+      })
+
+      await PDFService.returnToResponseBuffer(res, buffer, 'test-print.pdf')
+
       
     } catch (error) {
       return serverErrorResponse(res, error)
