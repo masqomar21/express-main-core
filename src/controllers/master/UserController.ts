@@ -1,8 +1,7 @@
-import { StatusCodes } from 'http-status-codes'
 import { Request, Response } from 'express'
 import { Pagination } from '@/utilities/Pagination'
 import prisma from '@/config/database'
-import { ResponseData, serverErrorResponse } from '@/utilities'
+import { ResponseData } from '@/utilities'
 import { jwtPayloadInterface } from '@/utilities/JwtHanldler'
 import { validateInput } from '@/utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '@/Schema/UserSchema'
@@ -48,17 +47,16 @@ const UserController = {
         }),
       ])
 
-      return res
-        .status(StatusCodes.OK)
-        .json(
-          ResponseData(
-            StatusCodes.OK,
-            'Success',
-            page.paginate({ count, rows: userData }),
-          ),
-        )
+      return ResponseData.ok(
+        res,
+        page.paginate({
+          count,
+          rows: userData,
+        }),
+        'Success get all ',
+      )
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
   getUserById: async (req: Request, res: Response): Promise<any> => {
@@ -69,16 +67,12 @@ const UserController = {
       })
 
       if (!userData) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+        return ResponseData.notFound(res, 'User not found')
       }
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success', userData))
+      return ResponseData.ok(res, userData, 'Success get user by id')
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 
@@ -90,33 +84,21 @@ const UserController = {
       const validationResult = validateInput(UserSchemaForCreate, reqBody)
 
       if (!validationResult.success) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json(
-            ResponseData(
-              StatusCodes.BAD_REQUEST,
-              'Invalid Input',
-              validationResult.errors,
-            ),
-          )
+        return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
       }
 
       const existingUser = await prisma.user.findUnique({
         where: { email: reqBody.email },
       })
       if (existingUser) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json(ResponseData(StatusCodes.BAD_REQUEST, 'Email already exists'))
+        return ResponseData.badRequest(res, 'Email already exists')
       }
 
       const cekRole = await prisma.role.findUnique({
         where: { id: reqBody.roleId },
       })
       if (!cekRole) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json(ResponseData(StatusCodes.BAD_REQUEST, 'Role not found'))
+        return ResponseData.badRequest(res, 'Role not found')
       }
 
       validationResult.data!.password = await hashPassword(reqBody.password)
@@ -131,11 +113,9 @@ const UserController = {
       // loger create user wajib untuk setiap create 
       await logActivity(userLogin.id, 'CREATE', `Create user ${userData.name}`)
 
-      return res
-        .status(StatusCodes.CREATED)
-        .json(ResponseData(StatusCodes.CREATED, 'Success', userData))
+      return ResponseData.created(res, userData, 'Success')
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 
@@ -146,15 +126,7 @@ const UserController = {
     const validationResult = validateInput(UserSchemaForUpdate, reqBody)
 
     if (!validationResult.success) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json(
-          ResponseData(
-            StatusCodes.BAD_REQUEST,
-            'Invalid Input',
-            validationResult.errors,
-          ),
-        )
+      return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
     try {
 
@@ -163,9 +135,7 @@ const UserController = {
       })
 
       if (!userData) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+        return ResponseData.notFound(res, 'User not found')
       }
 
       const updatedUserData = await prisma.user.update({
@@ -176,11 +146,9 @@ const UserController = {
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'UPDATE', `update user ${userData.name}`)
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success', updatedUserData))
+      return ResponseData.ok(res, updatedUserData, 'Success')
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
   softDeleteUser: async (req: Request, res: Response): Promise<any> => {
@@ -192,9 +160,7 @@ const UserController = {
       })
 
       if (!userData) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+        return ResponseData.notFound(res, 'User not found')
       }
 
       const deletedUserData = await prisma.user.update({
@@ -206,11 +172,9 @@ const UserController = {
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success', deletedUserData))
+      return ResponseData.ok(res, deletedUserData, 'Success')
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 
@@ -223,9 +187,7 @@ const UserController = {
       })
 
       if (!userData) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+        return ResponseData.notFound(res, 'User not found')
       }
 
       const deletedUserData = await prisma.user.update({
@@ -233,11 +195,9 @@ const UserController = {
         data: { deletedAt: null },
       })
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success', deletedUserData))
+      return ResponseData.ok(res, deletedUserData, 'Success')
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 
@@ -250,9 +210,7 @@ const UserController = {
       })
 
       if (!userData) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+        return ResponseData.notFound(res, 'User not found')
       }
       
 
@@ -263,11 +221,9 @@ const UserController = {
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success'))
+      return ResponseData.ok(res, 'Success')
     } catch (error: any) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 }

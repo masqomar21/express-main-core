@@ -1,8 +1,7 @@
 import { Request, Response } from 'express'
 import { validateInput } from '../../utilities/ValidateHandler'
 import { LoginSchema, RegisterSchema } from '../../Schema/UserSchema'
-import { StatusCodes } from 'http-status-codes'
-import { ResponseData, serverErrorResponse } from '../../utilities'
+import { ResponseData } from '../../utilities'
 import prisma from '../../config/database'
 import { comparePassword, hashPassword } from '../../utilities/PasswordHandler'
 import { generateAccesToken, jwtPayloadInterface } from '../../utilities/JwtHanldler'
@@ -16,15 +15,7 @@ const AuthController = {
     const validationResult = validateInput(RegisterSchema, reqBody)
       
     if (!validationResult.success) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json(
-          ResponseData(
-            StatusCodes.BAD_REQUEST,
-            'Invalid Input',
-            validationResult.errors,
-          ),
-        )
+      return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
     try {
 
@@ -33,14 +24,7 @@ const AuthController = {
       })
 
       if (!cekExistingRole) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json(
-            ResponseData(
-              StatusCodes.BAD_REQUEST,
-              'Role not found',
-            ),
-          )
+        return ResponseData.badRequest(res, 'Role not found')
       }
       
       reqBody.password = await hashPassword(reqBody.password)
@@ -54,11 +38,9 @@ const AuthController = {
         },
       })
 
-      return res
-        .status(StatusCodes.CREATED)
-        .json(ResponseData(StatusCodes.CREATED, 'Success', userData))
+      return ResponseData.created(res, userData, 'Success')
     } catch (error) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
   login : async (req: Request, res: Response) => {
@@ -67,15 +49,7 @@ const AuthController = {
     const validationResult = validateInput(LoginSchema, reqBody)
 
     if (!validationResult.success) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json(
-          ResponseData(
-            StatusCodes.BAD_REQUEST,
-            'Invalid Input',
-            validationResult.errors,
-          ),
-        )
+      return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
 
     try {
@@ -89,17 +63,13 @@ const AuthController = {
       )
 
       if (!userData) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json(ResponseData(StatusCodes.NOT_FOUND, 'User not found'))
+        return ResponseData.notFound(res, 'User not found')
       }
 
       const passwordMatch = await comparePassword(reqBody.password, userData.password as string)
 
       if (!passwordMatch) {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .json(ResponseData(StatusCodes.UNAUTHORIZED, 'Password not match'))
+        return ResponseData.unauthorized(res, 'Password not match')
       }
       const tokenPayload = {
         id: userData.id,
@@ -123,12 +93,10 @@ const AuthController = {
         token,
       }
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success', responseData))
+      return ResponseData.ok(res, responseData, 'Success')
 
     } catch (error ) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
   
@@ -144,12 +112,10 @@ const AuthController = {
 
       await logActivity(userLogin.id, 'LOGOUT', 'User logout')
 
-      return res
-        .status(StatusCodes.OK)
-        .json(ResponseData(StatusCodes.OK, 'Success'))
+      return ResponseData.ok(res, 'Success')
 
     } catch (error) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 

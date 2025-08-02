@@ -2,7 +2,6 @@ import prisma from '@/config/database'
 import { ResponseData } from '@/utilities'
 import logger from '@/utilities/Log'
 import { NextFunction, Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
 
 
 
@@ -12,7 +11,7 @@ export const permissionMiddleware = (permission: string, action: 'canRead' | 'ca
     const userId = req.user?.id
 
     if (!userId) {
-      return res.status(StatusCodes.UNAUTHORIZED).json(ResponseData(StatusCodes.UNAUTHORIZED, 'Unauthorized'))
+      return ResponseData.unauthorized(res, 'Unauthorized - No user ID found')
     }
     try {
 
@@ -42,7 +41,7 @@ export const permissionMiddleware = (permission: string, action: 'canRead' | 'ca
       })
 
       if (!user || !user.role) {
-        return res.status(StatusCodes.FORBIDDEN).json(ResponseData(StatusCodes.FORBIDDEN, 'No role assigned'))
+        return ResponseData.forbidden(res, 'No role assigned')
       }
       
       // allow to admin all previlage
@@ -54,13 +53,13 @@ export const permissionMiddleware = (permission: string, action: 'canRead' | 'ca
       )
 
       if (!hasPermission) {
-        return res.status(StatusCodes.UNAUTHORIZED).json(ResponseData(StatusCodes.UNAUTHORIZED, 'Unauthorized'))
+        return ResponseData.forbidden(res, `Forbidden - You do not have permission to ${action} ${permission}`)
       }
 
       next()
     } catch (error) {
       logger.error(error)
-      res.status(500).json({ message: 'Internal Server Error' })
+      return ResponseData.serverError(res, error)
     }
   }
 }

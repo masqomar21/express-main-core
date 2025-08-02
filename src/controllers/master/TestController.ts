@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
-import { ResponseData, serverErrorResponse } from '@/utilities'
+import { ResponseData  } from '@/utilities'
 import { deleteFileFromS3 } from '@/utilities/AwsHandler'
 import { handleUpload } from '@/utilities/UploadHandler'
 import { TemplateHtml } from '@/Template/TestPrint'
@@ -9,7 +8,7 @@ import { PDFExportService } from '@/Services/PdfPrintService'
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).json(ResponseData(StatusCodes.BAD_REQUEST, 'File not found'))
+      return ResponseData.badRequest(res, 'File not found in request')
     }
 
     try {
@@ -18,22 +17,22 @@ const TestController = {
 
       console.log('fileName', req.file)
 
-      return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File uploaded successfully', fileName))
+      return ResponseData.ok(res, { fileName }, 'File uploaded successfully')
     } catch (error) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
   deleteFileFromS3: async (req : Request, res :Response) => {
     if (!req.body.fileUrl) {
-      return res.status(StatusCodes.BAD_REQUEST).json(ResponseData(StatusCodes.BAD_REQUEST, 'File URL not found'))
+      return ResponseData.badRequest(res, 'File URL not provided')
     }
 
     try {
       const fileUrl = req.body.fileUrl
       await deleteFileFromS3(fileUrl)
-      return res.status(StatusCodes.OK).json(ResponseData(StatusCodes.OK, 'File deleted successfully'))
+      return ResponseData.ok(res, null, 'File deleted successfully')
     } catch (error) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
   testPrintWithTemplate: async (req: Request, res: Response) => {
@@ -56,9 +55,8 @@ const TestController = {
 
       await PDFService.returnToResponseBuffer(res, buffer, 'test-print.pdf')
 
-      
     } catch (error) {
-      return serverErrorResponse(res, error)
+      return ResponseData.serverError(res, error)
     }
   },
 }

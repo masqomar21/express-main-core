@@ -13,7 +13,7 @@
     "migrate:reset:seed": "prisma migrate reset --force --skip-seed && npm run db:seed",
     "start:worker": "node dist/src/workers/index.js",
     "dev:worker": "ts-node src/workers/index.ts",
-    "dev": "ts-node-dev -r tsconfig-paths/register app.ts",
+    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register app.ts",
     "prebuild": "node scripts/generate-build-time.js",
     "build": "tsc && tsc-alias",
     "start": "node dist/app.js",

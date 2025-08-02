@@ -18,14 +18,13 @@ export const errorMiddleware = (
     return next(err)
   }
 
-  const response = ResponseData(
-    StatusCodes.INTERNAL_SERVER_ERROR,
-    'Internal server error' + err.message,
+  return ResponseData.serverError(
+    res,
+    err.message || 'Internal Server Error',
+    err.status || StatusCodes.INTERNAL_SERVER_ERROR,
   )
-
-  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response)
 }
 
 export const notFoundMiddleware = (req: Request, res: Response) => {
-  return res.status(StatusCodes.NOT_FOUND).json(ResponseData(StatusCodes.NOT_FOUND, 'Not found'))
+  return ResponseData.notFound(res, 'URL not found - 404 Not Found')
 }

@@ -6,7 +6,6 @@ import {
   type Request,
   type Response,
 } from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { AuthRoute } from './auth/AuthRoute'
 import { UserRouter } from './master/UserRoute'
 import TestController from '@/controllers/master/TestController'
@@ -23,8 +22,7 @@ export const appRouter = async function (app: Express): Promise<void> {
     const data = {
       message: `Welcome to ${CONFIG.appName} for more function use ${CONFIG.apiUrl} as main router`,
     }
-    const response = ResponseData(StatusCodes.OK, 'Success', data)
-    return res.status(StatusCodes.OK).json(response)
+    return ResponseData.ok(res, data, 'Welcome to API')
   })
 
   // other route
