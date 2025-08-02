@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs'
+import { Response } from 'express'
 import fs from 'fs'
 import path from 'path'
 
@@ -90,5 +91,14 @@ export class ExcelExportService {
     const filePath = path.join(process.cwd(), 'public/' + outputDir, options.fileName)
     await workbook.xlsx.writeFile(filePath)
     return filePath
+  }
+
+  async returnToResponseBuffer(res: Response, buffer: Buffer, fileName: string) {
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Length': buffer.length,
+    })
+    res.send(buffer)
   }
 }
