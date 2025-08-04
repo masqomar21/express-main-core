@@ -1,6 +1,6 @@
 import prisma from '@/config/database'
-import { ResponseData } from '@/utilities'
 import logger from '@/utilities/Log'
+import { ResponseData } from '@/utilities/Response'
 import { NextFunction, Request, Response } from 'express'
 
 

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { ResponseData } from '../utilities'
+
 import { StatusCodes } from 'http-status-codes'
 import logger from '../utilities/Log'
+import { ResponseData } from '@/utilities/Response'
 
 export const errorMiddleware = (
   err: any,

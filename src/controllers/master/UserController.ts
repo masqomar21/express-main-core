@@ -1,13 +1,12 @@
 import { Request, Response } from 'express'
 import { Pagination } from '@/utilities/Pagination'
 import prisma from '@/config/database'
-import { ResponseData } from '@/utilities'
-import { jwtPayloadInterface } from '@/utilities/JwtHanldler'
 import { validateInput } from '@/utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '@/Schema/UserSchema'
 import { hashPassword } from '@/utilities/PasswordHandler'
 import { getIO } from '@/config/socket'
 import { logActivity } from '@/utilities/LogActivity'
+import { ResponseData } from '@/utilities/Response'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {

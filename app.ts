@@ -11,6 +11,7 @@ import { init } from '@/config/socket'
 import { ResponseMiddleware } from '@/middleware/ResponseMiddleware'
 import { appRouter } from '@/routes/api.route'
 import { errorMiddleware, notFoundMiddleware } from '@/middleware/GlobalErrMiddleware'
+import handleSocketEvents from '@/soket/EventHandler'
 
 
 process.env.TZ = 'Asia/Jakarta'
@@ -45,13 +46,9 @@ app.use(function (req, res, next) {
   next()
 })
 
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id)
 
-  socket.on('disconnect', () => {
-    console.log('Clinet disconnected:', socket.id)
-  })
-})
+handleSocketEvents(io)
+
 
 app.use(ResponseMiddleware)
 

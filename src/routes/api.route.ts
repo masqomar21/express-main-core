@@ -1,6 +1,5 @@
 import { CONFIG } from '@/config'
 import { fileUploadMiddleware } from '@/middleware/FileUploadMiddleware'
-import { ResponseData } from '@/utilities'
 import {
   type Express,
   type Request,
@@ -9,6 +8,7 @@ import {
 import { AuthRoute } from './auth/AuthRoute'
 import { UserRouter } from './master/UserRoute'
 import TestController from '@/controllers/master/TestController'
+import { ResponseData } from '@/utilities/Response'
 
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {

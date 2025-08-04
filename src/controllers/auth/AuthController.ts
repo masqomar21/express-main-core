@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 import { validateInput } from '../../utilities/ValidateHandler'
 import { LoginSchema, RegisterSchema } from '../../Schema/UserSchema'
-import { ResponseData } from '../../utilities'
 import prisma from '../../config/database'
 import { comparePassword, hashPassword } from '../../utilities/PasswordHandler'
-import { generateAccesToken, jwtPayloadInterface } from '../../utilities/JwtHanldler'
+import { generateAccesToken } from '../../utilities/JwtHanldler'
 import { CONFIG } from '../../config'
 import { logActivity } from '../../utilities/LogActivity'
+import { ResponseData } from '@/utilities/Response'
 
 const AuthController = {
   register : async (req: Request, res: Response) => {

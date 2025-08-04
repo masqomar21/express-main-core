@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
-import { ResponseData  } from '@/utilities'
 import { deleteFileFromS3 } from '@/utilities/AwsHandler'
 import { handleUpload } from '@/utilities/UploadHandler'
 import { TemplateHtml } from '@/Template/TestPrint'
 import { PDFExportService } from '@/Services/PdfPrintService'
+import { ResponseData } from '@/utilities/Response'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {

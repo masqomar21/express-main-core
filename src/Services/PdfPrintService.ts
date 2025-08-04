@@ -3,44 +3,6 @@ import fs from 'fs'
 import path from 'path'
 import { Response } from 'express'
 
-// ===== Interface Definitions =====
-
-export interface PDFExportColumn {
-  header: string
-  key: string
-  width?: string
-  align?: 'left' | 'center' | 'right'
-}
-
-export interface PDFExportOptions {
-  title?: string
-  pageSize?: 'A4' | 'A3' | 'Letter'
-  printBackground?: boolean
-  orientation?: 'portrait' | 'landscape'
-  preferCSSPageSize?: boolean
-  margin?: {
-    top?: string
-    right?: string
-    bottom?: string
-    left?: string
-  }
-}
-
-export interface PDFStandardExportOptions extends PDFExportOptions {
-  columns: PDFExportColumn[]
-  data: Record<string, any>[]
-}
-
-export interface PDFStandardFileExportOptions extends PDFStandardExportOptions {
-  fileName: string
-  outputDir?: string
-}
-
-export interface PDFFileExportOptions extends PDFExportOptions {
-  fileName: string
-  outputDir?: string
-}
-
 // ===== PDF Export Service =====
 
 export class PDFExportService {

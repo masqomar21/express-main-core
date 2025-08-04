@@ -6,7 +6,7 @@ import fs from 'fs'
 import path from 'path'
 const prisma = new PrismaClient()
 
-const seedData = [
+const seedData : { key: string, value: () => Promise<void> }[] = [
   // key is the name of the seeder, value is the function to run
   { key: 'role', value: seedRole },
   { key: 'user', value: seedUser },

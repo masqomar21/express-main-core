@@ -3,22 +3,6 @@ import { Response } from 'express'
 import fs from 'fs'
 import path from 'path'
 
-export interface ExcelExportColumn {
-  header: string; // Label kolom di Excel
-  key: string;    // Key dari data object
-  width?: number; // Lebar kolom (optional)
-}
-
-export interface ExcelExportOptions {
-  columns: ExcelExportColumn[];
-  data: Record<string, any>[];
-  sheetName?: string;
-}
-
-export interface ExcelFileExportOptions extends ExcelExportOptions {
-  fileName: string;
-  outputDir?: string;
-}
 
 export class ExcelExportService {
   private applyHeaderStyle(row: ExcelJS.Row) {

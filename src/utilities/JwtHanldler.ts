@@ -1,10 +1,6 @@
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
-export interface jwtPayloadInterface extends JwtPayload {
-  id: number;
-  name: string;
-  role?: string;
-}
+
 
 export const generateAccesToken = function (
   payload: jwtPayloadInterface,

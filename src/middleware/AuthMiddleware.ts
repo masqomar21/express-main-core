@@ -1,8 +1,8 @@
 import { NextFunction, Response, Request } from 'express'
-import { ResponseData } from '../utilities'
-import { jwtPayloadInterface, verifyAccesToken } from '../utilities/JwtHanldler'
+import { verifyAccesToken } from '../utilities/JwtHanldler'
 import { CONFIG } from '../config'
 import prisma from '../config/database'
+import { ResponseData } from '@/utilities/Response'
 
 declare module 'express-serve-static-core' {
   interface Request {
