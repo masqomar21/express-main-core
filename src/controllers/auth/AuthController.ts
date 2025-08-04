@@ -71,6 +71,8 @@ const AuthController = {
       if (!passwordMatch) {
         return ResponseData.unauthorized(res, 'Password not match')
       }
+
+      // test
       const tokenPayload = {
         id: userData.id,
         name: userData.name as string,
