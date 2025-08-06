@@ -12,6 +12,8 @@ import { ResponseMiddleware } from '@/middleware/ResponseMiddleware'
 import { appRouter } from '@/routes/api.route'
 import { errorMiddleware, notFoundMiddleware } from '@/middleware/GlobalErrMiddleware'
 import handleSocketEvents from '@/soket/EventHandler'
+import '@/Services/Google/GoogelOAuthService'
+import passport from 'passport'
 
 
 process.env.TZ = 'Asia/Jakarta'
@@ -38,6 +40,7 @@ app.use(cors({ origin: true, credentials: true }))
 // app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(bodyParser.json())
 app.use(cookieParser())
+app.use(passport.initialize())
 
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*')
