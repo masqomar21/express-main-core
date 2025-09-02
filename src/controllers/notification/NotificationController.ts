@@ -9,7 +9,8 @@ const NotificationController = {
 
     const { readStatus, type, search, since } = req.query
 
-    const notificationKind = new Set<NotificationKind>(['disposition', 'incommingLetter', 'outgoingLetter', 'signatureStatus', 'signerLetter', 'verificationStatus', 'verificatorLetter'])
+    const notificationKind = new Set<NotificationKind>(['admin','messageFormDeveloper','other','user',
+    ])
 
     if (typeof type === 'string' && !notificationKind.has(type as NotificationKind)) {
       return ResponseData.badRequest(res, 'Invalid notification type must be in ' + Array.from(notificationKind).join(', '))
