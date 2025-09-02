@@ -13,6 +13,7 @@ import { WebPushNotifRouter } from './WebPushRouter'
 import { NotificationRouter } from './notification/NotificationRouter'
 import { LogRouter } from './LogRouter'
 import { AuthMiddleware } from '@/middleware/AuthMiddleware'
+import { getBuildInfo } from '@/utilities/GetBuildInfo'
 
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
@@ -24,6 +25,7 @@ const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 export const appRouter = async function (app: Express): Promise<void> {
   app.get('/', (req: Request, res: Response) => {
     const data = {
+      buildInfo : getBuildInfo(),
       message: `Welcome to ${CONFIG.appName} for more function use ${CONFIG.apiUrl} as main router`,
     }
     return ResponseData.ok(res, data, 'Welcome to API')
