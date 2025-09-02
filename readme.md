@@ -16,9 +16,10 @@
 
 Pastikan sistem Anda memiliki:
 
-- **Node.js**: Versi 14.x atau lebih baru
+- **Node.js**: Versi 18.x atau lebih baru
 - **npm**: Versi terbaru (atau yarn sebagai alternatif)
 - **Database**: PostgreSQL, MySQL, atau MongoDB
+- **Redis**: Untuk caching dan message brokering
 - **Git**: Untuk version control
 
 ## 🛠️ Instalasi
