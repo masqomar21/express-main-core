@@ -11,7 +11,7 @@ import { init } from '@/config/socket'
 import { ResponseMiddleware } from '@/middleware/ResponseMiddleware'
 import { appRouter } from '@/routes/api.route'
 import { errorMiddleware, notFoundMiddleware } from '@/middleware/GlobalErrMiddleware'
-import handleSocketEvents from '@/soket/EventHandler'
+import handleSocketEvents from '@/socket/EventHandler'
 import '@/services/google/GoogelOAuthService'
 import passport from 'passport'
 

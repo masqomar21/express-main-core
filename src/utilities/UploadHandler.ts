@@ -6,6 +6,7 @@ import { uploadFileToS3WithOutRedis } from './AwsHandler'
 import { CONFIG } from '@/config'
 import { AllowedMimeType } from '@/middleware/FileUploadMiddleware'
 import { awsUploadQueue } from '@/queues/AwsUploadQueue'
+
 // import { awsUploadQueue } from 'queues/awsUploadQueue'
 
 // Config
@@ -125,7 +126,7 @@ export async function enqueueUpload(
   const tempFilePath = await saveFileToTemp(file)
   const destinationKey = `${folder}/${updateFieldName}-${Date.now()}-${file.originalname}`
 
-  await awsUploadQueue.add('upload', {
+  await awsUploadQueue.add('secwan-aws-upload', {
     tempFilePath,
     destinationKey,
     modelName,

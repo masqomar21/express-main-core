@@ -9,7 +9,7 @@
     "prisma:lint": "ts-node scripts/lint-prisma-schema.ts",
     "prisma:format": "npx prisma format",
     "migrate": "npm run prisma:format && npm run prisma:lint && prisma migrate dev",
-    "migrate:deploy": "prisma migrate deploy",
+    "migrate:deploy": "prisma migrate deploy && npm run prisma generate",
     "migrate:reset:seed": "prisma migrate reset --force --skip-seed && npm run db:seed",
     "start:worker": "node dist/src/workers/index.js",
     "dev:worker": "ts-node src/workers/index.ts",

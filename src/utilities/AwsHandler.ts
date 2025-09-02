@@ -1,28 +1,22 @@
 
 import { S3Client, PutObjectCommand, ObjectCannedACL, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import logger from './Log'
+import { CONFIG } from '@/config'
 
 
 
 const s3Client = new S3Client({
-  endpoint: process.env.AWS_ENDPOINT,
-  region: process.env.AWS_REGION || 'us-east-1',
+  endpoint: CONFIG.s3.endpoint || undefined,
+  region: CONFIG.s3.region,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: CONFIG.s3.accessKeyId,
+    secretAccessKey: CONFIG.s3.secretAccessKey,
   },
-  forcePathStyle: true, // WAJIB untuk selain AWS
-  // useAccelerateEndpoint: true,
+  forcePathStyle: CONFIG.s3.forcePathStyle, // WAJIB untuk selain AWS
+  useAccelerateEndpoint: CONFIG.s3.endpoint ? true : false, // Gunakan endpoint percepatan jika ada
 })
 
-const pathToFolder: string = process.env.PATH_AWS || 'uploads'
-
-// export type FileType = {
-//   mimetype: string;
-//   buffer: Buffer;
-//   originalname: string;
-// };
-
+const pathToFolder: string = CONFIG.s3.path
 
 /**
  * Upload file ke S3 tanpa menggunakan Redis
@@ -36,7 +30,7 @@ const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): P
     const uniqueFilename = `${originalname.split('.')[0]}_${Date.now()}.${originalname.split('.')[1]}`
     
     const uploadParams = {
-      Bucket: process.env.AWS_S3_BUCKET!,
+      Bucket: CONFIG.s3.bucket,
       Key: `${pathToFolder}/${folderPath}/${uniqueFilename}`,
       Body: Buffer.from(buffer),
       ACL: ObjectCannedACL.public_read_write,
@@ -46,7 +40,13 @@ const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): P
     const command = new PutObjectCommand(uploadParams)
     await s3Client.send(command)
 
-    return  `${process.env.AWS_ENDPOINT}/${process.env.AWS_S3_BUCKET}/${pathToFolder}/${folderPath}/${uniqueFilename}`
+    if (!CONFIG.s3.endpoint) {
+      return `https://${CONFIG.s3.bucket}.s3.${CONFIG.s3.region}.amazonaws.com/${pathToFolder}/${folderPath}/${uniqueFilename}`
+    }
+    // Jika menggunakan endpoint khusus, gunakan format URL yang sesuai
+    return `${CONFIG.s3.endpoint}/${pathToFolder}/${folderPath}/${uniqueFilename}`
+
+    // return  `${process.env.AWS_ENDPOINT}/${pathToFolder}/${folderPath}/${uniqueFilename}`
   } catch (error) {
     console.error('Error uploading file to S3:', error)
     logger.error(error)
@@ -60,13 +60,17 @@ const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): P
  * @param fileUrl - URL file yang akan dihapus
  */
 const deleteFileFromS3 = async (fileUrl: string): Promise<void> => {
+  let indexSLice = 3 // Jika menggunakan endpoint, potong dari index ke-3, jika tidak potong dari index ke-4
 
-  const filePath = fileUrl.split('/').slice(4).join('/') // Mengambil path file dari URL
+  if (CONFIG.s3.endpoint) {
+    indexSLice = 4 // Jika menggunakan endpoint, potong dari index ke-2
+  }
+  const filePath = fileUrl.split('/').slice(indexSLice).join('/') // Mengambil path file dari URL
   try {
 
-    console.log('filePath', filePath)
+    // console.log('filePath', filePath)
     const deleteParams = {
-      Bucket: process.env.AWS_S3_BUCKET!,
+      Bucket: CONFIG.s3.bucket!,
       Key: filePath,
     }
 
