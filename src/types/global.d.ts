@@ -82,3 +82,10 @@ type AwsUploadJobData = {
   fieldNameToUpdate: string
 }
 
+
+type PermissionList =
+  | 'Dashboard'
+  | 'User_Management'
+  | 'Master_Data'
+  // Add more permissions as needed
+

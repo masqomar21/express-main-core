@@ -101,6 +101,76 @@ const AuthController = {
       return ResponseData.serverError(res, error)
     }
   },
+
+  async getUserProfile(req: Request, res: Response): Promise<Response> {
+    const userLogin = req.user as jwtPayloadInterface
+
+    try {
+      const userData = await prisma.user.findUnique({
+        where: { id: userLogin.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: {
+            select: {
+              name: true,
+              roleType: true,
+              rolePermissions : {
+                select : {
+                  id : true,
+                  canDelete: true,
+                  canRead: true,
+                  canRestore: true,
+                  canUpdate: true,
+                  canWrite: true,
+                  permission : {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+
+        },
+      })
+
+      if (!userData) {
+        return ResponseData.notFound(res, 'User not found')
+      }
+      const mappedPermissions: string[] = []
+
+      userData.role.rolePermissions.forEach((permission) => {
+        if (permission.canRead) {
+          mappedPermissions.push(`read:${permission.permission.name}`)
+        }
+        if (permission.canWrite) {
+          mappedPermissions.push(`write:${permission.permission.name}`)
+        }
+        if (permission.canUpdate) {
+          mappedPermissions.push(`update:${permission.permission.name}`)
+        }
+        if (permission.canRestore) {
+          mappedPermissions.push(`restore:${permission.permission.name}`)
+        }
+        if (permission.canDelete) {
+          mappedPermissions.push(`delete:${permission.permission.name}`)
+        }
+      })
+
+      return ResponseData.ok(res, { ...userData,
+        role: {
+          ...userData.role,
+          rolePermissions: mappedPermissions,
+        },
+      }, 'User profile retrieved successfully')
+
+    } catch (error) {
+      return ResponseData.serverError(res, error)
+    }
+  },
   
   logout : async (req: Request, res: Response) => {
     const userLogin = req.user as jwtPayloadInterface

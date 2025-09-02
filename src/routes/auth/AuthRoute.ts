@@ -84,6 +84,7 @@ export const AuthRoute = () : Router => {
 
   router.post('/register', AuthController.register)
   router.post('/login', AuthController.login)
+  router.post('/me', AuthController.getUserProfile)
   router.delete('/logout',AuthMiddleware, AuthController.logout)
 
   return router

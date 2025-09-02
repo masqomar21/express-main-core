@@ -4,12 +4,17 @@ import { seedRole } from './dataseed/SeedRole'
 import parsingArgs from '../../utilities/ParseArgs'
 import fs from 'fs'
 import path from 'path'
+import { seedPermissions } from './dataseed/SeedPermision'
+import { seedRolePermission } from './dataseed/SeedRolePermision'
 const prisma = new PrismaClient()
 
 const seedData : { key: string, value: () => Promise<void> }[] = [
   // key is the name of the seeder, value is the function to run
+  { key: 'permission', value: seedPermissions },
   { key: 'role', value: seedRole },
+  { key: 'role_permission', value: seedRolePermission },
   { key: 'user', value: seedUser },
+
 
   // Add more seeders here as needed
 ]

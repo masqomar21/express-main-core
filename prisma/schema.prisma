@@ -15,15 +15,14 @@ model Permissions {
 }
 
 enum RoleType {
-  USER
-  ADMIN
+  OTHER
   SUPER_ADMIN
 }
 
 model Role {
   id              Int              @id @default(autoincrement())
   name            String
-  roleType        RoleType         @default(USER)
+  roleType        RoleType         @default(OTHER)
   rolePermissions RolePermission[]
   users           User[]
 }
@@ -42,17 +41,19 @@ model RolePermission {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  name      String?
-  password  String?
-  roleId    Int
-  role      Role      @relation(fields: [roleId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  sessions  Session[]
-  logers    Loger[]
+  id                   Int                   @id @default(autoincrement())
+  email                String                @unique
+  name                 String?
+  password             String?
+  roleId               Int
+  role                 Role                  @relation(fields: [roleId], references: [id])
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  deletedAt            DateTime?
+  sessions             Session[]
+  logers               Loger[]
+  notifications        NotificationUser[]
+  webPushSubscriptions WebPushSubscription[]
 }
 
 model Session {
@@ -81,4 +82,50 @@ model Loger {
   process   Process
   detail    String
   createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String
+  refId     String?
+  message   String
+  createdAt DateTime @default(now())
+
+  // Hapus usersId Int[] dan readStatus global
+  recipients NotificationUser[] // relasi ke receipt
+}
+
+model NotificationUser {
+  // Join table (receipt)
+  id             Int @id @default(autoincrement())
+  userId         Int
+  notificationId Int
+
+  // status per user
+  readStatus  Boolean   @default(false)
+  readAt      DateTime?
+  deliveredAt DateTime?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notificationId]) // satu baris per user x notif
+  @@index([userId, readStatus])
+  @@index([notificationId])
+}
+
+model WebPushSubscription {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  endpoint       String    @unique
+  p256dh         String
+  auth           String
+  expirationTime DateTime?
+  userAgent      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

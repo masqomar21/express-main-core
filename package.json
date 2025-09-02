@@ -40,6 +40,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/socket.io": "^3.0.1",
+    "@types/web-push": "^3.6.4",
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -82,6 +83,7 @@
     "puppeteer": "^24.15.0",
     "socket.io": "^4.8.1",
     "uuid": "^11.1.0",
+    "web-push": "^3.6.7",
     "winston": "^3.17.0",
     "zod": "^3.23.8"
   }

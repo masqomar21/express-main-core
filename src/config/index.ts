@@ -10,6 +10,7 @@ export const CONFIG = {
     url : process.env.CLIENT_URL || "http://localhost:3000",
     callBackGoogleOAuth : process.env.CLIENT_CALLBACK_GOOGLE_OAUTH_URL || "http://localhost:3000",
   },
+  uniqueDeleteKey:`@has-been-deleted`,
 
   appName: process.env.APP_NAME || "app",
   appVersion: process.env.APP_VERSION || "1.0.0",
@@ -19,6 +20,16 @@ export const CONFIG = {
   maxFileSize: process.env.MAX_FILE_SIZE || 10 * 1024 * 1024, //10MB
 
   saveToBucket: process.env.FILE_SAVE_TO_BUCKET  ? process.env.FILE_SAVE_TO_BUCKET === 'true' : false,
+  s3: {
+    endpoint: process.env.S3_ENDPOINT || undefined,
+    region: process.env.S3_REGION || "us-east-1",
+    accessKeyId: process.env.S3_ACCESS_KEY_ID || "default_access_key_id",
+    secretAccessKey:
+      process.env.S3_SECRET_ACCESS_KEY || "default_secret_access_key",
+    path: process.env.S3_PATH || "default/path",
+    bucket: process.env.S3_BUCKET || "default-bucket",
+    forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true" || false,
+  },
 
   
   google  : {
@@ -53,5 +64,11 @@ export const CONFIG = {
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
     password: process.env.REDIS_PASSWORD || '',
+  },
+
+  vapid : {
+    subject : process.env.VAPID_SUBJECT || 'mailto:admin@domainmu.com',
+    publicKey : process.env.VAPID_PUBLIC_KEY || '',
+    privateKey : process.env.VAPID_PRIVATE_KEY || '',
   }
 };

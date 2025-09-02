@@ -5,7 +5,7 @@ import { NextFunction, Request, Response } from 'express'
 
 
 
-export const permissionMiddleware = (permission: string, action: 'canRead' | 'canWrite' | 'canUpdate' | 'canDelete' | 'canRestore' | 'all') => {
+export const permissionMiddleware = (permission: PermissionList, action: 'canRead' | 'canWrite' | 'canUpdate' | 'canDelete' | 'canRestore' | 'all') => {
   return async ( req : Request, res : Response, next : NextFunction ) => {
 
     const userId = req.user?.id
