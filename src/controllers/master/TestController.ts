@@ -4,6 +4,7 @@ import { handleUpload } from '@/utilities/UploadHandler'
 import { TemplateHtml } from '@/Template/TestPrint'
 import { PDFExportService } from '@/Services/PdfPrintService'
 import { ResponseData } from '@/utilities/Response'
+import NotificationServices from '@/Services/NotificationService'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {
@@ -55,6 +56,28 @@ const TestController = {
 
       await PDFService.returnToResponseBuffer(res, buffer, 'test-print.pdf')
 
+    } catch (error) {
+      return ResponseData.serverError(res, error)
+    }
+  },
+
+  testNotif: async (req: Request, res: Response) => {
+
+    const data = {
+      message : req.body.message || '⚡ “Stay focused, stay awesome!”',
+      userId : req.body.userId || [1],
+      title : req.body.title || 'Our Loved Developer ❤️',
+
+    }
+    try {
+
+      await NotificationServices.sendNotification([...data.userId], {
+        message : data.message,
+        type : 'messageFormDeveloper',
+        // refId : 12345,
+        title: data.title,
+      })
+      return ResponseData.ok(res, {}, 'Notifikasi test endpoint')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }

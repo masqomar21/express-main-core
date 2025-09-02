@@ -9,6 +9,10 @@ import { AuthRoute } from './auth/AuthRoute'
 import { UserRouter } from './master/UserRoute'
 import TestController from '@/controllers/master/TestController'
 import { ResponseData } from '@/utilities/Response'
+import { WebPushNotifRouter } from './WebPushRouter'
+import { NotificationRouter } from './notification/NotificationRouter'
+import { LogRouter } from './LogRouter'
+import { AuthMiddleware } from '@/middleware/AuthMiddleware'
 
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
@@ -25,13 +29,25 @@ export const appRouter = async function (app: Express): Promise<void> {
     return ResponseData.ok(res, data, 'Welcome to API')
   })
 
-  // other route
+  app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('images'), TestController.testFileUploadToS3)
+  app.post(CONFIG.apiUrl + 'test-up-delete', fileUpload.single('images'), TestController.deleteFileFromS3)
+  app.post(CONFIG.apiUrl + 'test-notif', TestController.testNotif)
+
+  
   // auth route
   app.use(CONFIG.apiUrl + 'auth', AuthRoute())
 
+  // product route
+  app.use(AuthMiddleware)
+  //web push
+  app.use(CONFIG.apiUrl + 'web-push', WebPushNotifRouter())
+
+  // notification route
+  app.use(CONFIG.apiUrl + 'notification', NotificationRouter())
+
+  // log route
+  app.use(CONFIG.apiUrl + 'log', LogRouter())
+
   // master route
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
-
-  app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('images'), TestController.testFileUploadToS3)
-  app.post(CONFIG.apiUrl + 'test-up-delete', fileUpload.single('images'), TestController.deleteFileFromS3)
 }
