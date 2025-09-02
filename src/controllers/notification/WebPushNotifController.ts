@@ -1,5 +1,5 @@
 import prisma from '@/config/database'
-import { WebPushSubscriptionSchema } from '@/Schema/WebPushNotifSchema'
+import { WebPushSubscriptionSchema } from '@/schema/WebPushNotifSchema'
 
 import { ResponseData } from '@/utilities/Response'
 import { validateInput } from '@/utilities/ValidateHandler'

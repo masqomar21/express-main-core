@@ -12,7 +12,7 @@ import { ResponseMiddleware } from '@/middleware/ResponseMiddleware'
 import { appRouter } from '@/routes/api.route'
 import { errorMiddleware, notFoundMiddleware } from '@/middleware/GlobalErrMiddleware'
 import handleSocketEvents from '@/soket/EventHandler'
-import '@/Services/Google/GoogelOAuthService'
+import '@/services/google/GoogelOAuthService'
 import passport from 'passport'
 
 

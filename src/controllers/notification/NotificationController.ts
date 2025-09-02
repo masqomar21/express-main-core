@@ -1,5 +1,5 @@
 import prisma from '@/config/database'
-import NotificationServices, { NotificationKind } from '@/Services/NotificationService'
+import NotificationServices, { NotificationKind } from '@/services/NotificationService'
 import { Pagination } from '@/utilities/Pagination'
 import { ResponseData } from '@/utilities/Response'
 import { Request, Response } from 'express'

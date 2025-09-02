@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { uploadFileToS3WithOutRedis } from './AwsHandler'
 import { CONFIG } from '@/config'
 import { AllowedMimeType } from '@/middleware/FileUploadMiddleware'
-import { awsUploadQueue } from '@/queues/awsUploadQueue'
+import { awsUploadQueue } from '@/queues/AwsUploadQueue'
 // import { awsUploadQueue } from 'queues/awsUploadQueue'
 
 // Config

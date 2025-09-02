@@ -1,4 +1,4 @@
-import NotificationServices from '@/Services/NotificationService'
+import NotificationServices from '@/services/NotificationService'
 import { Server, Socket } from 'socket.io'
 
 export default function handleSocketEvents(io: Server) {
