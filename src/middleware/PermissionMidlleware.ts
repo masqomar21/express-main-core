@@ -21,6 +21,7 @@ export const permissionMiddleware = (permission: PermissionList, action: 'canRea
           role : {
             select : {
               name : true,
+              roleType: true,
               rolePermissions : {
                 select : {
                   permission : {
@@ -45,8 +46,9 @@ export const permissionMiddleware = (permission: PermissionList, action: 'canRea
       }
       
       // allow to admin all previlage
-      if(user.role.name === 'admin') {
+      if(user.role.roleType === 'SUPER_ADMIN') {
         next()
+        return
       } 
       const hasPermission: boolean = !!user?.role.rolePermissions.some(
         (perm) => perm.permission.name === permission && (action === 'all' || perm[action]),
@@ -57,6 +59,7 @@ export const permissionMiddleware = (permission: PermissionList, action: 'canRea
       }
 
       next()
+      return
     } catch (error) {
       logger.error(error)
       return ResponseData.serverError(res, error)
