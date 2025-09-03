@@ -7,8 +7,6 @@ import { CONFIG } from '@/config'
 import { AllowedMimeType } from '@/middleware/FileUploadMiddleware'
 import { awsUploadQueue } from '@/queues/AwsUploadQueue'
 
-// import { awsUploadQueue } from 'queues/awsUploadQueue'
-
 // Config
 const STORAGE_MODE: 's3' | 'local' = CONFIG.saveToBucket ? 's3' : 'local'
 const LOCAL_STORAGE_PATH = path.join(process.cwd(), 'public/uploads')
@@ -126,7 +124,7 @@ export async function enqueueUpload(
   const tempFilePath = await saveFileToTemp(file)
   const destinationKey = `${folder}/${updateFieldName}-${Date.now()}-${file.originalname}`
 
-  await awsUploadQueue.add('secwan-aws-upload', {
+  await awsUploadQueue.add(`${CONFIG.appNameSanitized}-aws-upload`, {
     tempFilePath,
     destinationKey,
     modelName,

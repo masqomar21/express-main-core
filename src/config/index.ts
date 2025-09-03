@@ -2,6 +2,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+function sanitizeText(input: string): string {
+  return input
+    .replace(/[^a-zA-Z0-9]/g, "-") // semua simbol selain huruf & angka jadi "-"
+    .replace(/-+/g, "-")           // gabung "-" berulang jadi satu
+    .replace(/^-|-$/g, "");        // hapus "-" di awal/akhir
+}
+
 export const CONFIG = {
   baseUrl: process.env.BASE_URL || "http://localhost:3000",
   apiUrl: process.env.API_URL || "/api/",
@@ -13,6 +20,7 @@ export const CONFIG = {
   uniqueDeleteKey:`@has-been-deleted`,
 
   appName: process.env.APP_NAME || "app",
+  appNameSanitized: sanitizeText(process.env.APP_NAME || "app"),
   appVersion: process.env.APP_VERSION || "1.0.0",
   port: process.env.PORT || 3000,
   appMode: process.env.APP_MODE || "development",

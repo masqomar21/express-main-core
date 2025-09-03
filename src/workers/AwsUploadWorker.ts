@@ -4,6 +4,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import { uploadFileToS3WithOutRedis } from '@/utilities/AwsHandler'
 import redisBullConnection from '@/config/redisBull'
+import { CONFIG } from '@/config'
 
 const mimeTypes: Record<string, string> = {
   '.html': 'text/html',
@@ -31,7 +32,7 @@ const mimeTypes: Record<string, string> = {
 }
 
 const worker = new Worker(
-  'aws-upload',
+  `${CONFIG.appNameSanitized}-aws-upload`,
   async job => {
     const { tempFilePath, destinationKey, modelName, recordId, updateData, fieldNameToUpdate } = job.data
     try {

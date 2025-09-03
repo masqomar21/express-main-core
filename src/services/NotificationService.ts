@@ -90,6 +90,7 @@ const NotificationServices = {
       refId?: string | number
       title?: string
     },
+    config: { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }| undefined = undefined,
   ) => {
     const io = getIO()
     if (!io) {
@@ -142,7 +143,7 @@ const NotificationServices = {
       }
 
       // Paralel & cleanup invalid sub
-      await Promise.all(subs.map((s) => sendPushToSubscription(s, payload)))
+      await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config )))
 
       return notif
     } catch (error) {
