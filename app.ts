@@ -14,6 +14,7 @@ import { errorMiddleware, notFoundMiddleware } from '@/middleware/GlobalErrMiddl
 import handleSocketEvents from '@/socket/EventHandler'
 import '@/services/google/GoogelOAuthService'
 import passport from 'passport'
+import { initWebPush } from '@/config/webPush'
 
 
 process.env.TZ = 'Asia/Jakarta'
@@ -51,6 +52,7 @@ app.use(function (req, res, next) {
 
 
 handleSocketEvents(io)
+initWebPush()
 
 
 app.use(ResponseMiddleware)

@@ -55,6 +55,7 @@ async function sendPushToSubscription(sub: {
     if (err?.statusCode === 404 || err?.statusCode === 410) {
       await prisma.webPushSubscription.delete({ where: { endpoint: sub.endpoint } }).catch(() => null)
     }
+    logger.error('Failed to send push notification', err)
     return false
   }
 }
