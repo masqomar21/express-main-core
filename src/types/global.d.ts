@@ -89,3 +89,12 @@ type PermissionList =
   | 'Master_Data'
   // Add more permissions as needed
 
+interface GeneratedPermissionList {
+  permission: PermissionList
+  canRead: boolean
+  canWrite: boolean
+  canUpdate: boolean
+  canDelete: boolean
+  canRestore: boolean
+}
+

@@ -67,3 +67,57 @@ export const permissionMiddleware = (permission: PermissionList, action: 'canRea
   }
 }
 
+
+export const generatePermissionList = async function (req: Request, res: Response, next: NextFunction) {
+  const userLogin = req.user as jwtPayloadInterface
+  try {
+    if (!userLogin) {
+      return ResponseData.unauthorized(res, 'Unauthorized - No user ID found')
+    }
+
+    const userPermissions = await prisma.user.findUnique({
+      where: { id: userLogin.id },
+      select: {
+        role: {
+          select: {
+            rolePermissions: {
+              select: {
+                permission: {
+                  select: {
+                    name: true,
+                  },
+                },
+                canRead: true,
+                canWrite: true,
+                canUpdate: true,
+                canDelete: true,
+                canRestore: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!userPermissions) {
+      return ResponseData.forbidden(res, 'No permissions found')
+    }
+
+    const permissionList : GeneratedPermissionList[] = userPermissions.role.rolePermissions.map((perm) => ({
+      permission: perm.permission.name as PermissionList,
+      canRead: perm.canRead,
+      canWrite: perm.canWrite,
+      canUpdate: perm.canUpdate,
+      canDelete: perm.canDelete,
+      canRestore: perm.canRestore,
+    }))
+
+    res.locals.permissionList = permissionList
+    next()
+  } catch (error) {
+    logger.error(error)
+    return ResponseData.serverError(res, error)
+  }
+}
+
+

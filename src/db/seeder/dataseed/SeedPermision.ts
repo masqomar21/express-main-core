@@ -9,13 +9,13 @@ export async function seedPermissions() {
     'Dashboard',
     'User_Management',
     'Master_Data',
-
     // add more permissions as needed
   ]
 
   await prisma.permissions.createMany({
     data: listPermission.map(permission => ({
       name: permission,
+      label : permission.replace(/_/g, ' '),
     })),
     skipDuplicates: true,
   })

@@ -14,6 +14,7 @@ import { NotificationRouter } from './notification/NotificationRouter'
 import { LogRouter } from './LogRouter'
 import { AuthMiddleware } from '@/middleware/AuthMiddleware'
 import { getBuildInfo } from '@/utilities/GetBuildInfo'
+import { RoleRouter } from './master/RoleRouter'
 
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
@@ -52,4 +53,5 @@ export const appRouter = async function (app: Express): Promise<void> {
 
   // master route
   app.use(CONFIG.apiUrl + 'master/user', UserRouter())
+  app.use(CONFIG.apiUrl + 'master/role', RoleRouter())
 }

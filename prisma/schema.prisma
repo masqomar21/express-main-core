@@ -11,6 +11,7 @@ generator client {
 model Permissions {
   id              Int              @id @default(autoincrement())
   name            String
+  label           String
   rolePermissions RolePermission[]
 }
 
