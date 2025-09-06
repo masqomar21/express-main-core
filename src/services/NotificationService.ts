@@ -3,6 +3,7 @@ import prisma from '../config/database'
 import { getIO } from '../config/socket'
 import logger from '@/utilities/Log'
 import { webpush } from '@/config/webPush'
+import { CONFIG } from '@/config'
 
 export type NotificationKind =
   | 'user'
@@ -129,22 +130,23 @@ const NotificationServices = {
         })
       })
 
-
-      const subs = await getSubscriptionsByUserIds(targetUserIds)
-      const payload = {
-        id: notif.id,
-        title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
-        body: notif.message,
-        data: {
-          refId: notif.refId,
-          type: notif.type,
-          createdAt: notif.createdAt,
-        },
-      // icon, badge bisa ditambah di SW
+      if (CONFIG.pushNotif) {
+        const subs = await getSubscriptionsByUserIds(targetUserIds)
+        const payload = {
+          id: notif.id,
+          title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
+          body: notif.message,
+          data: {
+            refId: notif.refId,
+            type: notif.type,
+            createdAt: notif.createdAt,
+          },
+          // icon, badge bisa ditambah di SW
+        }
+        await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config )))
       }
 
       // Paralel & cleanup invalid sub
-      await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config )))
 
       return notif
     } catch (error) {

@@ -74,6 +74,7 @@ export const CONFIG = {
     password: process.env.REDIS_PASSWORD || '',
   },
 
+  pushNotif: process.env.PUSH_NOTIF === 'true' || false,
   vapid : {
     subject : process.env.VAPID_SUBJECT || 'mailto:admin@domainmu.com',
     publicKey : process.env.VAPID_PUBLIC_KEY || '',

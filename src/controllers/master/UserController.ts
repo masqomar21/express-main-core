@@ -7,6 +7,7 @@ import { hashPassword } from '@/utilities/PasswordHandler'
 import { getIO } from '@/config/socket'
 import { logActivity } from '@/utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
+import redisClient from '@/config/redis'
 
 const UserController = {
   getAllUser : async (req: Request, res: Response): Promise<any> => {
@@ -144,6 +145,7 @@ const UserController = {
 
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'UPDATE', `update user ${userData.name}`)
+      await redisClient.del(`user_permissions:${userData.id}`)
 
       return ResponseData.ok(res, updatedUserData, 'Success')
     } catch (error: any) {

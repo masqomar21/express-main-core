@@ -1,4 +1,5 @@
 import prisma from '@/config/database'
+import redisClient from '@/config/redis'
 import { RoleSchema } from '@/schema/RoleScehma'
 import { logActivity } from '@/utilities/LogActivity'
 import { Pagination } from '@/utilities/Pagination'
@@ -212,6 +213,7 @@ const RoleController = {
 
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'UPDATE', 'Mengubah Role' + role.name)
+      await redisClient.deleteKeysByPattern('user_permissions:*')
 
 
       return ResponseData.ok(res, null, 'Success update role')

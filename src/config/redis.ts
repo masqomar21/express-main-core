@@ -74,6 +74,22 @@ class RedisService {
   }
 
   /**
+   * 
+   * @param pattern - Pola kunci untuk menghapus (misal: 'user_*' untuk menghapus semua kunci yang diawali 'user_')
+   * Menghapus beberapa kunci berdasarkan pola (pattern)
+   */
+  async deleteKeysByPattern(pattern: string) {
+    let cursor = '0'
+    do {
+      const [nextCursor, foundKeys] = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', 100)
+      cursor = nextCursor
+      if (foundKeys.length > 0) {
+        await this.client.del(...foundKeys)
+      }
+    } while (cursor !== '0')
+  }
+
+  /**
    * Membersihkan seluruh cache Redis
    */
   async flushAll(): Promise<void> {

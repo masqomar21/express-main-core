@@ -52,7 +52,9 @@ app.use(function (req, res, next) {
 
 
 handleSocketEvents(io)
-initWebPush()
+if (CONFIG.pushNotif) {
+  initWebPush()
+}
 
 
 app.use(ResponseMiddleware)

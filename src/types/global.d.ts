@@ -8,6 +8,7 @@ interface jwtPayloadInterface extends JwtPayload {
   id: number;
   name: string;
   role?: string;
+  roleType:  'OTHER' | 'SUPER_ADMIN';
 }
 
 interface ResponseDataAttributes<T> {

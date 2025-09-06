@@ -15,6 +15,7 @@ import { LogRouter } from './LogRouter'
 import { AuthMiddleware } from '@/middleware/AuthMiddleware'
 import { getBuildInfo } from '@/utilities/GetBuildInfo'
 import { RoleRouter } from './master/RoleRouter'
+import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 
 
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
@@ -41,7 +42,13 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'auth', AuthRoute())
 
   // product route
-  app.use(AuthMiddleware)
+  app.use(AuthMiddleware, generatePermissionList)
+
+  app.get(CONFIG.apiUrl + 'generate-permission', async (req: Request, res: Response) => {
+    return ResponseData.ok(res, res.locals.permissionList, 'Success')
+  })
+
+
   //web push
   app.use(CONFIG.apiUrl + 'web-push', WebPushNotifRouter())
 
