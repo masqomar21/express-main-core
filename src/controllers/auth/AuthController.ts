@@ -77,6 +77,7 @@ const AuthController = {
         id: userData.id,
         name: userData.name as string,
         role: userData.role.name,
+        roleType: userData.role.roleType as 'SUPER_ADMIN' |  'OTHER',
       }
 
       const token = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
