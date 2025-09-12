@@ -2,6 +2,7 @@ import { CONFIG } from '@/config'
 import prisma from '@/config/database'
 import AuthController from '@/controllers/auth/AuthController'
 import { AuthMiddleware } from '@/middleware/AuthMiddleware'
+import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { generateAccesToken } from '@/utilities/JwtHanldler'
 import logger from '@/utilities/Log'
 import { logActivity } from '@/utilities/LogActivity'
@@ -85,7 +86,7 @@ export const AuthRoute = () : Router => {
 
   router.post('/register', AuthController.register)
   router.post('/login', AuthController.login)
-  router.get('/me', AuthController.getUserProfile)
+  router.get('/me',AuthMiddleware, generatePermissionList, AuthController.getUserProfile)
   router.delete('/logout',AuthMiddleware, AuthController.logout)
 
   return router
