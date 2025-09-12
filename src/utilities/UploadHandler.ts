@@ -11,7 +11,6 @@ import { awsUploadQueue } from '@/queues/AwsUploadQueue'
 const STORAGE_MODE: 's3' | 'local' = CONFIG.saveToBucket ? 's3' : 'local'
 const LOCAL_STORAGE_PATH = path.join(process.cwd(), 'public/uploads')
 const TEMP_STORAGE_PATH = path.resolve(process.cwd(), 'public/temp')
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
 const ALLOWED_MIME_TYPES : AllowedMimeType[] = [
   'image/jpeg',
   'image/png',
@@ -54,9 +53,8 @@ function ensureFolderExists(folderPath: string) {
 function validateFile(
   file: Express.Multer.File,
   allowedTypes: string[],
-  maxSize = MAX_FILE_SIZE,
 ): { valid: boolean; reason?: string } {
-  if (file.size > maxSize) return { valid: false, reason: 'File size exceeds limit' }
+  if (file.size > CONFIG.maxFileSize) return { valid: false, reason: 'File size exceeds limit' }
   if (!allowedTypes.includes(file.mimetype)) return { valid: false, reason: `Invalid MIME type: ${file.mimetype}` }
   return { valid: true }
 }
@@ -162,7 +160,10 @@ export const handleUpload = async (
   const files = req.files as Record<string, Express.Multer.File[]> | undefined
   const file = files?.[fieldName]?.[0] ?? req.file
   
-  if (!file) return null
+  if (!file) {
+    console.warn(`No file uploaded for field: ${fieldName}`)
+    return null
+  }
   
   const { valid, reason } = validateFile(file, allowedTypes)
   if (!valid) {

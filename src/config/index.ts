@@ -24,8 +24,8 @@ export const CONFIG = {
   appVersion: process.env.APP_VERSION || "1.0.0",
   port: process.env.PORT || 3000,
   appMode: process.env.APP_MODE || "development",
-  appLOg: Boolean(process.env.APP_LOG) || true,
-  maxFileSize: process.env.MAX_FILE_SIZE || 10 * 1024 * 1024, //10MB
+  appLLog: Boolean(process.env.APP_LOG) || true,
+  maxFileSize: Number(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, //10MB
 
   saveToBucket: process.env.FILE_SAVE_TO_BUCKET  ? process.env.FILE_SAVE_TO_BUCKET === 'true' : false,
   s3: {

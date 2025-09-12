@@ -14,6 +14,7 @@
     "start:worker": "node dist/src/workers/index.js",
     "dev:worker": "ts-node src/workers/index.ts",
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register app.ts",
+    "notif": "node scripts/generate-vapid.js --file ./env",
     "prebuild": "node scripts/generate-build-time.js",
     "build": "tsc && tsc-alias",
     "start": "node dist/app.js",

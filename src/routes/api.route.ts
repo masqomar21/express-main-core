@@ -18,10 +18,17 @@ import { RoleRouter } from './master/RoleRouter'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 
 
+// const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
+//   maxFileSize: CONFIG.maxFileSize as number,
+//   allowedFileTypes : ['image/webp', 'image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'application/csv'],
+//   // saveToBucket: CONFIG.saveToBucket,
+// })
+
+
 const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
-  maxFileSize: CONFIG.maxFileSize as number,
-  allowedFileTypes : ['image/webp', 'image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv', 'application/csv'],
-  saveToBucket: CONFIG.saveToBucket,
+  maxFileSize : 10 * 1024 * 1024, // 10MB
+  allowedFileTypes : ['image/gif', 'image/jpeg','image/jpg', 'image/png', 'image/webp'],
+  saveToBucket : true,
 })
 
 export const appRouter = async function (app: Express): Promise<void> {
@@ -33,7 +40,7 @@ export const appRouter = async function (app: Express): Promise<void> {
     return ResponseData.ok(res, data, 'Welcome to API')
   })
 
-  app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('images'), TestController.testFileUploadToS3)
+  app.post(CONFIG.apiUrl + 'test-up-file', fileUpload.single('gambar'), TestController.testFileUploadToS3)
   app.post(CONFIG.apiUrl + 'test-up-delete', fileUpload.single('images'), TestController.deleteFileFromS3)
   app.post(CONFIG.apiUrl + 'test-notif', TestController.testNotif)
 

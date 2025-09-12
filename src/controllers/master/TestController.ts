@@ -8,15 +8,21 @@ import NotificationServices from '@/services/NotificationService'
 
 const TestController = {
   testFileUploadToS3: async (req : Request, res :Response) => {
+
+    // console.log(req)
+    
     if (!req.file) {
       return ResponseData.badRequest(res, 'File not found in request')
     }
 
+    // console.log('req.file', req.file)
+    // console.log('req.file', req.files)
+
     try {
       // Upload file ke S3
-      const fileName = await handleUpload(req, 'file', 'test', undefined)
+      const fileName = await handleUpload(req, 'gambar', 'test', undefined)
 
-      console.log('fileName', req.file)
+      console.log('fileName', fileName)
 
       return ResponseData.ok(res, { fileName }, 'File uploaded successfully')
     } catch (error) {
