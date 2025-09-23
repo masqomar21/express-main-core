@@ -2,6 +2,7 @@ import multer from 'multer'
 import path from 'path'
 import fs from 'fs'
 import { CONFIG } from '../config'
+import { UploadError } from '@/types/globalModule'
 
 export type AllowedMimeType =
   | 'text/html'
@@ -81,10 +82,10 @@ export const fileUploadMiddleware = {
         if (allowed) {
           cb(null, true)
         } else {
-          cb(new Error(`Unsupported file type: ${mime}`))
+          cb(new UploadError(`Unsupported file type: ${mime}`, 'UNSUPPORTED_FILE_TYPE'))
         }
       },
-    })
+    })  
   },
 }
 

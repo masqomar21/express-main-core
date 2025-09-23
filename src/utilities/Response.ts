@@ -2,6 +2,7 @@ import { Response } from 'express'
 import logger from './Log'
 import { StatusCodes } from 'http-status-codes'
 import { CONFIG } from '@/config'
+import { UploadError } from '@/types/globalModule'
 
 
 
@@ -66,6 +67,11 @@ export const ResponseData = {
    */
   serverError: (res: Response, error: any, message = 'Internal server error'): Response => {
     logger.error('Internal server error:', error)
+
+    
+    if (error instanceof UploadError && error.type !== 'UPLOAD_ERROR') {
+      return ResponseData.badRequest(res, error.message)
+    }
 
     const errorMessage = CONFIG.appMode === 'development'
       ? error?.message || 'Unexpected error'

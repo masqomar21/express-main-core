@@ -99,3 +99,5 @@ interface GeneratedPermissionList {
   canRestore: boolean
 }
 
+type ErrorFileUpload =  'LIMIT_FILE_COUNT' | 'LIMIT_UNEXPECTED_FILE' | 'UNSUPPORTED_FILE_TYPE' | 'FILE_NOT_FOUND'| 'UPLOAD_ERROR'
+

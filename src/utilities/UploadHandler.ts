@@ -6,12 +6,16 @@ import { uploadFileToS3WithOutRedis } from './AwsHandler'
 import { CONFIG } from '@/config'
 import { AllowedMimeType } from '@/middleware/FileUploadMiddleware'
 import { awsUploadQueue } from '@/queues/AwsUploadQueue'
+import { UploadError } from '@/types/globalModule'
 
+// =========================================================
 // Config
+// =========================================================
 const STORAGE_MODE: 's3' | 'local' = CONFIG.saveToBucket ? 's3' : 'local'
 const LOCAL_STORAGE_PATH = path.join(process.cwd(), 'public/uploads')
 const TEMP_STORAGE_PATH = path.resolve(process.cwd(), 'public/temp')
-const ALLOWED_MIME_TYPES : AllowedMimeType[] = [
+
+const ALLOWED_MIME_TYPES: AllowedMimeType[] = [
   'image/jpeg',
   'image/png',
   'image/jpg',
@@ -25,10 +29,12 @@ const ALLOWED_MIME_TYPES : AllowedMimeType[] = [
   'application/csv',
 ]
 
+// =========================================================
+// Helper Functions
+// =========================================================
+
 /**
  * Generate nama file unik berdasarkan original name
- *  @param originalname - Nama asli file yang diupload
- *  @returns Nama file baru dengan UUID
  */
 function generateFileName(originalname: string): string {
   const ext = path.extname(originalname)
@@ -37,80 +43,68 @@ function generateFileName(originalname: string): string {
 
 /**
  * Pastikan folder tujuan ada, jika tidak buat secara rekursif
- *  @param folderPath - Path folder yang akan dibuat
  */
 function ensureFolderExists(folderPath: string) {
-  if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true })
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true })
+  }
 }
 
 /**
  * Validasi file yang diupload
- *  @param file - File yang akan divalidasi
- *  @param allowedTypes - Array MIME type yang diizinkan
- *  @param maxSize - Ukuran maksimum file dalam byte (default: 5 MB)
- *  @returns Objek validasi dengan status dan alasan jika tidak valid
  */
 function validateFile(
   file: Express.Multer.File,
   allowedTypes: string[],
 ): { valid: boolean; reason?: string } {
-  if (file.size > CONFIG.maxFileSize) return { valid: false, reason: 'File size exceeds limit' }
-  if (!allowedTypes.includes(file.mimetype)) return { valid: false, reason: `Invalid MIME type: ${file.mimetype}` }
+  if (file.size > CONFIG.maxFileSize) {
+    return { valid: false, reason: 'File size exceeds limit' }
+  }
+  if (!allowedTypes.includes(file.mimetype)) {
+    return { valid: false, reason: `Invalid MIME type: ${file.mimetype}` }
+  }
   return { valid: true }
 }
 
 /**
- * Simpan file ke folder lokal (uploads) langsung, untuk mode local
- *  @param file - File yang akan disimpan
- *  @param folder - Folder tujuan di dalam uploads
- *  @returns URL file yang disimpan
+ * Simpan file ke folder lokal (uploads)
  */
 async function storeFileLocally(file: FileType, folder: string): Promise<string> {
   const newFileName = generateFileName(file.originalname)
   const targetDir = path.join(LOCAL_STORAGE_PATH, folder)
   ensureFolderExists(targetDir)
-  const fullPath = path.join(targetDir, newFileName)
 
+  const fullPath = path.join(targetDir, newFileName)
   await fs.promises.writeFile(fullPath, file.buffer)
+
   return `/uploads/${folder}/${newFileName}`
 }
 
 /**
- * Simpan file ke folder temp, untuk keperluan upload async worker
- *  @param file - File yang akan disimpan
- *  @returns Path file yang disimpan di folder temp
- * 
+ * Simpan file ke folder temp (untuk async worker)
  */
 async function saveFileToTemp(file: FileType): Promise<string> {
   ensureFolderExists(TEMP_STORAGE_PATH)
   const newFileName = generateFileName(file.originalname)
   const tempFilePath = path.join(TEMP_STORAGE_PATH, newFileName)
+
   await fs.promises.writeFile(tempFilePath, file.buffer)
   return tempFilePath
 }
 
 /**
  * Upload file ke S3 langsung (sinkron)
- *  @param file - File yang akan diupload
- *  @param folder - Folder tujuan di S3
- *  @returns URL file yang diupload
- *  @throws Error jika upload gagal
  */
 async function uploadToS3(file: FileType, folder: string): Promise<string> {
   const newFileName = generateFileName(file.originalname)
   const result = await uploadFileToS3WithOutRedis({ ...file, originalname: newFileName }, folder)
+
   if (!result) throw new Error('Upload ke S3 gagal')
   return result
 }
 
 /**
- * Fungsi enqueue job upload async ke BullMQ
- *  @param file - File yang akan diupload
- *  @param folder - Folder tujuan di S3 atau lokal
- *  @param modelName - Nama model untuk update data
- *  @param recordId - ID record yang akan diupdate
- *  @param updateFieldName - Nama field yang akan diupdate
- *  @returns Promise<void>
+ * Enqueue job upload async ke BullMQ
  */
 export async function enqueueUpload(
   file: FileType,
@@ -132,71 +126,173 @@ export async function enqueueUpload(
   })
 }
 
+// =========================================================
+// Types
+// =========================================================
+
 type UploadOptions = {
-    asyncUpload: boolean;
-    modelName: string;
-    recordId: number | string;
-    updateFieldName: string;
-  };
-  
+  uploadMultiple?: boolean
+  asyncUpload?: boolean
+  modelName?: string
+  recordId?: number | string
+  updateFieldName?: string
+  isRequired?: boolean
+}
+
+type UploadResult<T extends UploadOptions | undefined> =
+  T extends { uploadMultiple: true }
+    ? string[] | null
+    : string | null
+
+// =========================================================
+// Core Functions
+// =========================================================
+
 /**
-   * Handle file upload, either sync (local/S3) or async (enqueue to background job)
-   * 
-   * @param req - Express Request containing the file
-   * @param fieldName - Form field name of the uploaded file
-   * @param folder - Destination folder (default: 'default')
-   * @param allowedTypes - Array of allowed MIME types (default: ALLOWED_MIME_TYPES)
-   * @param options - Optional settings for async upload
-   * 
-   * @returns URL of uploaded file or null if failed or enqueued
-   */
-export const handleUpload = async (
+ * Handle file validation for uploads
+ */
+export const handleFileValidation = async (
+  req: Request,
+  fieldName: string,
+  allowedTypes: AllowedMimeType[] = ALLOWED_MIME_TYPES,
+  config?: {
+    isRequired?: boolean
+    uploadMultiple?: boolean
+    maxCount?: number
+    maxFileSize?: number
+  },
+): Promise<void> => {
+  const files =
+    req.files as
+      | Express.Multer.File[]
+      | { [fieldname: string]: Express.Multer.File[] }
+
+  const defaulConfig = {
+    isRequired: false,
+    uploadMultiple: false,
+    maxCount: config?.uploadMultiple ? 5 : 1,
+    maxFileSize: CONFIG.maxFileSize,
+  }
+  config = { ...defaulConfig, ...config }
+
+  const defaultMaxFiles = config?.uploadMultiple ? (config.maxCount || 5) : 1
+
+  let fieldFiles: Express.Multer.File[] = []
+  if (Array.isArray(files)) {
+    fieldFiles = files.filter((f) => f.fieldname === fieldName)
+  } else if (files && typeof files === 'object' && fieldName in files) {
+    fieldFiles = files[fieldName]
+  } else if (req.file && req.file.fieldname === fieldName) {
+    fieldFiles = [req.file]
+  }
+
+  if ((!fieldFiles || fieldFiles.length === 0) && config?.isRequired) {
+    throw new UploadError(
+      `No file uploaded for field: ${fieldName}`,
+      'FILE_NOT_FOUND',
+      400,
+    )
+  }
+
+  if (fieldFiles.length > defaultMaxFiles) {
+    throw new UploadError(
+      `Too many files uploaded for field: ${fieldName}. Maximum allowed is ${defaultMaxFiles}`,
+      'LIMIT_FILE_COUNT',
+      400,
+    )
+  }
+
+  for (const file of fieldFiles) {
+    const { valid, reason } = validateFile(file, allowedTypes)
+    if (!valid) {
+      throw new UploadError(
+        `Upload rejected (${file.originalname}) in ${fieldName}: ${reason}`,
+        'UNSUPPORTED_FILE_TYPE',
+        400,
+      )
+    }
+    if (config?.maxFileSize && file.size > config.maxFileSize) {
+      throw new UploadError(
+        `File size exceeds limit for file: ${file.originalname} in ${fieldName}`,
+        'UPLOAD_ERROR',
+        400,
+      )
+    }
+  }
+}
+
+/**
+ * Handle file upload, sync (local/S3) atau async (enqueue worker)
+ */
+export const handleUpload = async <T extends UploadOptions | undefined>(
   req: Request,
   fieldName: string,
   folder = 'default',
   allowedTypes: AllowedMimeType[] = ALLOWED_MIME_TYPES,
-  options?: UploadOptions,
-): Promise<string | null> => {
-  const files = req.files as Record<string, Express.Multer.File[]> | undefined
-  const file = files?.[fieldName]?.[0] ?? req.file
-  
-  if (!file) {
+  options?: T,
+): Promise<UploadResult<T>> => {
+  await handleFileValidation(req, fieldName, allowedTypes, {
+    uploadMultiple: options?.uploadMultiple || false,
+    maxCount: options?.uploadMultiple ? 20 : 1,
+    isRequired: options?.isRequired || false,
+  })
+
+  const files =
+    req.files as
+      | Express.Multer.File[]
+      | { [fieldname: string]: Express.Multer.File[] }
+
+  let fieldFiles: Express.Multer.File[] = []
+  if (Array.isArray(files)) {
+    fieldFiles = files.filter((f) => f.fieldname === fieldName)
+  } else if (files && typeof files === 'object' && fieldName in files) {
+    fieldFiles = files[fieldName]
+  } else if (req.file && req.file.fieldname === fieldName) {
+    fieldFiles = [req.file]
+  }
+
+  if (!fieldFiles || fieldFiles.length === 0) {
     console.warn(`No file uploaded for field: ${fieldName}`)
     return null
   }
-  
-  const { valid, reason } = validateFile(file, allowedTypes)
-  if (!valid) {
-    console.warn(`Upload rejected [${fieldName}]: ${reason}`)
-    return null
-  }
-  
+
+  const targetFiles = options?.uploadMultiple ? fieldFiles : [fieldFiles[0]]
+  const resultUrls: string[] = []
+
   try {
-    const buffer: Buffer = file.buffer ?? fs.readFileSync(file.path)
-    const fileUpload: FileType = {
-      mimetype: file.mimetype,
-      buffer,
-      originalname: file.originalname,
+    for (const file of targetFiles) {
+      const buffer: Buffer = file.buffer ?? fs.readFileSync(file.path)
+      const fileUpload: FileType = {
+        mimetype: file.mimetype,
+        buffer,
+        originalname: file.originalname,
+      }
+
+      if (options?.asyncUpload && options.modelName && options.recordId && options.updateFieldName) {
+        await enqueueUpload(fileUpload, folder, options.modelName, options.recordId, options.updateFieldName)
+        continue // async upload tidak langsung return URL
+      }
+
+      let resultUrl: string | null = null
+      if (STORAGE_MODE === 's3') {
+        resultUrl = await uploadToS3(fileUpload, folder)
+      } else {
+        resultUrl = await storeFileLocally(fileUpload, folder)
+      }
+
+      if (file.path) fs.unlinkSync(file.path)
+      if (resultUrl) resultUrls.push(resultUrl)
     }
-  
-    if (options?.asyncUpload && options.modelName && options.recordId && options.updateFieldName) {
-      await enqueueUpload(fileUpload, folder, options.modelName, options.recordId, options.updateFieldName)
-      return null // Async upload: no immediate URL
+
+    if (options?.uploadMultiple) {
+      return (resultUrls.length > 0 ? resultUrls : null) as UploadResult<T>
     }
-  
-    // Sync upload
-    let resultUrl: string | null = null
-  
-    if (STORAGE_MODE === 's3') {
-      resultUrl = await uploadToS3(fileUpload, folder)
-    } else {
-      resultUrl = await storeFileLocally(fileUpload, folder)
-    }
-  
-    if (file.path) fs.unlinkSync(file.path) // Clean up local temp file if any
-    return resultUrl
+    return (resultUrls[0] ?? null) as UploadResult<T>
   } catch (error) {
     console.error(`Upload failed on field "${fieldName}":`, error)
+    if (error instanceof UploadError) {
+      throw error
+    }
     return null
   }
 }
