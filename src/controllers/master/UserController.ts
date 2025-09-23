@@ -49,10 +49,10 @@ const UserController = {
 
       return ResponseData.ok(
         res,
-        page.paginate({
+        page.paginate(
           count,
-          rows: userData,
-        }),
+          userData,
+        ),
         'Success get all ',
       )
     } catch (error: any) {

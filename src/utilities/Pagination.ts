@@ -1,7 +1,7 @@
-interface PaginationInterface<T> {
-  count: number;
-  rows: T[];
-}
+// interface PaginationInterface<T> {
+//   count: number;
+//   rows: T[];
+// }
 
 export class Pagination {
   page: number
@@ -15,17 +15,18 @@ export class Pagination {
   }
 
   /**
-   * Paginate the data based on the provided pagination interface.
-   * @param data - The data to paginate, which includes count and rows.
+   * Generates a pagination object.
+   * @param count - Total number of items.
+   * @param data - Array of items for the current page.
    * @returns An object containing pagination details.
    */
-  paginate<T>(data: PaginationInterface<T>): any {
-    const totalPages = Math.ceil(data.count / this.limit)
+  paginate<T>(count : number, data : T[]): any {
+    const totalPages = Math.ceil(count / this.limit)
     return {
-      total_items: data.count,
+      total_items: count,
       page: this.page,
-      items: data.rows,
-      total_pages: Math.ceil(data.count / this.limit),
+      items: data,
+      total_pages: Math.ceil(count / this.limit),
       current_page: this.page !== 0 ? this.page : 0,
       links: {
         prev:

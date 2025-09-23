@@ -30,7 +30,7 @@ const LogController = {
         }),
       ])
 
-      return ResponseData.ok(res, paginate.paginate({ count, rows: data }), 'User log retrieved successfully')
+      return ResponseData.ok(res, paginate.paginate(count, data), 'User log retrieved successfully')
 
     } catch (error) {
       return ResponseData.serverError(res, error)
@@ -68,7 +68,7 @@ const LogController = {
         }),
       ])
 
-      return ResponseData.ok(res, paginate.paginate({ count, rows: data }), 'User log retrieved successfully')
+      return ResponseData.ok(res, paginate.paginate(count, data ), 'User log retrieved successfully')
 
     } catch (error) {
       return ResponseData.serverError(res, error)
@@ -92,7 +92,7 @@ const LogController = {
         prisma.loger.count(),
       ])
 
-      return ResponseData.ok(res, paginate.paginate({ count, rows: data }), 'All logs retrieved successfully')
+      return ResponseData.ok(res, paginate.paginate(count, data), 'All logs retrieved successfully')
 
     } catch (error) {
       return ResponseData.serverError(res, error)

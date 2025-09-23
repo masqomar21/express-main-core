@@ -37,7 +37,7 @@ const NotificationController = {
         },
       )
 
-      return ResponseData.ok(res, paginate.paginate({ count : data.total, rows : data.data }), 'success')
+      return ResponseData.ok(res, paginate.paginate(data.total, data.data ), 'success')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }

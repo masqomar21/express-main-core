@@ -50,7 +50,7 @@ const RoleController = {
           where: whereCondition,
         }),
       ])
-      return ResponseData.ok(res, paginate.paginate({ count, rows: roles }), 'Success get all roles')
+      return ResponseData.ok(res, paginate.paginate(count, roles), 'Success get all roles')
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
