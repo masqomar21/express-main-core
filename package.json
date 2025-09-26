@@ -1,7 +1,7 @@
 {
-  "name": "test-product",
+  "name": "starter-express-ts",
   "version": "1.0.0",
-  "description": "test produck",
+  "description": "starter project for express with typescript",
   "main": "index.js",
   "scripts": {
     "db:seed": "ts-node ./src/db/seeder/index.ts",
