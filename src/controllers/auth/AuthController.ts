@@ -175,11 +175,18 @@ const AuthController = {
   
   logout : async (req: Request, res: Response) => {
     const userLogin = req.user as jwtPayloadInterface
+    const authHeader = req.headers['authorization']
+    const token = authHeader ? authHeader.split(' ')[1] : undefined
+
+    if (!token) {
+      return ResponseData.unauthorized(res, 'Unauthorized - No token provided')
+    }
 
     try {
-      await prisma.session.deleteMany({
+      await prisma.session.delete({
         where: {
           userId: userLogin.id,
+          token: token,
         },
       })
 
