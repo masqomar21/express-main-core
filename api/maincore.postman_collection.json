@@ -1,0 +1,918 @@
+{
+	"info": {
+		"_postman_id": "9b8d66eb-54cc-42db-b6d5-36bba0e7627e",
+		"name": "maincore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42604871",
+		"_collection_link": "https://www.postman.com/masqomar-publict/workspace/maincore/collection/42604871-9b8d66eb-54cc-42db-b6d5-36bba0e7627e?source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"const token = responseBody.data.token;\r",
+									"pm.environment.set(\"token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\r\n//     \"email\" : \"other@app.com\",\r\n//     \"password\" : \"password\"\r\n// }\r\n{\r\n    \"email\" : \"super_admin@app.com\",\r\n    \"password\" : \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}auth/login",
+							"host": [
+								"{{url}}auth"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"admin.test@app.com\",\r\n    \"password\" : \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "profile",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"const token = responseBody.data.token;\r",
+									"pm.environment.set(\"token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\" : \"password\",\r\n    \"newPassword\" : \"password\",\r\n    \"confirmPassword\" : \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}profile/change-password",
+							"host": [
+								"{{url}}profile"
+							],
+							"path": [
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"update name\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}profile/update",
+							"host": [
+								"{{url}}profile"
+							],
+							"path": [
+								"update"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Master",
+			"item": [
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Get All",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}master/user",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get One By Id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}master/user/:user_id",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"testCreate\",\r\n    \"email\": \"user@app.com\",\r\n    \"password\": \"password\",\r\n    \"roleId\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/user",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"testCreate - update\",\r\n    \"roleId\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/user/:user_id",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user",
+										":user_id"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Soft Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/user/:user_id/soft",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user",
+										":user_id",
+										"soft"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore Delete",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/user/:user_id/restore",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user",
+										":user_id",
+										"restore"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Hard Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/user/:user_id/hard",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"user",
+										":user_id",
+										"hard"
+									],
+									"variable": [
+										{
+											"key": "user_id",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Role",
+					"item": [
+						{
+							"name": "All Permission list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}master/role/permissions",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"role",
+										"permissions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get all",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}master/role",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"role"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get One By Id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}master/role/:id",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"role",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"test role\",\r\n    \"permissions\" : [{\r\n        \"permissionId\" : 1,\r\n        \"canRead\" : true,\r\n        \"canWrite\" : true,\r\n        \"canRestore\" : true,\r\n        \"canUpdate\" : true,\r\n        \"canDelete\" : false\r\n    }]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/role",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"role"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"test role\",\r\n    \"permissions\" : [{\r\n        \"id\" : 1,\r\n        \"permissionId\" : 1,\r\n        \"canRead\" : true,\r\n        \"canWrite\" : true,\r\n        \"canRestore\" : true,\r\n        \"canUpdate\" : true,\r\n        \"canDelete\" : false\r\n    }, \r\n    {\r\n        \"permissionId\" : 2,\r\n        \"canRead\" : true,\r\n        \"canWrite\" : true,\r\n        \"canRestore\" : true,\r\n        \"canUpdate\" : true,\r\n        \"canDelete\" : false\r\n    }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/role/:id",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"role",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}master/role/:id",
+									"host": [
+										"{{url}}master"
+									],
+									"path": [
+										"role",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Notif",
+			"item": [
+				{
+					"name": "get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}notification",
+							"host": [
+								"{{url}}notification"
+							],
+							"query": [
+								{
+									"key": "readStatus",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "type",
+									"value": "incommingLetter",
+									"description": "disposition, incommingLetter, outgoingLetter, signatureStatus, signerLetter, verificationStatus, verificatorLetter",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "test",
+									"disabled": true
+								},
+								{
+									"key": "since",
+									"value": "2025-08-27",
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "count Unread Notif",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}notification/unread",
+							"host": [
+								"{{url}}notification"
+							],
+							"path": [
+								"unread"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "read one \\",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{url}}notification/:notificationId/read",
+							"host": [
+								"{{url}}notification"
+							],
+							"path": [
+								":notificationId",
+								"read"
+							],
+							"variable": [
+								{
+									"key": "notificationId",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "read all",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{url}}notification/read-all",
+							"host": [
+								"{{url}}notification"
+							],
+							"path": [
+								"read-all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete All",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}notification/delete-all",
+							"host": [
+								"{{url}}notification"
+							],
+							"path": [
+								"delete-all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "log",
+			"item": [
+				{
+					"name": "get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}log",
+							"host": [
+								"{{url}}log"
+							],
+							"query": [
+								{
+									"key": "readStatus",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "type",
+									"value": "incommingLetter",
+									"description": "disposition, incommingLetter, outgoingLetter, signatureStatus, signerLetter, verificationStatus, verificatorLetter",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "test",
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user login log",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}log/user",
+							"host": [
+								"{{url}}log"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get log by user id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}log/:userId",
+							"host": [
+								"{{url}}log"
+							],
+							"path": [
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "test controller",
+			"item": [
+				{
+					"name": "test notif",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"hamdan\",\n    \"message\": \"kenalin ke adek lo\",\n    \"userId\" : [4]  \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}test-notif",
+							"host": [
+								"{{url}}test-notif"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "test file upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "gambar",
+									"type": "file",
+									"src": "/Users/masqomar21/blip/nezuko-kamado-5120x2880-14025.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}test-up-file",
+							"host": [
+								"{{url}}test-up-file"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "test generate permission list",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "gambar",
+									"type": "file",
+									"src": "/Users/masqomar21/blip/nezuko-kamado-5120x2880-14025.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}generate-permission",
+							"host": [
+								"{{url}}generate-permission"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "register web push notif",
+			"item": [
+				{
+					"name": "subcribe",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"endpoint\": \"http://localhost:3000\",\n    \"keys\" : {\n        \"p256dh\" : \"1sdasda\",\n        \"auth\" : \"2w32qw\"\n    },\n    \"expirationTime\" : 100000000,\n    \"userAgent\" : \"user agent\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}web-push/subscribe",
+							"host": [
+								"{{url}}web-push"
+							],
+							"path": [
+								"subscribe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unsubcribe",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"endpoint\": \"http://localhost:3000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}web-push/unsubscribe",
+							"host": [
+								"{{url}}web-push"
+							],
+							"path": [
+								"unsubscribe"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
