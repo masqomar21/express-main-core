@@ -48,6 +48,7 @@ model User {
   password             String?
   roleId               Int
   role                 Role                  @relation(fields: [roleId], references: [id])
+  registeredViaGoogle  Boolean               @default(false)
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   deletedAt            DateTime?

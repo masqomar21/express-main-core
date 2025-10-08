@@ -16,11 +16,20 @@ passport.use(
         if (!email) return done(null, false)
 
         // console.log('Google OAuth profile:', profile)
-
-        const user = await prisma.user.findUnique({ where: { email } })
+        let user = null
+        user = await prisma.user.findUnique({ where: { email } })
 
         if (!user) {
-          return done(null, false, { message: 'User belum terdaftar. Silahkan Daftar' })
+          const roleUser = await prisma.role.findFirst({ where: { roleType: 'OTHER' } })
+          user = await prisma.user.create({
+            data: {
+              name: profile.displayName,
+              email,
+              registeredViaGoogle: true,
+              roleId: roleUser?.id || 2, // default role user
+            },
+          })
+          // return done(null, false, { message: 'User belum terdaftar. Silahkan Daftar' })
         }
 
         return done(null, user) // return full user
