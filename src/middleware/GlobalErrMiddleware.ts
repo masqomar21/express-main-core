@@ -6,26 +6,21 @@ import { ResponseData } from '@/utilities/Response'
 import { MulterError } from 'multer'
 import { UploadError } from '@/types/globalModule'
 
-export const errorMiddleware = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const errorMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof MulterError) {
     let errMsg = err.message
     switch (err.code) {
-    case 'LIMIT_FILE_SIZE':
-      errMsg = 'File terlalu besar'
-      break
-    case 'LIMIT_FILE_COUNT':
-      errMsg = 'Jumlah file melebihi batas'
-      break
-    case 'LIMIT_UNEXPECTED_FILE':
-      errMsg = 'Tipe file tidak sesuai, atau jumlah file melebihi batas'
-      break
-    default:
-      break
+      case 'LIMIT_FILE_SIZE':
+        errMsg = 'File terlalu besar'
+        break
+      case 'LIMIT_FILE_COUNT':
+        errMsg = 'Jumlah file melebihi batas'
+        break
+      case 'LIMIT_UNEXPECTED_FILE':
+        errMsg = 'Tipe file tidak sesuai, atau jumlah file melebihi batas'
+        break
+      default:
+        break
     }
     return ResponseData.badRequest(res, errMsg)
   }
@@ -33,9 +28,7 @@ export const errorMiddleware = (
     return ResponseData.badRequest(res, err.message)
   }
   logger.error(
-    `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${
-      req.method
-    } - ${req.ip}`,
+    `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`,
   )
   if (err.headersSent) {
     return next(err)

@@ -28,10 +28,10 @@
     "module": "CommonJS" /* Specify what module code is generated. */,
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
     // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
-    "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+    "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       "@/*": ["src/*"],
-      "@public/*": ["public/*"],
+      "@public/*": ["public/*"]
       // "@prisma/client": ["client_generated"],
       // "@prisma/client/*": ["client_generated/*"]
     },
@@ -110,7 +110,8 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "ts-node": { // Configuration for ts-node
+  "ts-node": {
+    // Configuration for ts-node
     "transpileOnly": true, // Speeds up development
     "require": ["tsconfig-paths/register"] // Enable path aliases in ts-node
   },

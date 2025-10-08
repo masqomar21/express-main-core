@@ -5,13 +5,8 @@ import logger from '@/utilities/Log'
 import { webpush } from '@/config/webPush'
 import { CONFIG } from '@/config'
 
-export type NotificationKind =
-  | 'user'
-  | 'admin'
-  | 'other'
-  | 'messageFormDeveloper'
-  // adjust as needed
-
+export type NotificationKind = 'user' | 'admin' | 'other' | 'messageFormDeveloper'
+// adjust as needed
 
 const notificationKindText: Record<NotificationKind, string> = {
   user: 'User Notification',
@@ -38,29 +33,38 @@ async function getSubscriptionsByUserIds(userIds: number[]) {
  * @param payload The notification payload
  * @returns A promise that resolves to a boolean indicating success or failure
  */
-async function sendPushToSubscription(sub: {
-  endpoint: string; p256dh: string; auth: string;
-}, payload: any, config: { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }| undefined = undefined): Promise<boolean> {
+async function sendPushToSubscription(
+  sub: {
+    endpoint: string
+    p256dh: string
+    auth: string
+  },
+  payload: any,
+  config:
+    | { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }
+    | undefined = undefined,
+): Promise<boolean> {
   const pushSubscription = {
     endpoint: sub.endpoint,
     keys: { p256dh: sub.p256dh, auth: sub.auth },
   }
   try {
     await webpush.sendNotification(pushSubscription, JSON.stringify(payload), {
-      TTL: config?.TTL || 60,          // detik
+      TTL: config?.TTL || 60, // detik
       urgency: config?.urgency || 'normal', // 'very-low'|'low'|'normal'|'high'
     })
     return true
   } catch (err: any) {
     // 404/410 biasanya subscription sudah invalid → hapus
     if (err?.statusCode === 404 || err?.statusCode === 410) {
-      await prisma.webPushSubscription.delete({ where: { endpoint: sub.endpoint } }).catch(() => null)
+      await prisma.webPushSubscription
+        .delete({ where: { endpoint: sub.endpoint } })
+        .catch(() => null)
     }
     logger.error('Failed to send push notification', err)
     return false
   }
 }
-
 
 const NotificationServices = {
   /**
@@ -69,7 +73,7 @@ const NotificationServices = {
    * @param userId The ID of the user
    * @returns The name of the room joined
    */
-  joinRoom:(socket: Socket, userId: number) => {
+  joinRoom: (socket: Socket, userId: number) => {
     // Room personal per user
     const roomName = `user-${userId}`
     socket.join(roomName)
@@ -92,7 +96,9 @@ const NotificationServices = {
       refId?: string | number
       title?: string
     },
-    config: { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }| undefined = undefined,
+    config:
+      | { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }
+      | undefined = undefined,
   ) => {
     const io = getIO()
     if (!io) {
@@ -143,7 +149,7 @@ const NotificationServices = {
           },
           // icon, badge bisa ditambah di SW
         }
-        await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config )))
+        await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
       }
 
       // Paralel & cleanup invalid sub
@@ -228,7 +234,11 @@ const NotificationServices = {
         const notif = r.notification
         if (!notif) return false
         if (whereCondition?.type && notif.type !== whereCondition.type) return false
-        if (whereCondition?.search && !notif.message.toLowerCase().includes(whereCondition.search.toLowerCase())) return false
+        if (
+          whereCondition?.search &&
+          !notif.message.toLowerCase().includes(whereCondition.search.toLowerCase())
+        )
+          return false
         if (whereCondition?.since && notif.createdAt < whereCondition.since) return false
         return true
       })

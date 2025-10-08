@@ -24,13 +24,13 @@ export type AllowedMimeType =
   | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   | 'application/vnd.ms-excel'
   | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  | 'application/csv';
+  | 'application/csv'
 
 type ConfigType = {
-  maxFileSize: number;
-  allowedFileTypes?: AllowedMimeType[];
-  saveToBucket?: boolean;
-};
+  maxFileSize: number
+  allowedFileTypes?: AllowedMimeType[]
+  saveToBucket?: boolean
+}
 
 const defaultConfig: ConfigType = {
   maxFileSize: CONFIG.maxFileSize as number,
@@ -78,14 +78,13 @@ export const fileUploadMiddleware = {
       limits: { fileSize: finalConfig.maxFileSize },
       fileFilter: (_, file, cb) => {
         const mime = file.mimetype.toLowerCase()
-        const allowed = finalConfig.allowedFileTypes?.some(type => type === mime)
+        const allowed = finalConfig.allowedFileTypes?.some((type) => type === mime)
         if (allowed) {
           cb(null, true)
         } else {
           cb(new UploadError(`Unsupported file type: ${mime}`, 'UNSUPPORTED_FILE_TYPE'))
         }
       },
-    })  
+    })
   },
 }
-

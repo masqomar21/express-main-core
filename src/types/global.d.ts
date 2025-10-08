@@ -1,14 +1,14 @@
-interface FileType  {
-  mimetype: string;
-  buffer: Buffer;
-  originalname: string;
+interface FileType {
+  mimetype: string
+  buffer: Buffer
+  originalname: string
 }
 
 interface jwtPayloadInterface extends JwtPayload {
-  id: number;
-  name: string;
-  role?: string;
-  roleType:  'OTHER' | 'SUPER_ADMIN';
+  id: number
+  name: string
+  role?: string
+  roleType: 'OTHER' | 'SUPER_ADMIN'
 }
 
 interface ResponseDataAttributes<T> {
@@ -17,7 +17,6 @@ interface ResponseDataAttributes<T> {
   error?: string | null
   data?: T | null
 }
-
 
 // ===== Interface Definitions ====
 interface PDFExportColumn {
@@ -56,22 +55,21 @@ interface PDFFileExportOptions extends PDFExportOptions {
   outputDir?: string
 }
 
-
 interface ExcelExportColumn {
-  header: string; // Label kolom di Excel
-  key: string;    // Key dari data object
-  width?: number; // Lebar kolom (optional)
+  header: string // Label kolom di Excel
+  key: string // Key dari data object
+  width?: number // Lebar kolom (optional)
 }
 
 interface ExcelExportOptions {
-  columns: ExcelExportColumn[];
-  data: Record<string, any>[];
-  sheetName?: string;
+  columns: ExcelExportColumn[]
+  data: Record<string, any>[]
+  sheetName?: string
 }
 
 interface ExcelFileExportOptions extends ExcelExportOptions {
-  fileName: string;
-  outputDir?: string;
+  fileName: string
+  outputDir?: string
 }
 
 type AwsUploadJobData = {
@@ -83,12 +81,8 @@ type AwsUploadJobData = {
   fieldNameToUpdate: string
 }
 
-
-type PermissionList =
-  | 'Dashboard'
-  | 'User_Management'
-  | 'Master_Data'
-  // Add more permissions as needed
+type PermissionList = 'Dashboard' | 'User_Management' | 'Master_Data'
+// Add more permissions as needed
 
 interface GeneratedPermissionList {
   permission: PermissionList
@@ -99,5 +93,9 @@ interface GeneratedPermissionList {
   canRestore: boolean
 }
 
-type ErrorFileUpload =  'LIMIT_FILE_COUNT' | 'LIMIT_UNEXPECTED_FILE' | 'UNSUPPORTED_FILE_TYPE' | 'FILE_NOT_FOUND'| 'UPLOAD_ERROR'
-
+type ErrorFileUpload =
+  | 'LIMIT_FILE_COUNT'
+  | 'LIMIT_UNEXPECTED_FILE'
+  | 'UNSUPPORTED_FILE_TYPE'
+  | 'FILE_NOT_FOUND'
+  | 'UPLOAD_ERROR'

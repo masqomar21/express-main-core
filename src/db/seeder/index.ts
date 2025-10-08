@@ -8,13 +8,12 @@ import { seedPermissions } from './dataseed/SeedPermision'
 import { seedRolePermission } from './dataseed/SeedRolePermision'
 const prisma = new PrismaClient()
 
-const seedData : { key: string, value: () => Promise<void> }[] = [
+const seedData: { key: string; value: () => Promise<void> }[] = [
   // key is the name of the seeder, value is the function to run
   { key: 'permission', value: seedPermissions },
   { key: 'role', value: seedRole },
   { key: 'role_permission', value: seedRolePermission },
   { key: 'user', value: seedUser },
-
 
   // Add more seeders here as needed
 ]
@@ -40,7 +39,9 @@ async function seedSpecific(key: string) {
 
 async function seedFromReverse() {
   const seedersDir = path.join(process.cwd(), 'src/db/seeder/reverse')
-  const files = fs.readdirSync(seedersDir).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
+  const files = fs
+    .readdirSync(seedersDir)
+    .filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 
   console.log(`📂 Found ${files.length} reverse seeders in: ${seedersDir}`)
   console.log(`🚀 Running ${files.length} reverse seeders...\n`)

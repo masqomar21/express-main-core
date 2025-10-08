@@ -10,17 +10,22 @@ export class PDFExportService {
     const { title = 'Data Export', columns, data } = options
 
     const tableHeaders = columns
-      .map(col =>
-        `<th style="width: ${col.width || 'auto'}; text-align: ${col.align || 'left'}">${col.header}</th>`,
-      ).join('')
+      .map(
+        (col) =>
+          `<th style="width: ${col.width || 'auto'}; text-align: ${col.align || 'left'}">${col.header}</th>`,
+      )
+      .join('')
 
     const tableRows = data
-      .map(item => {
+      .map((item) => {
         const cells = columns
-          .map(col => `<td style="text-align: ${col.align || 'left'}">${item[col.key] || ''}</td>`)
+          .map(
+            (col) => `<td style="text-align: ${col.align || 'left'}">${item[col.key] || ''}</td>`,
+          )
           .join('')
         return `<tr>${cells}</tr>`
-      }).join('')
+      })
+      .join('')
 
     return `
       <!DOCTYPE html>
@@ -188,7 +193,10 @@ export class PDFExportService {
     return filePath
   }
 
-  async exportFormPageSourceToBuffer( html: string, options: PDFExportOptions | null): Promise<Buffer> {
+  async exportFormPageSourceToBuffer(
+    html: string,
+    options: PDFExportOptions | null,
+  ): Promise<Buffer> {
     const browser = await this.launchBrowser()
     try {
       const page = await browser.newPage()
@@ -213,7 +221,10 @@ export class PDFExportService {
     }
   }
 
-  async exportFormPageSourceToFile(html: string, options: PDFFileExportOptions | null): Promise<string> {
+  async exportFormPageSourceToFile(
+    html: string,
+    options: PDFFileExportOptions | null,
+  ): Promise<string> {
     const pdfBuffer = await this.exportFormPageSourceToBuffer(html, options)
     const outputDir = options?.outputDir || 'exports'
     const publicDir = path.join(process.cwd(), 'public', outputDir)

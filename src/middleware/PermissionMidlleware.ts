@@ -4,10 +4,11 @@ import logger from '@/utilities/Log'
 import { ResponseData } from '@/utilities/Response'
 import { NextFunction, Request, Response } from 'express'
 
-
-export const permissionMiddleware = (permission: PermissionList, action: 'canRead' | 'canWrite' | 'canUpdate' | 'canDelete' | 'canRestore' | 'all') => {
-  return async ( req : Request, res : Response, next : NextFunction ) => {
-
+export const permissionMiddleware = (
+  permission: PermissionList,
+  action: 'canRead' | 'canWrite' | 'canUpdate' | 'canDelete' | 'canRestore' | 'all',
+) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     const userLogin = req.user as jwtPayloadInterface
     const permissionList = res.locals.permissionList as GeneratedPermissionList[] | undefined
 
@@ -16,16 +17,19 @@ export const permissionMiddleware = (permission: PermissionList, action: 'canRea
     }
 
     // allow to admin all previlage
-    if(userLogin.roleType === 'SUPER_ADMIN') {
+    if (userLogin.roleType === 'SUPER_ADMIN') {
       next()
       return
-    } 
+    }
     const hasPermission: boolean = !!permissionList.some(
       (perm) => perm.permission === permission && (action === 'all' || perm[action]),
     )
 
     if (!hasPermission) {
-      return ResponseData.forbidden(res, `Forbidden - You do not have permission to ${action} ${permission}`)
+      return ResponseData.forbidden(
+        res,
+        `Forbidden - You do not have permission to ${action} ${permission}`,
+      )
     }
 
     next()
@@ -35,12 +39,15 @@ export const permissionMiddleware = (permission: PermissionList, action: 'canRea
 
 declare module 'express-serve-static-core' {
   interface Locals {
-    permissionList?: GeneratedPermissionList[];
+    permissionList?: GeneratedPermissionList[]
   }
 }
 
-
-export const generatePermissionList = async function (req: Request, res: Response, next: NextFunction) {
+export const generatePermissionList = async function (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const userLogin = req.user as jwtPayloadInterface
   try {
     if (!userLogin) {
@@ -85,14 +92,16 @@ export const generatePermissionList = async function (req: Request, res: Respons
       return ResponseData.forbidden(res, 'No permissions found')
     }
 
-    const permissionList : GeneratedPermissionList[] = userPermissions.role.rolePermissions.map((perm) => ({
-      permission: perm.permission.name as PermissionList,
-      canRead: perm.canRead,
-      canWrite: perm.canWrite,
-      canUpdate: perm.canUpdate,
-      canDelete: perm.canDelete,
-      canRestore: perm.canRestore,
-    }))
+    const permissionList: GeneratedPermissionList[] = userPermissions.role.rolePermissions.map(
+      (perm) => ({
+        permission: perm.permission.name as PermissionList,
+        canRead: perm.canRead,
+        canWrite: perm.canWrite,
+        canUpdate: perm.canUpdate,
+        canDelete: perm.canDelete,
+        canRestore: perm.canRestore,
+      }),
+    )
 
     await redisClient.set(key, JSON.stringify(permissionList), 3600) // Cache selama 1 jam (3600 detik)
 
@@ -104,5 +113,3 @@ export const generatePermissionList = async function (req: Request, res: Respons
     return ResponseData.serverError(res, error)
   }
 }
-
-

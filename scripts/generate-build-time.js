@@ -12,7 +12,7 @@ function runGitCommand(cmd) {
 
 const buildInfo = {
   buildTime: new Date().toISOString(),
-  buildFromated : new Date().toLocaleString( 'id-ID', {
+  buildFromated: new Date().toLocaleString('id-ID', {
     timeZone: 'Asia/Jakarta',
     year: 'numeric',
     month: '2-digit',

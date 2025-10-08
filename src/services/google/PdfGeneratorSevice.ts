@@ -6,23 +6,25 @@ import NodeCache from 'node-cache'
 const cache = new NodeCache({ stdTTL: 600 }) // cache 10 menit
 
 export type FieldsImage = {
-    url : string;
-    width?: number;
-    height?: number;
-    unit?: 'PT' 
+  url: string
+  width?: number
+  height?: number
+  unit?: 'PT'
 }
 
 export type PdfGeneratorParams = {
-    model: Record<string, any>;
-    fieldsText: string[];
-    fieldsImage?: Record<string, FieldsImage>; // { placeholder: { url, width, height, unit } }
-    templateId: string; // Google Docs template ID
-    fileName: string; // Output file name
-    mimeType?: 'application/pdf' | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    forceCopy?: boolean
+  model: Record<string, any>
+  fieldsText: string[]
+  fieldsImage?: Record<string, FieldsImage> // { placeholder: { url, width, height, unit } }
+  templateId: string // Google Docs template ID
+  fileName: string // Output file name
+  mimeType?:
+    | 'application/pdf'
+    | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  forceCopy?: boolean
 }
 
-export class PdfGeneratorService  {
+export class PdfGeneratorService {
   private docsService: docs_v1.Docs
   private driveService: drive_v3.Drive
 
@@ -124,8 +126,13 @@ export class PdfGeneratorService  {
     }
   }
 
-  private async insertImageAtPlaceholder(documentId: string, placeholder: string, image: FieldsImage) {
-    const defaultImageUrl = 'https://newus-bucket.s3.ap-southeast-2.amazonaws.com/sso-newus/file_helper/138d291b-ec1c-409d-9790-c7101156dd57_1748603357599.png'
+  private async insertImageAtPlaceholder(
+    documentId: string,
+    placeholder: string,
+    image: FieldsImage,
+  ) {
+    const defaultImageUrl =
+      'https://newus-bucket.s3.ap-southeast-2.amazonaws.com/sso-newus/file_helper/138d291b-ec1c-409d-9790-c7101156dd57_1748603357599.png'
 
     if (!this.isSupportedGoogleImageFormat(image.url)) {
       console.warn(`Unsupported image format for URL: ${image.url}. Using default image.`)
@@ -133,13 +140,13 @@ export class PdfGeneratorService  {
     }
     const document = await this.docsService.documents.get({ documentId })
     const content = document.data.body?.content ?? []
-  
+
     let indexToInsert: number | null = null
     let found = false
 
     for (const element of content) {
       if (found) break
-  
+
       // 1. Cek paragraph biasa
       if (element.paragraph) {
         const idx = this.findPlaceholderInParagraph(element.paragraph.elements, placeholder)
@@ -150,7 +157,7 @@ export class PdfGeneratorService  {
           break
         }
       }
-  
+
       // 2. Cek isi table
       if (element.table) {
         for (const row of element.table.tableRows ?? []) {
@@ -172,9 +179,16 @@ export class PdfGeneratorService  {
         }
       }
     }
-  
+
     if (indexToInsert !== null) {
-      console.log('Inserting image at index:', indexToInsert, 'for placeholder:', placeholder, 'with image:', image)
+      console.log(
+        'Inserting image at index:',
+        indexToInsert,
+        'for placeholder:',
+        placeholder,
+        'with image:',
+        image,
+      )
       const requests: docs_v1.Schema$Request[] = [
         {
           deleteContentRange: {
@@ -197,7 +211,7 @@ export class PdfGeneratorService  {
           },
         },
       ]
-  
+
       await this.docsService.documents.batchUpdate({
         documentId,
         requestBody: { requests },
@@ -206,7 +220,7 @@ export class PdfGeneratorService  {
       console.warn(`Placeholder "${placeholder}" not found in document.`)
     }
   }
-  
+
   private isSupportedGoogleImageFormat(url: string): boolean {
     const supportedExt = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
     const ext = url.split('.').pop()?.toLowerCase()
@@ -214,8 +228,7 @@ export class PdfGeneratorService  {
     console.log('Checking image URL:', url, 'with extension:', ext)
     return !!ext && supportedExt.includes(`.${ext}`)
   }
-  
-  
+
   private findPlaceholderInParagraph(
     elements: docs_v1.Schema$ParagraphElement[] = [],
     placeholder: string,
@@ -223,25 +236,20 @@ export class PdfGeneratorService  {
     for (const el of elements) {
       const contentText = el.textRun?.content
       const startIndex = el.startIndex
-  
+
       // Debugging log (opsional, bisa kamu hapus kalau sudah yakin)
       console.log('Checking element:', {
         contentText,
         startIndex,
         hasPlaceholder: contentText?.includes(placeholder),
       })
-  
-      if (
-        contentText &&
-        typeof startIndex === 'number' &&
-        contentText.includes(placeholder)
-      ) {
+
+      if (contentText && typeof startIndex === 'number' && contentText.includes(placeholder)) {
         const relativeIndex = contentText.indexOf(placeholder)
         return startIndex + relativeIndex
       }
     }
-  
+
     return null
   }
-  
 }

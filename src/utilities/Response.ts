@@ -4,8 +4,6 @@ import { StatusCodes } from 'http-status-codes'
 import { CONFIG } from '@/config'
 import { UploadError } from '@/types/globalModule'
 
-
-
 export const ResponseData = {
   /**
    * Response 200 OK
@@ -48,7 +46,9 @@ export const ResponseData = {
    * @template T - Type of the data being returned
    */
   unauthorized: (res: Response, message = 'Unauthorized'): Response =>
-    res.status(StatusCodes.UNAUTHORIZED).json({ status: StatusCodes.UNAUTHORIZED, message, data: null }),
+    res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ status: StatusCodes.UNAUTHORIZED, message, data: null }),
 
   forbidden: (res: Response, message = 'Forbidden'): Response =>
     res.status(StatusCodes.FORBIDDEN).json({ status: StatusCodes.FORBIDDEN, message, data: null }),
@@ -68,14 +68,12 @@ export const ResponseData = {
   serverError: (res: Response, error: any, message = 'Internal server error'): Response => {
     logger.error('Internal server error:', error)
 
-    
     if (error instanceof UploadError && error.type !== 'UPLOAD_ERROR') {
       return ResponseData.badRequest(res, error.message)
     }
 
-    const errorMessage = CONFIG.appMode === 'development'
-      ? error?.message || 'Unexpected error'
-      : null
+    const errorMessage =
+      CONFIG.appMode === 'development' ? error?.message || 'Unexpected error' : null
 
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -92,7 +90,7 @@ export const ResponseData = {
    * @return {Response} - Express response object with JSON data
    * @template T - Type of the data being returned
    */
-  otherResponse: <T>(res: Response, status: number, message: string, data?: T): Response =>{
+  otherResponse: <T>(res: Response, status: number, message: string, data?: T): Response => {
     return res.status(status).json({
       status,
       message,

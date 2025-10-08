@@ -6,7 +6,8 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -15,7 +16,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "indent": ["error", 2],
+    // "indent": ["error", 2],
     "quotes": ["error", "single"],
     "semi": ["error", "never"],
     "comma-dangle": ["error", "always-multiline"],
@@ -25,6 +26,7 @@
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "prettier/prettier": ["warn", { "endOfLine": "auto" }]
   }
 }

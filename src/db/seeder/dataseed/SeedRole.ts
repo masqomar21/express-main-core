@@ -14,11 +14,11 @@ export async function seedRole() {
     return role
       .toLowerCase()
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
 
-  for(const item of Object.values(roleTypes)) {
+  for (const item of Object.values(roleTypes)) {
     const role: Omit<Role, 'id'> = {
       name: formatRoleName(item),
       roleType: item,
@@ -36,7 +36,5 @@ export async function seedRole() {
     } else {
       console.log(`Role ${item} already exists`)
     }
-    
   }
-  
 }

@@ -10,9 +10,7 @@ const ResponseMiddleware = async (
 
   res.on('finish', () => {
     const ms = new Date().getTime() - start.getTime()
-    logger.info(
-      `${req.method} ${req.originalUrl} [${res.statusCode}] - ${ms}ms`,
-    )
+    logger.info(`${req.method} ${req.originalUrl} [${res.statusCode}] - ${ms}ms`)
   })
 
   next()

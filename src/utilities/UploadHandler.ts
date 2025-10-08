@@ -139,10 +139,9 @@ type UploadOptions = {
   isRequired?: boolean
 }
 
-type UploadResult<T extends UploadOptions | undefined> =
-  T extends { uploadMultiple: true }
-    ? string[] | null
-    : string | null
+type UploadResult<T extends UploadOptions | undefined> = T extends { uploadMultiple: true }
+  ? string[] | null
+  : string | null
 
 // =========================================================
 // Core Functions
@@ -162,10 +161,7 @@ export const handleFileValidation = async (
     maxFileSize?: number
   },
 ): Promise<void> => {
-  const files =
-    req.files as
-      | Express.Multer.File[]
-      | { [fieldname: string]: Express.Multer.File[] }
+  const files = req.files as Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] }
 
   const defaulConfig = {
     isRequired: false,
@@ -175,7 +171,7 @@ export const handleFileValidation = async (
   }
   config = { ...defaulConfig, ...config }
 
-  const defaultMaxFiles = config?.uploadMultiple ? (config.maxCount || 5) : 1
+  const defaultMaxFiles = config?.uploadMultiple ? config.maxCount || 5 : 1
 
   let fieldFiles: Express.Multer.File[] = []
   if (Array.isArray(files)) {
@@ -187,11 +183,7 @@ export const handleFileValidation = async (
   }
 
   if ((!fieldFiles || fieldFiles.length === 0) && config?.isRequired) {
-    throw new UploadError(
-      `No file uploaded for field: ${fieldName}`,
-      'FILE_NOT_FOUND',
-      400,
-    )
+    throw new UploadError(`No file uploaded for field: ${fieldName}`, 'FILE_NOT_FOUND', 400)
   }
 
   if (fieldFiles.length > defaultMaxFiles) {
@@ -237,10 +229,7 @@ export const handleUpload = async <T extends UploadOptions | undefined>(
     isRequired: options?.isRequired || false,
   })
 
-  const files =
-    req.files as
-      | Express.Multer.File[]
-      | { [fieldname: string]: Express.Multer.File[] }
+  const files = req.files as Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] }
 
   let fieldFiles: Express.Multer.File[] = []
   if (Array.isArray(files)) {
@@ -268,8 +257,19 @@ export const handleUpload = async <T extends UploadOptions | undefined>(
         originalname: file.originalname,
       }
 
-      if (options?.asyncUpload && options.modelName && options.recordId && options.updateFieldName) {
-        await enqueueUpload(fileUpload, folder, options.modelName, options.recordId, options.updateFieldName)
+      if (
+        options?.asyncUpload &&
+        options.modelName &&
+        options.recordId &&
+        options.updateFieldName
+      ) {
+        await enqueueUpload(
+          fileUpload,
+          folder,
+          options.modelName,
+          options.recordId,
+          options.updateFieldName,
+        )
         continue // async upload tidak langsung return URL
       }
 

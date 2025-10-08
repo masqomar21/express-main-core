@@ -8,9 +8,8 @@ import { validateInput } from '@/utilities/ValidateHandler'
 import { Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
 
-
 const RoleController = {
-  async getAllPermission(req: Request, res: Response) :Promise<Response> {
+  async getAllPermission(req: Request, res: Response): Promise<Response> {
     try {
       const permissions = await prisma.permissions.findMany()
       return ResponseData.ok(res, permissions, 'Success get all permissions')
@@ -19,15 +18,12 @@ const RoleController = {
     }
   },
 
-  async getAllRole(req: Request, res: Response) :Promise<Response> {
+  async getAllRole(req: Request, res: Response): Promise<Response> {
     const { search } = req.query
 
-    const paginate = new Pagination(
-      Number(req.query.page) || 1,
-      Number(req.query.limit) || 10,
-    )
+    const paginate = new Pagination(Number(req.query.page) || 1, Number(req.query.limit) || 10)
 
-    const whereCondition : Prisma.RoleWhereInput = {}
+    const whereCondition: Prisma.RoleWhereInput = {}
 
     if (search) {
       whereCondition.name = {
@@ -39,10 +35,10 @@ const RoleController = {
     try {
       const [roles, count] = await Promise.all([
         prisma.role.findMany({
-          where : whereCondition,
-          take : paginate.limit,
-          skip : paginate.offset,
-          orderBy : {
+          where: whereCondition,
+          take: paginate.limit,
+          skip: paginate.offset,
+          orderBy: {
             id: 'asc',
           },
         }),
@@ -56,30 +52,29 @@ const RoleController = {
     }
   },
 
-  async getRoleById(req: Request, res: Response) :Promise<Response> {
+  async getRoleById(req: Request, res: Response): Promise<Response> {
     const { roleId } = req.params
 
     try {
       const role = await prisma.role.findUnique({
         where: { id: Number(roleId) },
-        select : {
-          name : true,
-          roleType : true,
-          rolePermissions : {
-            select : {
+        select: {
+          name: true,
+          roleType: true,
+          rolePermissions: {
+            select: {
               id: true,
-              permission : {
-                select : {
+              permission: {
+                select: {
                   id: true,
-                  name : true,
+                  name: true,
                 },
               },
-              canRead : true,
-              canWrite : true,
-              canRestore : true,
-              canUpdate : true,
-              canDelete : true,
-
+              canRead: true,
+              canWrite: true,
+              canRestore: true,
+              canUpdate: true,
+              canDelete: true,
             },
           },
         },
@@ -93,8 +88,7 @@ const RoleController = {
     }
   },
 
-  async createRole(req: Request, res: Response) :Promise<Response> {
-
+  async createRole(req: Request, res: Response): Promise<Response> {
     const validationResult = validateInput(RoleSchema, req.body)
 
     if (!validationResult.success) {
@@ -104,9 +98,9 @@ const RoleController = {
     const reqBody = validationResult.data!
     try {
       const role = await prisma.role.create({
-        data : {
-          name : reqBody.name,
-          roleType : 'OTHER',
+        data: {
+          name: reqBody.name,
+          roleType: 'OTHER',
         },
       })
 
@@ -132,7 +126,7 @@ const RoleController = {
     }
   },
 
-  async updateRole(req: Request, res: Response) :Promise<Response> {
+  async updateRole(req: Request, res: Response): Promise<Response> {
     const { roleId } = req.params
 
     const validationResult = validateInput(RoleSchema, req.body)
@@ -143,10 +137,9 @@ const RoleController = {
 
     const reqBody = validationResult.data!
     try {
-
       const cekRole = await prisma.role.findUnique({
         where: { id: Number(roleId) },
-        include : {
+        include: {
           rolePermissions: true,
         },
       })
@@ -166,17 +159,28 @@ const RoleController = {
       const incommingRolePermission = reqBody.permissions
       const existingRolePermissionIds = cekRole.rolePermissions.map((permission) => permission.id)
 
-      const rolePermissionsToCreate = incommingRolePermission.filter((permission) => permission.id === undefined)
+      const rolePermissionsToCreate = incommingRolePermission.filter(
+        (permission) => permission.id === undefined,
+      )
 
-      const rolePermissionsToUpdate = incommingRolePermission.filter((permission) => permission.id !== undefined && permission.id !== null &&  existingRolePermissionIds.includes(permission.id!))
+      const rolePermissionsToUpdate = incommingRolePermission.filter(
+        (permission) =>
+          permission.id !== undefined &&
+          permission.id !== null &&
+          existingRolePermissionIds.includes(permission.id!),
+      )
 
-      const incommingRolePermissionIds = incommingRolePermission.map((permission) => permission.id).filter((id) => id !== undefined && id !== null)
+      const incommingRolePermissionIds = incommingRolePermission
+        .map((permission) => permission.id)
+        .filter((id) => id !== undefined && id !== null)
 
-      const rolePermissionsToDelete = existingRolePermissionIds.filter((id) => !incommingRolePermissionIds.includes(id))
+      const rolePermissionsToDelete = existingRolePermissionIds.filter(
+        (id) => !incommingRolePermissionIds.includes(id),
+      )
 
       if (rolePermissionsToCreate.length > 0) {
         await prisma.rolePermission.createMany({
-          data: rolePermissionsToCreate.map(item => {
+          data: rolePermissionsToCreate.map((item) => {
             return {
               permissionId: item.permissionId,
               canRead: item.canRead,
@@ -191,18 +195,20 @@ const RoleController = {
       }
 
       if (rolePermissionsToUpdate.length > 0) {
-        await Promise.all(rolePermissionsToUpdate.map((permission) => {
-          return prisma.rolePermission.update({
-            where: { id: permission.id! },
-            data: {
-              canRead: permission.canRead,
-              canWrite: permission.canWrite,
-              canRestore: permission.canRestore,
-              canUpdate: permission.canUpdate,
-              canDelete: permission.canDelete,
-            },
-          })
-        }))
+        await Promise.all(
+          rolePermissionsToUpdate.map((permission) => {
+            return prisma.rolePermission.update({
+              where: { id: permission.id! },
+              data: {
+                canRead: permission.canRead,
+                canWrite: permission.canWrite,
+                canRestore: permission.canRestore,
+                canUpdate: permission.canUpdate,
+                canDelete: permission.canDelete,
+              },
+            })
+          }),
+        )
       }
 
       if (rolePermissionsToDelete.length > 0) {
@@ -215,44 +221,39 @@ const RoleController = {
       await logActivity(userLogin.id, 'UPDATE', 'Mengubah Role' + role.name)
       await redisClient.deleteKeysByPattern('user_permissions:*')
 
-
       return ResponseData.ok(res, null, 'Success update role')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
-  async deleteRole(req: Request, res: Response) :Promise<Response> {
+  async deleteRole(req: Request, res: Response): Promise<Response> {
     const { roleId } = req.params
-    
+
     try {
       const cekRole = await prisma.role.findUnique({
         where: { id: Number(roleId) },
       })
-    
+
       if (!cekRole) {
         return ResponseData.notFound(res, 'Role not found')
       }
-    
+
       await prisma.rolePermission.deleteMany({
         where: { roleId: Number(roleId) },
       })
-    
+
       await prisma.role.delete({
         where: { id: Number(roleId) },
       })
 
-
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'DELETE', 'Hapus Role' + cekRole.name)
 
-    
       return ResponseData.ok(res, null, 'Success delete role')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
-
 }
-
 
 export default RoleController

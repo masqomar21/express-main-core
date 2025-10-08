@@ -8,11 +8,10 @@ export async function seedUser() {
 
   const passwordHash = await hashPassword('password')
 
-
   const role = await prisma.role.findMany()
-  
-  const usersData : Array<Omit<User, 'id'|'createdAt' | 'updatedAt' | 'deletedAt'>> = []
-  
+
+  const usersData: Array<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>> = []
+
   role.forEach((role) => {
     usersData.push({
       password: passwordHash,
@@ -23,7 +22,7 @@ export async function seedUser() {
   })
 
   await prisma.user.createMany({
-    data : usersData,
-    skipDuplicates : true,
+    data: usersData,
+    skipDuplicates: true,
   })
 }

@@ -59,7 +59,10 @@ while ((match = enumRegex.exec(schema)) !== null) {
   }
 
   // 2.2 Enum value SCREAMING_SNAKE_CASE
-  const values = body.split('\n').map((l) => l.trim()).filter((v) => v)
+  const values = body
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((v) => v)
   for (const value of values) {
     const v = value.split('//')[0].trim() // abaikan komentar
     if (!/^[A-Z0-9_]+$/.test(v)) {

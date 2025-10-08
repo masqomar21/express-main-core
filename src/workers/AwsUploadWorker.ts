@@ -33,8 +33,9 @@ const mimeTypes: Record<string, string> = {
 
 const worker = new Worker(
   `${CONFIG.appNameSanitized}-aws-upload`,
-  async job => {
-    const { tempFilePath, destinationKey, modelName, recordId, updateData, fieldNameToUpdate } = job.data
+  async (job) => {
+    const { tempFilePath, destinationKey, modelName, recordId, updateData, fieldNameToUpdate } =
+      job.data
     try {
       const absolutePath = path.resolve(tempFilePath)
       const fileBuffer = await fs.readFile(absolutePath)
@@ -77,8 +78,7 @@ const worker = new Worker(
         console.log('File berhasil dihapus dari lokal')
       } catch (unlinkError) {
         console.error('Gagal menghapus file lokal:', unlinkError)
-      }      
-
+      }
 
       return { message: 'Upload berhasil', location: uploadUrl }
     } catch (error) {
@@ -89,7 +89,7 @@ const worker = new Worker(
   { connection: redisBullConnection },
 )
 
-worker.on('completed', job => {
+worker.on('completed', (job) => {
   console.log(`Job ${job.id} selesai`)
 })
 

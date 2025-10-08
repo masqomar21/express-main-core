@@ -1,7 +1,7 @@
 import LogController from '@/controllers/log/LogController'
 import { Router } from 'express'
 
-export const LogRouter = () : Router => {
+export const LogRouter = (): Router => {
   const router = Router()
 
   router.get('/', LogController.getAllLog)

@@ -6,7 +6,6 @@ export function TemplateHtml(data: any): string {
   const template = fs.readFileSync(pagePath, 'utf8')
 
   console.log('TemplateHtml', data)
-  
+
   return template
 }
-  

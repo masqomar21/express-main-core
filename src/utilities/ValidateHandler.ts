@@ -17,5 +17,5 @@ export const validateInput = <T>(schema: z.ZodSchema<T>, reqBody: unknown) => {
     }
   }
 
-  return { success: true, data : reqBody as z.infer<typeof schema> }
+  return { success: true, data: reqBody as z.infer<typeof schema> }
 }

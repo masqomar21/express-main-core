@@ -2,7 +2,6 @@ import Redis from 'ioredis'
 import { CONFIG } from '.'
 import logger from '@/utilities/Log'
 
-
 class RedisService {
   private client: Redis
 
@@ -11,7 +10,7 @@ class RedisService {
       host: CONFIG.redis.host,
       port: Number(CONFIG.redis.port),
       password: CONFIG.redis.password,
-    })   
+    })
     this.client.on('connect', () => {
       logger.info('✅ Redis connected')
     })
@@ -74,7 +73,7 @@ class RedisService {
   }
 
   /**
-   * 
+   *
    * @param pattern - Pola kunci untuk menghapus (misal: 'user_*' untuk menghapus semua kunci yang diawali 'user_')
    * Menghapus beberapa kunci berdasarkan pola (pattern)
    */

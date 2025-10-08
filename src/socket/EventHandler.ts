@@ -6,7 +6,8 @@ export default function handleSocketEvents(io: Server) {
     console.log('Client connected:', socket.id)
 
     // Handle custom events here
-    socket.on('register_notif', ({ userId }) => { // adjust the event name and parameters as needed
+    socket.on('register_notif', ({ userId }) => {
+      // adjust the event name and parameters as needed
       if (!userId) {
         console.warn('userId is required for register_notif event')
         return

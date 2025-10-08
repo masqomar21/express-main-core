@@ -2,12 +2,12 @@ import { Prisma, PrismaClient } from '@prisma/client'
 import { PrismaClientOptions } from '@prisma/client/runtime/library'
 
 interface CostumeNodeGlobal extends Global {
-  prisma?: PrismaClient;
+  prisma?: PrismaClient
 }
 
 declare const global: CostumeNodeGlobal
 
-const logOptions : PrismaClientOptions['log'] = [
+const logOptions: PrismaClientOptions['log'] = [
   {
     emit: 'event',
     level: 'query',
@@ -50,19 +50,19 @@ const loggerExtension = Prisma.defineExtension({
   },
 })
 
-
 const prisma: PrismaClient =
   (global.prisma as PrismaClient | undefined) ??
   (new PrismaClient({ log: logOptions }).$extends(loggerExtension) as unknown as PrismaClient)
 
 global.prisma = prisma
 
-prisma.$connect().then(() => {
-  console.log('Connected to the database')
-}).catch((error) => {
-  console.error('Error connecting to the database:', error)
-})
-
-
+prisma
+  .$connect()
+  .then(() => {
+    console.log('Connected to the database')
+  })
+  .catch((error) => {
+    console.error('Error connecting to the database:', error)
+  })
 
 export default prisma

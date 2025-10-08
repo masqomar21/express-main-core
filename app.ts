@@ -16,7 +16,6 @@ import '@/services/google/GoogelOAuthService'
 import passport from 'passport'
 import { initWebPush } from '@/config/webPush'
 
-
 process.env.TZ = 'Asia/Jakarta'
 
 const argsObj = parsingArgs(['::port'])
@@ -29,7 +28,7 @@ if (argsObj.port) {
   if (Number(argsObj.port) < 0 || Number(argsObj.port) > 65535) {
     console.error('Port must be between 0 and 65535')
     process.exit(1)
-  }  
+  }
   CONFIG.port = Number(argsObj.port)
 }
 
@@ -50,12 +49,10 @@ app.use(function (req, res, next) {
   next()
 })
 
-
 handleSocketEvents(io)
 if (CONFIG.pushNotif) {
   initWebPush()
 }
-
 
 app.use(ResponseMiddleware)
 

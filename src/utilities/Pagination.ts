@@ -20,7 +20,7 @@ export class Pagination {
    * @param data - Array of items for the current page.
    * @returns An object containing pagination details.
    */
-  paginate<T>(count : number, data : T[]): any {
+  paginate<T>(count: number, data: T[]): any {
     const totalPages = Math.ceil(count / this.limit)
     return {
       total_items: count,
@@ -29,12 +29,8 @@ export class Pagination {
       total_pages: Math.ceil(count / this.limit),
       current_page: this.page !== 0 ? this.page : 0,
       links: {
-        prev:
-          this.page > 1 ? `?page=${this.page - 1}&limit=${this.limit}` : null,
-        next:
-          this.page < totalPages
-            ? `?page=${this.page + 1}&limit=${this.limit}`
-            : null,
+        prev: this.page > 1 ? `?page=${this.page - 1}&limit=${this.limit}` : null,
+        next: this.page < totalPages ? `?page=${this.page + 1}&limit=${this.limit}` : null,
       },
     }
   }

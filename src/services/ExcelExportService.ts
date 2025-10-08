@@ -3,7 +3,6 @@ import { Response } from 'express'
 import fs from 'fs'
 import path from 'path'
 
-
 export class ExcelExportService {
   private applyHeaderStyle(row: ExcelJS.Row) {
     row.eachCell((cell) => {

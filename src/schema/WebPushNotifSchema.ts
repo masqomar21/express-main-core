@@ -1,8 +1,6 @@
 import z from 'zod'
 
-const base64Url = z
-  .string()
-  .min(1, 'wajib diisi')
+const base64Url = z.string().min(1, 'wajib diisi')
 //   .regex(/^[A-Za-z0-9\-_]+$/, 'harus base64url valid (A–Z a–z 0–9 - _)')
 
 export const PushKeysSchema = z.object({

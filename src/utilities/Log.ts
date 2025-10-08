@@ -3,9 +3,7 @@ import { addColors } from 'winston/lib/winston/config'
 
 const { combine, timestamp, printf, colorize } = format
 
-const myFormat = printf(
-  ({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`,
-)
+const myFormat = printf(({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`)
 
 const customLevels = {
   levels: {

@@ -1,9 +1,11 @@
-
-import { S3Client, PutObjectCommand, ObjectCannedACL, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import {
+  S3Client,
+  PutObjectCommand,
+  ObjectCannedACL,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3'
 import logger from './Log'
 import { CONFIG } from '@/config'
-
-
 
 const s3Client = new S3Client({
   endpoint: CONFIG.s3.endpoint || undefined,
@@ -24,11 +26,14 @@ const pathToFolder: string = CONFIG.s3.path
  * @param folderPath - Path folder tujuan di S3
  * @returns URL file yang diupload atau null jika gagal
  */
-const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): Promise<string | null> => {
+const uploadFileToS3WithOutRedis = async (
+  file: FileType,
+  folderPath: string,
+): Promise<string | null> => {
   try {
     const { mimetype, buffer, originalname } = file
     const uniqueFilename = `${originalname.split('.')[0]}_${Date.now()}.${originalname.split('.')[1]}`
-    
+
     const uploadParams = {
       Bucket: CONFIG.s3.bucket,
       Key: `${pathToFolder}/${folderPath}/${uniqueFilename}`,
@@ -54,7 +59,6 @@ const uploadFileToS3WithOutRedis = async (file: FileType, folderPath: string): P
   }
 }
 
-
 /**
  * Hapus file dari S3 berdasarkan URL
  * @param fileUrl - URL file yang akan dihapus
@@ -67,7 +71,6 @@ const deleteFileFromS3 = async (fileUrl: string): Promise<void> => {
   }
   const filePath = fileUrl.split('/').slice(indexSLice).join('/') // Mengambil path file dari URL
   try {
-
     // console.log('filePath', filePath)
     const deleteParams = {
       Bucket: CONFIG.s3.bucket!,

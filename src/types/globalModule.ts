@@ -1,4 +1,3 @@
-
 export class UploadError extends Error {
   public statusCode: number
   public type: ErrorFileUpload

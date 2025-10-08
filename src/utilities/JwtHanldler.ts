@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken'
 
-
-
 export const generateAccesToken = function (
   payload: jwtPayloadInterface,
   secretToken: string,

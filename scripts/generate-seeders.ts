@@ -4,13 +4,14 @@ import path from 'path'
 
 const prisma = new PrismaClient()
 
-
 function toPascalCase(str: string): string {
   return str.replace(/(^\w|_\w)/g, (match) => match.replace('_', '').toUpperCase())
 }
 
 function toCamelCase(str: string): string {
-  return str.replace(/_([a-z])/g, (_, char) => char.toUpperCase()).replace(/^./, (c) => c.toLowerCase())
+  return str
+    .replace(/_([a-z])/g, (_, char) => char.toUpperCase())
+    .replace(/^./, (c) => c.toLowerCase())
 }
 
 async function main() {
@@ -60,10 +61,7 @@ export async function ${camelCaseName}() {
 }
       `.trim()
 
-      fs.writeFileSync(
-        path.join(seedersDir, `${pascalCaseName}Seed.ts`),
-        seederContent,
-      )
+      fs.writeFileSync(path.join(seedersDir, `${pascalCaseName}Seed.ts`), seederContent)
 
       console.log(`✅ Seeder generated for model: ${model}`)
     } catch (err: any) {

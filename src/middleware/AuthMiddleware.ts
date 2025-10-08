@@ -6,10 +6,9 @@ import { ResponseData } from '@/utilities/Response'
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: jwtPayloadInterface;
+    user?: jwtPayloadInterface
   }
 }
-
 
 export const AuthMiddleware = async function (req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization']
@@ -20,7 +19,6 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
   }
 
   try {
-
     const cekSesionInDb = await prisma.session.findUnique({
       where: {
         token: token,
@@ -39,7 +37,6 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
 
     req.user = decode
     next()
-    
   } catch (error: any) {
     return ResponseData.unauthorized(res, `Unauthorized - ${error.message || 'An error occurred'}`)
   }

@@ -6,7 +6,7 @@ const redisBullConnection = new Redis({
   host: CONFIG.redis.host,
   port: Number(CONFIG.redis.port),
   password: CONFIG.redis.password,
-  maxRetriesPerRequest: null,  // WAJIB untuk BullMQ
+  maxRetriesPerRequest: null, // WAJIB untuk BullMQ
 })
 
 redisBullConnection.on('connect', () => {

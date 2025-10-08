@@ -10,7 +10,7 @@ import { ResponseData } from '@/utilities/Response'
 import redisClient from '@/config/redis'
 
 const UserController = {
-  getAllUser : async (req: Request, res: Response): Promise<any> => {
+  getAllUser: async (req: Request, res: Response): Promise<any> => {
     try {
       const page = new Pagination(
         parseInt(req.query.page as string),
@@ -47,14 +47,7 @@ const UserController = {
         }),
       ])
 
-      return ResponseData.ok(
-        res,
-        page.paginate(
-          count,
-          userData,
-        ),
-        'Success get all ',
-      )
+      return ResponseData.ok(res, page.paginate(count, userData), 'Success get all ')
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
@@ -110,7 +103,7 @@ const UserController = {
       // soket create user
       getIO().emit('create-user', userData)
 
-      // loger create user wajib untuk setiap create 
+      // loger create user wajib untuk setiap create
       await logActivity(userLogin.id, 'CREATE', `Create user ${userData.name}`)
 
       return ResponseData.created(res, userData, 'Success')
@@ -129,7 +122,6 @@ const UserController = {
       return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
     try {
-
       const userData = await prisma.user.findUnique({
         where: { id: userId },
       })
@@ -168,7 +160,6 @@ const UserController = {
         where: { id: userId },
         data: { deletedAt: new Date() },
       })
-
 
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)
@@ -213,7 +204,6 @@ const UserController = {
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
-      
 
       await prisma.user.delete({
         where: { id: userId },

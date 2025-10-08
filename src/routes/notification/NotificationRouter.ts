@@ -1,7 +1,7 @@
 import NotificationController from '@/controllers/notification/NotificationController'
 import { Router } from 'express'
 
-export const NotificationRouter = () : Router => {
+export const NotificationRouter = (): Router => {
   const router = Router()
 
   router.get('/', NotificationController.getAllnotif)

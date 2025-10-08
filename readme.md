@@ -146,7 +146,6 @@ express-main-core/
 | `npm run start:worker`       | Jalankan worker BullMQ hasil build (`dist/src/workers/index.js`)            |
 | `npm run dev:worker`         | Jalankan worker BullMQ (ts-node)                                            |
 
-
 ## 📝 Development Guidelines
 
 ### Code Style

@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 export async function seedPermissions() {
   console.log('Seed data inserted permissions')
 
-  const listPermission =[
+  const listPermission = [
     'Dashboard',
     'User_Management',
     'Master_Data',
@@ -13,9 +13,9 @@ export async function seedPermissions() {
   ]
 
   await prisma.permissions.createMany({
-    data: listPermission.map(permission => ({
+    data: listPermission.map((permission) => ({
       name: permission,
-      label : permission.replace(/_/g, ' '),
+      label: permission.replace(/_/g, ' '),
     })),
     skipDuplicates: true,
   })

@@ -9,16 +9,15 @@ import { logActivity } from '../../utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
 
 const AuthController = {
-  register : async (req: Request, res: Response) => {
+  register: async (req: Request, res: Response) => {
     const reqBody = req.body
-      
+
     const validationResult = validateInput(RegisterSchema, reqBody)
-      
+
     if (!validationResult.success) {
       return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
     try {
-
       const cekExistingRole = await prisma.role.findUnique({
         where: { id: reqBody.roleId },
       })
@@ -26,7 +25,7 @@ const AuthController = {
       if (!cekExistingRole) {
         return ResponseData.badRequest(res, 'Role not found')
       }
-      
+
       reqBody.password = await hashPassword(reqBody.password)
 
       const userData = await prisma.user.create({
@@ -43,7 +42,7 @@ const AuthController = {
       return ResponseData.serverError(res, error)
     }
   },
-  login : async (req: Request, res: Response) => {
+  login: async (req: Request, res: Response) => {
     const reqBody = req.body
 
     const validationResult = validateInput(LoginSchema, reqBody)
@@ -53,14 +52,12 @@ const AuthController = {
     }
 
     try {
-      const userData = await prisma.user.findUnique(
-        {
-          where: {
-            email: reqBody.email,
-          },
-          include : { role : true },
+      const userData = await prisma.user.findUnique({
+        where: {
+          email: reqBody.email,
         },
-      )
+        include: { role: true },
+      })
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
@@ -77,7 +74,7 @@ const AuthController = {
         id: userData.id,
         name: userData.name as string,
         role: userData.role.name,
-        roleType: userData.role.roleType as 'SUPER_ADMIN' |  'OTHER',
+        roleType: userData.role.roleType as 'SUPER_ADMIN' | 'OTHER',
       }
 
       const token = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
@@ -97,8 +94,7 @@ const AuthController = {
       }
 
       return ResponseData.ok(res, responseData, 'Success')
-
-    } catch (error ) {
+    } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
@@ -117,15 +113,15 @@ const AuthController = {
             select: {
               name: true,
               roleType: true,
-              rolePermissions : {
-                select : {
-                  id : true,
+              rolePermissions: {
+                select: {
+                  id: true,
                   canDelete: true,
                   canRead: true,
                   canRestore: true,
                   canUpdate: true,
                   canWrite: true,
-                  permission : {
+                  permission: {
                     select: {
                       name: true,
                     },
@@ -134,7 +130,6 @@ const AuthController = {
               },
             },
           },
-
         },
       })
 
@@ -161,19 +156,23 @@ const AuthController = {
         }
       })
 
-      return ResponseData.ok(res, { ...userData,
-        role: {
-          ...userData.role,
-          rolePermissions: mappedPermissions,
+      return ResponseData.ok(
+        res,
+        {
+          ...userData,
+          role: {
+            ...userData.role,
+            rolePermissions: mappedPermissions,
+          },
         },
-      }, 'User profile retrieved successfully')
-
+        'User profile retrieved successfully',
+      )
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
-  
-  logout : async (req: Request, res: Response) => {
+
+  logout: async (req: Request, res: Response) => {
     const userLogin = req.user as jwtPayloadInterface
     const authHeader = req.headers['authorization']
     const token = authHeader ? authHeader.split(' ')[1] : undefined
@@ -193,13 +192,10 @@ const AuthController = {
       await logActivity(userLogin.id, 'LOGOUT', 'User logout')
 
       return ResponseData.ok(res, 'Success')
-
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
-
 }
-
 
 export default AuthController

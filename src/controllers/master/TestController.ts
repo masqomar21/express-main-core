@@ -7,10 +7,9 @@ import { ResponseData } from '@/utilities/Response'
 import NotificationServices from '@/services/NotificationService'
 
 const TestController = {
-  testFileUploadToS3: async (req : Request, res :Response) => {
-
+  testFileUploadToS3: async (req: Request, res: Response) => {
     // console.log(req)
-    
+
     if (!req.file) {
       return ResponseData.badRequest(res, 'File not found in request')
     }
@@ -29,7 +28,7 @@ const TestController = {
       return ResponseData.serverError(res, error)
     }
   },
-  deleteFileFromS3: async (req : Request, res :Response) => {
+  deleteFileFromS3: async (req: Request, res: Response) => {
     if (!req.body.fileUrl) {
       return ResponseData.badRequest(res, 'File URL not provided')
     }
@@ -46,7 +45,7 @@ const TestController = {
     try {
       const data = req.body
 
-      const page =  TemplateHtml(data)
+      const page = TemplateHtml(data)
 
       const PDFService = new PDFExportService()
       const buffer = await PDFService.exportFormPageSourceToBuffer(page, {
@@ -61,25 +60,21 @@ const TestController = {
       })
 
       await PDFService.returnToResponseBuffer(res, buffer, 'test-print.pdf')
-
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
   },
 
   testNotif: async (req: Request, res: Response) => {
-
     const data = {
-      message : req.body.message || '⚡ “Stay focused, stay awesome!”',
-      userId : req.body.userId || [1],
-      title : req.body.title || 'Our Loved Developer ❤️',
-
+      message: req.body.message || '⚡ “Stay focused, stay awesome!”',
+      userId: req.body.userId || [1],
+      title: req.body.title || 'Our Loved Developer ❤️',
     }
     try {
-
       await NotificationServices.sendNotification([...data.userId], {
-        message : data.message,
-        type : 'messageFormDeveloper',
+        message: data.message,
+        type: 'messageFormDeveloper',
         // refId : 12345,
         title: data.title,
       })
