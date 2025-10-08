@@ -10,16 +10,16 @@ import { ResponseData } from '@/utilities/Response'
 
 const AuthController = {
   register: async (req: Request, res: Response) => {
-    const reqBody = req.body
-
-    const validationResult = validateInput(RegisterSchema, reqBody)
+    const validationResult = validateInput(RegisterSchema, req.body)
 
     if (!validationResult.success) {
       return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
+    const reqBody = validationResult.data!
     try {
-      const cekExistingRole = await prisma.role.findUnique({
-        where: { id: reqBody.roleId },
+      // ajust asign role OTHER
+      const cekExistingRole = await prisma.role.findFirst({
+        where: { roleType: 'OTHER' },
       })
 
       if (!cekExistingRole) {
@@ -69,6 +69,8 @@ const AuthController = {
         return ResponseData.unauthorized(res, 'Password not match')
       }
 
+      delete (userData as { password?: string }).password
+
       // test
       const tokenPayload = {
         id: userData.id,
@@ -109,6 +111,7 @@ const AuthController = {
           id: true,
           name: true,
           email: true,
+          registeredViaGoogle: true,
           role: {
             select: {
               name: true,

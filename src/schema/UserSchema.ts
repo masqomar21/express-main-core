@@ -19,7 +19,7 @@ export const RegisterSchema = z
     email: z.string().email('Email tidak valid'),
     password: z.string().min(6, 'Password minimal harus 6 karakter'),
     confirmPassword: z.string(),
-    roleId: z.number().int('Role ID harus berupa angka integer'),
+    // roleId: z.number().int('Role ID harus berupa angka integer'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Konfirmasi password tidak sesuai',
@@ -30,3 +30,18 @@ export const LoginSchema = z.object({
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal harus 6 karakter'),
 })
+
+export const ProfileSchemaForUpdate = z.object({
+  name: z.string(),
+})
+
+export const ChangePasswordSchema = z
+  .object({
+    oldPassword: z.string().nullable().optional(),
+    newPassword: z.string().min(6, 'Password minimal harus 6 karakter'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Konfirmasi password tidak sesuai',
+    path: ['confirmPassword'],
+  })

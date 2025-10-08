@@ -12,6 +12,7 @@ import { AuthMiddleware } from '@/middleware/AuthMiddleware'
 import { getBuildInfo } from '@/utilities/GetBuildInfo'
 import { RoleRouter } from './master/RoleRouter'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
+import { ProfileRoute } from './auth/ProfileRoute'
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
@@ -39,11 +40,7 @@ export const appRouter = async function (app: Express): Promise<void> {
     fileUpload.single('gambar'),
     TestController.testFileUploadToS3,
   )
-  app.post(
-    CONFIG.apiUrl + 'test-up-delete',
-    fileUpload.single('images'),
-    TestController.deleteFileFromS3,
-  )
+  app.post(CONFIG.apiUrl + 'test-up-delete', TestController.deleteFileFromS3)
   app.post(CONFIG.apiUrl + 'test-notif', TestController.testNotif)
 
   // auth route
@@ -55,6 +52,8 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.get(CONFIG.apiUrl + 'generate-permission', async (req: Request, res: Response) => {
     return ResponseData.ok(res, res.locals.permissionList, 'Success')
   })
+
+  app.use(CONFIG.apiUrl + 'profile', ProfileRoute())
 
   //web push
   app.use(CONFIG.apiUrl + 'web-push', WebPushNotifRouter())

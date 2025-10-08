@@ -59,6 +59,8 @@ const UserController = {
         where: { id: userId },
       })
 
+      delete (userData as { password?: string }).password
+
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
@@ -100,6 +102,8 @@ const UserController = {
         data: validationResult.data!,
       })
 
+      delete (userData as { password?: string }).password
+
       // soket create user
       getIO().emit('create-user', userData)
 
@@ -113,8 +117,12 @@ const UserController = {
   },
 
   updateUser: async (req: Request, res: Response): Promise<any> => {
-    const userId = parseInt(req.params.id as string)
+    const { id } = req.params
     const reqBody = req.body
+
+    if (isNaN(Number(id))) {
+      return ResponseData.badRequest(res, 'Invalid user id')
+    }
 
     const validationResult = validateInput(UserSchemaForUpdate, reqBody)
 
@@ -123,7 +131,7 @@ const UserController = {
     }
     try {
       const userData = await prisma.user.findUnique({
-        where: { id: userId },
+        where: { id: Number(id) },
       })
 
       if (!userData) {
@@ -131,7 +139,7 @@ const UserController = {
       }
 
       const updatedUserData = await prisma.user.update({
-        where: { id: userId },
+        where: { id: Number(id) },
         data: validationResult.data!,
       })
 

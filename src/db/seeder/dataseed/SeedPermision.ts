@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { Permissions, PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -7,16 +7,19 @@ export async function seedPermissions() {
 
   const listPermission = [
     'Dashboard',
-    'User_Management',
-    'Master_Data',
+    'Manajemen User:User',
+    'Manajemen User:Role',
+    'Master:Kategori',
     // add more permissions as needed
   ]
 
+  const permissionList: Array<Omit<Permissions, 'id'>> = listPermission.map((permission) => ({
+    name: permission.split(':').length > 1 ? permission.split(':')[1].trim() : permission,
+    label: permission.replace(/_/g, ' '),
+  }))
+
   await prisma.permissions.createMany({
-    data: listPermission.map((permission) => ({
-      name: permission,
-      label: permission.replace(/_/g, ' '),
-    })),
+    data: permissionList,
     skipDuplicates: true,
   })
 }
