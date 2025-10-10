@@ -8,10 +8,13 @@ import { getIO } from '@/config/socket'
 import { logActivity } from '@/utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
 import redisClient from '@/config/redis'
+import { Prisma } from '@prisma/client'
+import { buildDateFilter } from '@/utilities/PrismaFilter'
 
 const UserController = {
   getAllUser: async (req: Request, res: Response): Promise<any> => {
     try {
+      const { startDate, endDate } = req.query
       const page = new Pagination(
         parseInt(req.query.page as string),
         parseInt(req.query.limit as string),
@@ -21,10 +24,15 @@ const UserController = {
 
       console.log(userLogin?.role)
 
-      const whereCondition = {
+      const whereCondition: Prisma.UserWhereInput = {
         deletedAt: null,
       }
 
+      const filterData = buildDateFilter(startDate as string, endDate as string)
+
+      if (Object.keys(filterData).length > 0) {
+        whereCondition.createdAt = filterData
+      }
       const [userData, count] = await Promise.all([
         prisma.user.findMany({
           where: whereCondition,
