@@ -63,6 +63,59 @@ export class PdfGeneratorService {
     this.driveService = google.drive({ version: 'v3', auth })
   }
 
+  async createTemplateFile(options: {
+    title: string
+    folderId?: string // opsional: kalau mau langsung simpan di folder tertentu di Google Drive
+    initialText?: string // teks awal atau placeholder
+  }) {
+    const { title, folderId, initialText } = options
+
+    // 1️⃣ Buat file kosong di Google Docs
+    const fileMetadata: drive_v3.Schema$File = {
+      name: title,
+      mimeType: 'application/vnd.google-apps.document',
+      ...(folderId ? { parents: [folderId] } : {}),
+    }
+
+    const createdFile = await this.driveService.files.create({
+      requestBody: fileMetadata,
+      fields: 'id, name, webViewLink, createdTime',
+    })
+
+    const documentId = createdFile.data.id!
+    console.log(`✅ Template baru dibuat: ${title} (${documentId})`)
+
+    // 2️⃣ Jika ada initialText, tulis ke dalam dokumen
+    if (initialText) {
+      await this.docsService.documents.batchUpdate({
+        documentId,
+        requestBody: {
+          requests: [
+            {
+              insertText: {
+                location: { index: 1 }, // posisi awal dokumen
+                text: initialText,
+              },
+            },
+          ],
+        },
+      })
+      console.log(`📝 Teks awal ditulis ke dokumen: ${initialText}`)
+    }
+
+    // 3️⃣ Ambil link view dokumen
+    const meta = await this.driveService.files.get({
+      fileId: documentId,
+      fields: 'id, name, webViewLink',
+    })
+
+    return {
+      documentId,
+      name: meta.data.name,
+      link: meta.data.webViewLink,
+    }
+  }
+
   async generatePdf(params: PdfGeneratorParams): Promise<{ filename: string; content: Buffer }> {
     const { model, fieldsText, fieldsImage = {}, templateId, fileName, forceCopy = true } = params
 

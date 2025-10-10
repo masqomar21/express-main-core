@@ -9,6 +9,7 @@ interface jwtPayloadInterface extends JwtPayload {
   name: string
   role?: string
   roleType: 'OTHER' | 'SUPER_ADMIN'
+  purpose: 'ACCESS_TOKEN' | 'RESET_PASSWORD' | 'VERIFY_EMAIL'
 }
 
 interface ResponseDataAttributes<T> {

@@ -5,6 +5,7 @@ import { TemplateHtml } from '@/template/TestPrint'
 import { PDFExportService } from '@/services/PdfPrintService'
 import { ResponseData } from '@/utilities/Response'
 import NotificationServices from '@/services/NotificationService'
+import { PdfGeneratorService } from '@/services/google/PdfGeneratorSevice'
 
 const TestController = {
   testFileUploadToS3: async (req: Request, res: Response) => {
@@ -79,6 +80,31 @@ const TestController = {
         title: data.title,
       })
       return ResponseData.ok(res, {}, 'Notifikasi test endpoint')
+    } catch (error) {
+      return ResponseData.serverError(res, error)
+    }
+  },
+
+  async testGenerateGoogleTemplate(req: Request, res: Response) {
+    try {
+      const pdfGen = new PdfGeneratorService()
+
+      const template = await pdfGen.createTemplateFile({
+        title: 'Template Surat Keterangan - Newus',
+        initialText: `
+    SURAT KETERANGAN
+
+    Yang bertanda tangan di bawah ini menyatakan bahwa:
+
+    Nama: {{nama}}
+    Alamat: {{alamat}}
+    Jabatan: {{jabatan}}
+
+    Demikian surat ini dibuat untuk digunakan sebagaimana mestinya.
+  `,
+      })
+
+      console.log('Template baru:', template)
     } catch (error) {
       return ResponseData.serverError(res, error)
     }

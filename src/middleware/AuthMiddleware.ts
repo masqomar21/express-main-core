@@ -31,7 +31,7 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
 
     const decode = verifyAccesToken(token, CONFIG.secret.jwtSecret)
 
-    if (!decode) {
+    if (!decode || decode.purpose !== 'ACCESS_TOKEN') {
       return ResponseData.unauthorized(res, 'Unauthorized - Invalid token')
     }
 

@@ -62,6 +62,7 @@ export const AuthRoute = (): Router => {
           name: userData.name as string,
           role: userData.role.roleType as string,
           roleType: userData.role.roleType as 'SUPER_ADMIN' | 'OTHER',
+          purpose: 'ACCESS_TOKEN',
         }
 
         const token = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day

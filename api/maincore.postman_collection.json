@@ -4,7 +4,7 @@
 		"name": "maincore",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "42604871",
-		"_collection_link": "https://www.postman.com/masqomar-publict/workspace/maincore/collection/42604871-9b8d66eb-54cc-42db-b6d5-36bba0e7627e?source=collection_link"
+		"_collection_link": "https://www.postman.com/masqomar-publict/workspace/maincore/collection/42604871-9b8d66eb-54cc-42db-b6d5-36bba0e7627e?action=share&source=collection_link&creator=42604871"
 	},
 	"item": [
 		{
@@ -63,6 +63,61 @@
 					"response": []
 				},
 				{
+					"name": "profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"const token = responseBody.data.token;\r",
+									"pm.environment.set(\"token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}auth/me",
+							"host": [
+								"{{url}}auth"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Register",
 					"request": {
 						"method": "POST",
@@ -84,6 +139,147 @@
 							"path": [
 								"auth",
 								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reset Password",
+			"item": [
+				{
+					"name": "verify email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"const token = responseBody.data.token;\r",
+									"pm.environment.set(\"token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n    \"email\" : \"super_admin@app.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}reset-password/verify-email",
+							"host": [
+								"{{url}}reset-password"
+							],
+							"path": [
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify otp",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseBody = pm.response.json();\r",
+									"const token = responseBody.data.token;\r",
+									"pm.environment.set(\"token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"otp\" : \"002241\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}reset-password/verify-otp",
+							"host": [
+								"{{url}}reset-password"
+							],
+							"path": [
+								"verify-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newPassword\" : \"password\",\r\n    \"confirmPassword\" : \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}reset-password/change-password?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IlN1cGVyIEFkbWluIiwicm9sZVR5cGUiOiJTVVBFUl9BRE1JTiIsInB1cnBvc2UiOiJSRVNFVF9QQVNTV09SRCIsImlhdCI6MTc2MDA4NjIxNiwiZXhwIjoxNzYwMDg3MTE2fQ.uChMSXD5VRjZ24JvHigrzj2jLFzFR_Zf7s8Y62Wew3g",
+							"host": [
+								"{{url}}reset-password"
+							],
+							"path": [
+								"change-password"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IlN1cGVyIEFkbWluIiwicm9sZVR5cGUiOiJTVVBFUl9BRE1JTiIsInB1cnBvc2UiOiJSRVNFVF9QQVNTV09SRCIsImlhdCI6MTc2MDA4NjIxNiwiZXhwIjoxNzYwMDg3MTE2fQ.uChMSXD5VRjZ24JvHigrzj2jLFzFR_Zf7s8Y62Wew3g"
+								}
 							]
 						}
 					},
@@ -756,7 +952,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"hamdan\",\n    \"message\": \"kenalin ke adek lo\",\n    \"userId\" : [4]  \n}",
+							"raw": "{\n    \"title\": \"hamdan\",\n    \"message\": \"kenalin ke adek lo\",\n    \"userId\" : [3, 4]  \n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -767,6 +963,32 @@
 							"raw": "{{url}}test-notif",
 							"host": [
 								"{{url}}test-notif"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "test generate template",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"hamdan\",\n    \"message\": \"kenalin ke adek lo\",\n    \"userId\" : [4]  \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}test-template",
+							"host": [
+								"{{url}}test-template"
 							]
 						}
 					},

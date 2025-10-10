@@ -56,6 +56,23 @@ model User {
   logers               Loger[]
   notifications        NotificationUser[]
   webPushSubscriptions WebPushSubscription[]
+  otp                  Otp?
+}
+
+enum OtpPurpose {
+  LOGIN
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
+
+model Otp {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique // one active otp per user
+  user      User       @relation(fields: [userId], references: [id])
+  code      String     @unique
+  purpose   OtpPurpose
+  createdAt DateTime   @default(now())
+  expiresAt DateTime
 }
 
 model Session {

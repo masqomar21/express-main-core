@@ -78,6 +78,14 @@ export const CONFIG = {
     password: process.env.REDIS_PASSWORD || '',
   },
 
+  smtp : {
+    host : process.env.SMTP_HOST || 'smtp.ethereal.email',
+    port : process.env.SMTP_PORT || '587',
+    email : process.env.SMTP_EMAIL || '',
+    password : process.env.SMTP_PASSWORD || '',
+    sender : process.env.SMTP_SENDER || (process.env.SMTP_EMAIL || ''),
+  },
+
   pushNotif: process.env.PUSH_NOTIF === 'true' || false,
   vapid: {
     subject: process.env.VAPID_SUBJECT || 'mailto:admin@domainmu.com',

@@ -13,6 +13,7 @@ import { getBuildInfo } from '@/utilities/GetBuildInfo'
 import { RoleRouter } from './master/RoleRouter'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { ProfileRoute } from './auth/ProfileRoute'
+import { ResetPasswordRoute } from './auth/ResetPasswordRoute'
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
@@ -42,9 +43,11 @@ export const appRouter = async function (app: Express): Promise<void> {
   )
   app.post(CONFIG.apiUrl + 'test-up-delete', TestController.deleteFileFromS3)
   app.post(CONFIG.apiUrl + 'test-notif', TestController.testNotif)
+  app.get(CONFIG.apiUrl + 'test-template', TestController.testGenerateGoogleTemplate)
 
   // auth route
   app.use(CONFIG.apiUrl + 'auth', AuthRoute())
+  app.use(CONFIG.apiUrl + 'reset-password', ResetPasswordRoute())
 
   // product route
   app.use(AuthMiddleware, generatePermissionList)
