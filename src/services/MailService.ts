@@ -24,9 +24,10 @@ export default class MailService {
   }
 
   async sendMail(options: MailOptions): Promise<void> {
+    // console.log('Sending email to:', `"${CONFIG.appName} Team" <${CONFIG.smtp.sender}>`)
     try {
       const info = await this.transporter.sendMail({
-        from: `"${CONFIG.appName} Team" <${CONFIG.smtp.sender}>`,
+        from: `"${CONFIG.appName} Team <${CONFIG.smtp.sender}>"`,
         to: options.to,
         subject: options.subject,
         text: options.text,

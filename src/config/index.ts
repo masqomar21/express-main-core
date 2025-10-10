@@ -83,7 +83,7 @@ export const CONFIG = {
     port : process.env.SMTP_PORT || '587',
     email : process.env.SMTP_EMAIL || '',
     password : process.env.SMTP_PASSWORD || '',
-    sender : process.env.SMTP_SENDER || (process.env.SMTP_EMAIL || ''),
+    sender : process.env.SMTP_SENDER || 'main@noreplay.com',
   },
 
   pushNotif: process.env.PUSH_NOTIF === 'true' || false,
