@@ -38,7 +38,9 @@ export default class MailService {
       const preview = nodemailer.getTestMessageUrl(info)
       if (preview) console.log(`🔗 Preview URL: ${preview}`)
     } catch (error: any) {
+      console.log(error)
       console.error('❌ Gagal kirim email:', error.message)
+      throw error
     }
   }
 
