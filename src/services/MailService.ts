@@ -44,12 +44,14 @@ export default class MailService {
     }
   }
 
-  async verifyConnection(): Promise<void> {
+  async verifyConnection(): Promise<void | Error | boolean> {
     try {
       await this.transporter.verify()
       console.log('✅ SMTP connection verified')
+      return
     } catch (error: any) {
       console.error('❌ SMTP connection failed:', error.message)
+      return error
     }
   }
 }

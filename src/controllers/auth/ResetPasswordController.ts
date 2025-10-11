@@ -52,6 +52,10 @@ const ResetPasswordController = {
       })
 
       const mail = new MailService()
+      const verifyConnection = await mail.verifyConnection()
+      if (verifyConnection instanceof Error) {
+        return ResponseData.serverError(res, verifyConnection)
+      }
 
       const otpTemplate = templateOtpHtml({ otp: data.code })
 
