@@ -1,4 +1,4 @@
-import ResetPasswordController from '@/controllers/auth/ResetPassword'
+import ResetPasswordController from '@/controllers/auth/ResetPasswordController'
 import { Router } from 'express'
 
 export const ResetPasswordRoute = (): Router => {
