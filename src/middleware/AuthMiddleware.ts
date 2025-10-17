@@ -26,13 +26,13 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
     })
 
     if (!cekSesionInDb) {
-      return ResponseData.unauthorized(res, 'Unauthorized - Invalid session')
+      return ResponseData.otherResponse(res, 498, 'Unauthorized - Invalid session')
     }
 
     const decode = verifyAccesToken(token, CONFIG.secret.jwtSecret)
 
     if (!decode || decode.purpose !== 'ACCESS_TOKEN') {
-      return ResponseData.unauthorized(res, 'Unauthorized - Invalid token')
+      return ResponseData.otherResponse(res, 498, 'Unauthorized - Invalid token')
     }
 
     req.user = decode
