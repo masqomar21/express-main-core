@@ -6,32 +6,53 @@ import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { generateAccesToken } from '@/utilities/JwtHanldler'
 import logger from '@/utilities/Log'
 import { logActivity } from '@/utilities/LogActivity'
+import { ResponseData } from '@/utilities/Response'
 import { NextFunction, Request, Response, Router } from 'express'
 import passport from 'passport'
 
 export const AuthRoute = (): Router => {
   const router = Router()
 
-  router.get(
-    '/google',
-    passport.authenticate('google', { scope: ['profile', 'email'], session: false }),
-  )
+  router.get('/google', (req: Request, res: Response, next: NextFunction) => {
+    const redirectUrl = req.query.redirectUrl as string | undefined
+
+    if (redirectUrl) {
+      const allowedOrigins = CONFIG.client.callBackallowOrigin
+      const isOriginAllowed = allowedOrigins.some((origin) => redirectUrl.startsWith(origin))
+
+      if (!isOriginAllowed) {
+        return ResponseData.forbidden(res, 'Origin tidak diizinkan untuk redirect.')
+      }
+    }
+
+    passport.authenticate('google', {
+      scope: ['profile', 'email'],
+      session: false,
+      state: redirectUrl
+        ? Buffer.from(JSON.stringify({ redirectUrl })).toString('base64')
+        : undefined,
+    })(req, res, next)
+  })
 
   router.get('/google/callback', (req: Request, res: Response, next: NextFunction) => {
+    const stateParam = req.query.state as string | undefined
+    const stateData = stateParam
+      ? JSON.parse(Buffer.from(stateParam, 'base64').toString('utf-8'))
+      : {}
+    const redirectUrl = stateData.redirectUrl ?? CONFIG.client.callBackGoogleOAuth
+
     passport.authenticate('google', { session: false }, async (err, user, info) => {
       if (err) {
         console.error('Google Auth Error:', err)
         return res.redirect(
-          `${CONFIG.client.callBackGoogleOAuth}?status=fail&msg=${encodeURIComponent('Terjadi kesalahan autentikasi.')}`,
+          `${redirectUrl}?status=fail&msg=${encodeURIComponent('Terjadi kesalahan autentikasi.')}`,
         )
       }
 
       if (!user) {
         const message = info?.message || 'User belum terdaftar.'
         console.warn('Google Auth Info:', message)
-        return res.redirect(
-          `${CONFIG.client.callBackGoogleOAuth}?status=fail&msg=${encodeURIComponent(message)}`,
-        )
+        return res.redirect(`${redirectUrl}?status=fail&msg=${encodeURIComponent(message)}`)
       }
 
       try {
@@ -41,7 +62,6 @@ export const AuthRoute = (): Router => {
             id: true,
             name: true,
             email: true,
-
             role: {
               select: { name: true, roleType: true },
             },
@@ -55,13 +75,11 @@ export const AuthRoute = (): Router => {
           )
         }
 
-        // const cekRoleType = (roleType: string) => userData.role.name === roleType
-
         const tokenPayload: jwtPayloadInterface = {
           id: userData.id,
           name: userData.name as string,
           role: userData.role.roleType as string,
-          roleType: userData.role.roleType as 'SUPER_ADMIN' | 'OTHER',
+          roleType: userData.role.roleType as JwtRoleType,
           purpose: 'ACCESS_TOKEN',
         }
 
@@ -77,13 +95,11 @@ export const AuthRoute = (): Router => {
         await logActivity(userData.id, 'LOGIN', 'User login via Google OAuth')
 
         // ✅ Redirect ke frontend atau kirim JSON
-        return res.redirect(
-          `${CONFIG.client.callBackGoogleOAuth}?status=success&msg=success&token=${token}`,
-        )
+        return res.redirect(`${redirectUrl}?status=success&msg=success&token=${token}`)
       } catch (error) {
         logger.error(error)
         return res.redirect(
-          `${CONFIG.client.callBackGoogleOAuth}?status=fail&msg=${encodeURIComponent('Gagal memproses data pengguna.')}`,
+          `${redirectUrl}?status=fail&msg=${encodeURIComponent('Gagal memproses data pengguna.')}`,
         )
       }
     })(req, res, next)

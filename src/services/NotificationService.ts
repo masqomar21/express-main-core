@@ -5,7 +5,10 @@ import logger from '@/utilities/Log'
 import { webpush } from '@/config/webPush'
 import { CONFIG } from '@/config'
 
-export type NotificationKind = 'user' | 'admin' | 'other' | 'messageFormDeveloper'
+export const NotificationSets = new Set(['messageFormDeveloper', 'user', 'admin', 'other'] as const)
+
+export type NotificationKind = typeof NotificationSets extends Set<infer T> ? T : never
+
 // adjust as needed
 
 const notificationKindText: Record<NotificationKind, string> = {

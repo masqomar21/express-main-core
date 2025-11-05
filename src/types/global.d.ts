@@ -4,11 +4,13 @@ interface FileType {
   originalname: string
 }
 
+type JwtRoleType = 'OTHER' | 'SUPER_ADMIN'
+
 interface jwtPayloadInterface extends JwtPayload {
   id: number
   name: string
   role?: string
-  roleType: 'OTHER' | 'SUPER_ADMIN'
+  roleType: JwtRoleType
   purpose: 'ACCESS_TOKEN' | 'RESET_PASSWORD' | 'VERIFY_EMAIL'
 }
 

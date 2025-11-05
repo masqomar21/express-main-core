@@ -16,6 +16,7 @@ export const CONFIG = {
   client: {
     url: process.env.CLIENT_URL || 'http://localhost:3000',
     callBackGoogleOAuth: process.env.CLIENT_CALLBACK_GOOGLE_OAUTH_URL || 'http://localhost:3000',
+    callBackallowOrigin: process.env.CLIENT_WHITELIST_ORIGIN ? process.env.CLIENT_WHITELIST_ORIGIN.split(',') :[],
   },
   uniqueDeleteKey: `@has-been-deleted`,
 
@@ -92,4 +93,8 @@ export const CONFIG = {
     publicKey: process.env.VAPID_PUBLIC_KEY || '',
     privateKey: process.env.VAPID_PRIVATE_KEY || '',
   },
+}
+
+if (CONFIG.appMode === 'development') {
+  CONFIG.client.callBackallowOrigin.push('http://localhost:')
 }

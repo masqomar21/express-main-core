@@ -6,6 +6,11 @@ import { Response } from 'express'
 // ===== PDF Export Service =====
 
 export class PDFExportService {
+  /**
+   * Generate standard export HTML for PDF
+   * @param options - PDF standard export options
+   * @returns string - generated HTML
+   */
   private generateStandardExportHTML(options: PDFStandardExportOptions): string {
     const { title = 'Data Export', columns, data } = options
 
@@ -28,115 +33,112 @@ export class PDFExportService {
       .join('')
 
     return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>${title}</title>
-        <style>
-          @page {
-            margin: 20mm;
-            size: ${options.pageSize || 'A4'} ${options.orientation || 'portrait'};
-          }
-          body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            font-size: 12px;
-            line-height: 1.4;
-            color: #333;
-          }
-          .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #2F75B5;
-            padding-bottom: 15px;
-          }
-          .header h1 {
-            color: #2F75B5;
-            font-size: 24px;
-            margin: 0;
-          }
-          .export-info {
-            text-align: right;
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 20px;
-          }
-          .table-container {
-            width: 100%;
-            overflow-x: auto;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          }
-          th {
-            background: #2F75B5;
-            color: white;
-            font-weight: bold;
-            padding: 12px 8px;
-            border: 1px solid #1a5490;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          td {
-            padding: 10px 8px;
-            border: 1px solid #ddd;
-            font-size: 11px;
-            word-wrap: break-word;
-          }
-          tr:nth-child(even) {
-            background-color: #f8f9fa;
-          }
-          tr:hover {
-            background-color: #e3f2fd;
-          }
-          .footer {
-            position: fixed;
-            bottom: 10mm;
-            left: 20mm;
-            right: 20mm;
-            text-align: center;
-            font-size: 9px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 5px;
-          }
-          .page-number:after {
-            content: "Page " counter(page) " of " counter(pages);
-          }
-          @media print {
-            body { padding: 0 }
-            .header, th, tr { page-break-after: avoid }
-            tr { page-break-inside: avoid }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>${title}</h1>
-        </div>
-        <div class="export-info">
-          Generated on: ${new Date().toLocaleString('id-ID')} | Total Records: ${data.length}
-        </div>
-        <div class="table-container">
-          <table>
-            <thead><tr>${tableHeaders}</tr></thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-        </div>
-        <div class="footer">
-          <div class="page-number"></div>
-        </div>
-      </body>
-      </html>
-    `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${title}</title>
+      <style>
+        @page {
+          margin: 20mm;
+          size: ${options.pageSize || 'A4'} ${options.orientation || 'portrait'};
+        }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 20px;
+          font-size: 12px;
+          line-height: 1.4;
+          color: #333;
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+          border-bottom: 2px solid #2F75B5;
+          padding-bottom: 15px;
+        }
+        .header h1 {
+          color: #2F75B5;
+          font-size: 24px;
+          margin: 0;
+        }
+        .export-info {
+          text-align: right;
+          font-size: 10px;
+          color: #666;
+          margin-bottom: 20px;
+        }
+        .table-container {
+          width: 100%;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          background: white;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+
+        th {
+          background: #2F75B5;
+          color: white;
+          font-weight: bold;
+          padding: 12px 8px;
+          border: 1px solid #1a5490;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        td {
+          padding: 10px 8px;
+          border: 1px solid #ddd;
+          font-size: 11px;
+          word-wrap: break-word;
+        }
+        tr:nth-child(even) {
+          background-color: #f8f9fa;
+        }
+        tr:hover {
+          background-color: #e3f2fd;
+        }
+
+        /* FIX: biar tabel bisa pecah halaman */
+        tr, td, th {
+          page-break-inside: auto !important;
+        }
+
+        @media print {
+          body { padding: 0 }
+          .header, th { page-break-after: avoid }
+          .table-container { overflow: visible !important; }
+        }
+
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>${title}</h1>
+      </div>
+      <div class="export-info">
+        Generated on: ${new Date().toLocaleString('id-ID')} | Total Records: ${data.length}
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr>${tableHeaders}</tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+      
+    </body>
+    </html>
+  `
   }
 
+  /**
+   * Launch a headless browser instance.
+   * @returns puppeteer.Browser - The launched browser instance.
+   */
   private async launchBrowser() {
     return await puppeteer.launch({
       headless: true,
@@ -152,6 +154,11 @@ export class PDFExportService {
     })
   }
 
+  /**
+   * Generate a standard export HTML for PDF.
+   * @param options - PDF standard export options
+   * @returns Buffer - generated PDF buffer
+   */
   async exportStandardExportToBuffer(options: PDFStandardExportOptions): Promise<Buffer> {
     const browser = await this.launchBrowser()
     try {
@@ -172,13 +179,18 @@ export class PDFExportService {
         preferCSSPageSize: options.preferCSSPageSize || true,
       })
 
-      return Buffer.from(pdfBuffer as ArrayBuffer)
+      return Buffer.from(pdfBuffer)
     } finally {
       await browser.close()
     }
   }
 
-  async exporStandardExporttToFile(options: PDFStandardFileExportOptions): Promise<string> {
+  /**
+   * Generate a standard export PDF file.
+   * @param options - PDF standard export options
+   * @returns string - file path of the generated PDF
+   */
+  async exporStandardExportToFile(options: PDFStandardFileExportOptions): Promise<string> {
     const pdfBuffer = await this.exportStandardExportToBuffer(options)
     const outputDir = options.outputDir || 'exports'
     const publicDir = path.join(process.cwd(), 'public', outputDir)
@@ -193,6 +205,12 @@ export class PDFExportService {
     return filePath
   }
 
+  /**
+   * Generate a PDF buffer from the form page source.
+   * @param html - The HTML content of the form page.
+   * @param options - PDF export options.
+   * @returns Buffer - The generated PDF buffer.
+   */
   async exportFormPageSourceToBuffer(
     html: string,
     options: PDFExportOptions | null,
@@ -215,12 +233,18 @@ export class PDFExportService {
         preferCSSPageSize: options?.preferCSSPageSize || true,
       })
 
-      return Buffer.from(pdfBuffer as ArrayBuffer)
+      return Buffer.from(pdfBuffer)
     } finally {
       await browser.close()
     }
   }
 
+  /**
+   * Generate a PDF file from the form page source.
+   * @param html - The HTML content of the form page.
+   * @param options - PDF export options.
+   * @returns string - The file path of the generated PDF.
+   */
   async exportFormPageSourceToFile(
     html: string,
     options: PDFFileExportOptions | null,
@@ -239,6 +263,13 @@ export class PDFExportService {
     return filePath
   }
 
+  /**
+   *  Return PDF buffer to Express response for download.
+   * @param res - Express response object
+   * @param buffer - PDF buffer to send
+   * @param fileName - Name of the file to download
+   * @returns Buffer - The same PDF buffer
+   */
   async returnToResponseBuffer(res: Response, buffer: Buffer, fileName: string): Promise<Buffer> {
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-Type', 'application/pdf')

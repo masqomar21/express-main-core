@@ -12,13 +12,13 @@ import { z } from 'zod'
 export const validateInput = <T>(schema: z.ZodSchema<T>, reqBody: unknown) => {
   const parsedBody = preprocessFormData(reqBody)
 
-  console.log('Parsed Body:', parsedBody) // Debug log
+  // console.log('Parsed Body:', parsedBody) // Debug log
 
   const validationResult = schema.safeParse(parsedBody)
   if (!validationResult.success) {
     return {
       success: false,
-      errors: validationResult.error.flatten().fieldErrors,
+      errors: validationResult.error.issues,
     }
   }
 
