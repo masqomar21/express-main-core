@@ -6,6 +6,7 @@ import {
 } from '@aws-sdk/client-s3'
 import logger from './Log'
 import { CONFIG } from '@/config'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 const s3Client = new S3Client({
   endpoint: CONFIG.s3.endpoint || undefined,
@@ -57,6 +58,40 @@ const uploadFileToS3WithOutRedis = async (
     logger.error(error)
     return null
   }
+}
+
+/**
+ * Generate a pre-signed URL for uploading a file to S3
+ * @param fileName - The name of the file to upload
+ * @param fileType - The MIME type of the file
+ * @param folderPath - The folder path in S3 to upload the file
+ * @returns An object containing the signed URL and the file URL
+ */
+
+export async function generateUploadUrl(
+  fileName: string,
+  fileType: string,
+  folderPath?: string,
+): Promise<{ signedUrl: string; fileUrl: string }> {
+  const fileKey = `${pathToFolder}/${folderPath ? folderPath + '/' : ''}${Date.now()}_${fileName}`
+  const command = new PutObjectCommand({
+    Bucket: CONFIG.s3.bucket,
+    Key: fileKey,
+    ContentType: fileType,
+    ACL: ObjectCannedACL.public_read_write,
+  })
+
+  const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 120 }) // 60 detik
+
+  let fileUrl: string
+  if (!CONFIG.s3.endpoint) {
+    fileUrl = `https://${CONFIG.s3.bucket}.s3.${CONFIG.s3.region}.amazonaws.com/${fileKey}`
+  } else {
+    // Jika menggunakan endpoint khusus, gunakan format URL yang sesuai
+    fileUrl = `${CONFIG.s3.endpoint}/${CONFIG.s3.bucket}/${fileKey}`
+  }
+
+  return { signedUrl, fileUrl }
 }
 
 /**

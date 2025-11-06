@@ -2,7 +2,7 @@ import { Worker } from 'bullmq'
 import prisma from '@/config/database'
 import fs from 'fs/promises'
 import path from 'path'
-import { uploadFileToS3WithOutRedis } from '@/utilities/AwsHandler'
+import { uploadFileToS3WithOutRedis } from '@/utilities/S3Handler'
 import redisBullConnection from '@/config/redisBull'
 import { CONFIG } from '@/config'
 

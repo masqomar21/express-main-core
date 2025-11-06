@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { deleteFileFromS3 } from '@/utilities/AwsHandler'
+import { deleteFileFromS3 } from '@/utilities/S3Handler'
 import { handleUpload } from '@/utilities/UploadHandler'
 import { TemplateHtml } from '@/template/TestPrint'
 import { PDFExportService } from '@/services/PdfPrintService'

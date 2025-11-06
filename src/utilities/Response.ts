@@ -39,6 +39,19 @@ export const ResponseData = {
     res.status(StatusCodes.BAD_REQUEST).json({ status: StatusCodes.BAD_REQUEST, message, data }),
 
   /**
+   * Response 400 Bad Request
+   * @param res - Express response object
+   * @param message - Optional message for the response
+   * @param data - Optional data to be sent in the response
+   * @return {Response} - Express response object with JSON data
+   * @template T - Type of the data being returned
+   */
+  validateError: (res: Response, data: any = null): Response =>
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: StatusCodes.BAD_REQUEST, message: 'Bad request', data }),
+
+  /**
    * Response 401 Unauthorized
    * @param res - Express response object
    * @param message - Optional message for the response

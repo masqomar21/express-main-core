@@ -14,6 +14,7 @@ import { RoleRouter } from './master/RoleRouter'
 import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { ProfileRoute } from './auth/ProfileRoute'
 import { ResetPasswordRoute } from './auth/ResetPasswordRoute'
+import { S3UtilsRoute } from './S3UtilsRoute'
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
@@ -51,6 +52,8 @@ export const appRouter = async function (app: Express): Promise<void> {
 
   // product route
   app.use(AuthMiddleware, generatePermissionList)
+
+  app.use(CONFIG.apiUrl + 's3', S3UtilsRoute())
 
   app.get(CONFIG.apiUrl + 'generate-permission', async (req: Request, res: Response) => {
     return ResponseData.ok(res, res.locals.permissionList, 'Success')
