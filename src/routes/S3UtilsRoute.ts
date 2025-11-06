@@ -1,4 +1,4 @@
-import PreSignS3StorageController from '@/controllers/PreSignS3StorageController'
+import PreSignS3StorageController from '@/controllers/S3UtilsController'
 import { Router } from 'express'
 
 export const S3UtilsRoute = (): Router => {
