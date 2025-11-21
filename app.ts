@@ -60,7 +60,7 @@ app.use('/public', express.static('public'))
 
 appRouter(app)
 
-app.all('*', notFoundMiddleware)
+app.all(/.*/, notFoundMiddleware)
 app.use(errorMiddleware)
 
 server.listen(CONFIG.port, () => {

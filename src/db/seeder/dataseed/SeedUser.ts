@@ -1,7 +1,9 @@
-import { PrismaClient, User } from '@prisma/client'
-import { hashPassword } from '../../../utilities/PasswordHandler'
 
-const prisma = new PrismaClient()
+import prisma from '@/config/database'
+import { hashPassword } from '../../../utilities/PasswordHandler'
+import { User } from 'generated/prisma/client'
+
+
 
 export async function seedUser() {
   console.log('Seed data inserted user')
@@ -10,7 +12,7 @@ export async function seedUser() {
 
   const role = await prisma.role.findMany()
 
-  const usersData: Array<Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>> = []
+  const usersData: Array<Omit<User, 'id' | 'createdAt' | 'deletedAt'>> = []
 
   role.forEach((role) => {
     usersData.push({
@@ -18,6 +20,8 @@ export async function seedUser() {
       name: role.name,
       email: `${role.name.toLowerCase().replace(/ /g, '_')}@app.com`,
       roleId: role.id,
+      registeredViaGoogle: false,
+      updatedAt: new Date(),
     })
   })
 

@@ -1,6 +1,5 @@
-import { PrismaClient, RolePermission } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from "@/config/database"
+import { RolePermission } from "generated/prisma/client"
 
 type PermissionList = 'Dashboard' | 'User_Management' | 'Master_Data'
 // add more permissions as needed
@@ -52,5 +51,6 @@ export async function seedRolePermission() {
 
   await prisma.rolePermission.createMany({
     data: rolePermissionsData,
+    skipDuplicates: true,
   })
 }

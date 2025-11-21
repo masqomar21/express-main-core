@@ -1,7 +1,7 @@
-import { PrismaClient, Role, RoleType } from '@prisma/client'
-// import bcrypt from "bcrypt"
+import prisma from "@/config/database"
+import { Role } from "generated/prisma/client"
+import { RoleType } from "generated/prisma/enums"
 
-const prisma = new PrismaClient()
 
 export async function seedRole() {
   console.log('Seed data inserted role')
@@ -10,7 +10,7 @@ export async function seedRole() {
     [key: string]: RoleType
   }
 
-  function formatRoleName(role) {
+  function formatRoleName(role : string): string {
     return role
       .toLowerCase()
       .split('_')

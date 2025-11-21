@@ -1,6 +1,6 @@
-import { Permissions, PrismaClient } from '@prisma/client'
+import prisma from "@/config/database"
+import { Permissions } from "generated/prisma/client"
 
-const prisma = new PrismaClient()
 
 export async function seedPermissions() {
   console.log('Seed data inserted permissions')
@@ -13,13 +13,13 @@ export async function seedPermissions() {
     // add more permissions as needed
   ]
 
-  const permissionList: Array<Omit<Permissions, 'id'>> = listPermission.map((permission) => ({
+  const PermissionList: Array<Omit<Permissions, 'id'>> = listPermission.map((permission) => ({
     name: permission.split(':').length > 1 ? permission.split(':')[1].trim() : permission,
     label: permission.replace(/_/g, ' '),
   }))
 
   await prisma.permissions.createMany({
-    data: permissionList,
+    data: PermissionList,
     skipDuplicates: true,
   })
 }

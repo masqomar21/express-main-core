@@ -1,35 +1,30 @@
-import { Prisma, PrismaClient } from '@prisma/client'
-import { PrismaClientOptions } from '@prisma/client/runtime/library'
+import { PrismaPg } from "@prisma/adapter-pg"
+import { PrismaClient } from "generated/prisma/client"
+import { LogDefinition } from "generated/prisma/internal/prismaNamespace"
+import { CONFIG } from "."
 
-interface CostumeNodeGlobal extends Global {
-  prisma?: PrismaClient
-}
-
-declare const global: CostumeNodeGlobal
-
-const logOptions: PrismaClientOptions['log'] = [
+const logOptions: LogDefinition[] = [
   {
     emit: 'event',
     level: 'query',
   },
   {
-    emit: 'event',
+    emit: 'stdout',
     level: 'info',
   },
   {
-    emit: 'event',
+    emit: 'stdout',
     level: 'warn',
   },
   {
-    emit: 'event',
+    emit: 'stdout',
     level: 'error',
   },
 ]
 
-/**
- * Logger extension — logs every query with execution time
- */
-const loggerExtension = Prisma.defineExtension({
+const adapter = new PrismaPg({connectionString : CONFIG.database.connectionString})
+
+const prisma =new PrismaClient({log : logOptions, adapter: adapter}).$extends({
   name: 'query-logger',
   query: {
     $allModels: {
@@ -50,11 +45,6 @@ const loggerExtension = Prisma.defineExtension({
   },
 })
 
-const prisma: PrismaClient =
-  (global.prisma as PrismaClient | undefined) ??
-  (new PrismaClient({ log: logOptions }).$extends(loggerExtension) as unknown as PrismaClient)
-
-global.prisma = prisma
 
 prisma
   .$connect()
@@ -64,5 +54,6 @@ prisma
   .catch((error) => {
     console.error('Error connecting to the database:', error)
   })
+
 
 export default prisma
