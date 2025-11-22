@@ -1,5 +1,5 @@
 import prisma from '@/config/database'
-import { Process } from '@prisma/client'
+import { Process } from 'generated/prisma/enums'
 
 /**
  * Log user activity in the database

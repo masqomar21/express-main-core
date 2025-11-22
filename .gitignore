@@ -19,5 +19,4 @@ build
 
 # prisma
 client_generated
-
-/generated/prisma
+generated/prisma

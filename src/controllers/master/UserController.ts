@@ -8,8 +8,8 @@ import { getIO } from '@/config/socket'
 import { logActivity } from '@/utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
 import redisClient from '@/config/redis'
-import { Prisma } from '@prisma/client'
 import { buildDateFilter } from '@/utilities/PrismaFilter'
+import { Prisma } from 'generated/prisma/client'
 
 const UserController = {
   getAllUser: async (req: Request, res: Response): Promise<any> => {

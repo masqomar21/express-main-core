@@ -1,8 +1,8 @@
 import prisma from '@/config/database'
 import { Pagination } from '@/utilities/Pagination'
 import { ResponseData } from '@/utilities/Response'
-import { Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
+import { Prisma } from 'generated/prisma/client'
 
 const LogController = {
   async getUserLog(req: Request, res: Response) {

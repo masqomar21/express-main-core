@@ -1,8 +1,12 @@
-import { PrismaClient } from '@prisma/client'
+import { CONFIG } from '@/config'
+import { PrismaPg } from '@prisma/adapter-pg'
 import fs from 'fs'
+import { PrismaClient } from 'generated/prisma/client'
 import path from 'path'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: CONFIG.database.connectionString })
+
+const prisma = new PrismaClient({ adapter: adapter })
 
 function toPascalCase(str: string): string {
   return str.replace(/(^\w|_\w)/g, (match) => match.replace('_', '').toUpperCase())

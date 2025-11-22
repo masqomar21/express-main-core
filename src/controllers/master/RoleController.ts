@@ -5,8 +5,8 @@ import { logActivity } from '@/utilities/LogActivity'
 import { Pagination } from '@/utilities/Pagination'
 import { ResponseData } from '@/utilities/Response'
 import { validateInput } from '@/utilities/ValidateHandler'
-import { Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
+import { Prisma } from 'generated/prisma/client'
 
 const RoleController = {
   async getAllPermission(req: Request, res: Response): Promise<Response> {
