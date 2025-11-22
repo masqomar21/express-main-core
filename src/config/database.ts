@@ -1,7 +1,7 @@
-import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient } from "generated/prisma/client"
-import { LogDefinition } from "generated/prisma/internal/prismaNamespace"
-import { CONFIG } from "."
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from 'generated/prisma/client'
+import { LogDefinition } from 'generated/prisma/internal/prismaNamespace'
+import { CONFIG } from '.'
 
 const logOptions: LogDefinition[] = [
   {
@@ -22,9 +22,9 @@ const logOptions: LogDefinition[] = [
   },
 ]
 
-const adapter = new PrismaPg({connectionString : CONFIG.database.connectionString})
+const adapter = new PrismaPg({ connectionString: CONFIG.database.connectionString })
 
-const prisma =new PrismaClient({log : logOptions, adapter: adapter}).$extends({
+const prisma = new PrismaClient({ log: logOptions, adapter: adapter }).$extends({
   name: 'query-logger',
   query: {
     $allModels: {
@@ -45,7 +45,6 @@ const prisma =new PrismaClient({log : logOptions, adapter: adapter}).$extends({
   },
 })
 
-
 prisma
   .$connect()
   .then(() => {
@@ -54,6 +53,5 @@ prisma
   .catch((error) => {
     console.error('Error connecting to the database:', error)
   })
-
 
 export default prisma

@@ -1,6 +1,5 @@
-import prisma from "@/config/database"
-import { Permissions } from "generated/prisma/client"
-
+import prisma from '@/config/database'
+import { Permissions } from 'generated/prisma/client'
 
 export async function seedPermissions() {
   console.log('Seed data inserted permissions')

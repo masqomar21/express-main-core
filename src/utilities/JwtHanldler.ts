@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import logger from './Log'
 
 export const generateAccesToken = function (
   payload: jwtPayloadInterface,
@@ -21,6 +22,7 @@ export const verifyAccesToken = function (
 
     return null
   } catch (error) {
+    logger.error('Error verifying JWT token:', error)
     return null
   }
 }

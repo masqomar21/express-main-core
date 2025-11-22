@@ -1,9 +1,9 @@
-
 import { seedUser } from './dataseed/SeedUser'
 import { seedRole } from './dataseed/SeedRole'
 import parsingArgs from '../../utilities/ParseArgs'
 import fs from 'fs'
 import path from 'path'
+import { pathToFileURL } from 'url'
 import { seedPermissions } from './dataseed/SeedPermision'
 import { seedRolePermission } from './dataseed/SeedRolePermision'
 import prisma from '@/config/database'
@@ -49,14 +49,13 @@ async function seedFromReverse() {
   for (const file of files) {
     const filePath = path.join(seedersDir, file)
     console.log(`🔍 Checking file: ${file} for seeder function...`)
-
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const seederModule = require(filePath) // ✅ PAKAI require() untuk TS dengan ts-node
+      const seederModule = await import(pathToFileURL(filePath).href)
       const seederFunctionName = Object.keys(seederModule).find((fn) => fn.startsWith('seed'))
-      if (seederFunctionName && typeof seederModule[seederFunctionName] === 'function') {
+      const seederFunc = seederFunctionName ? (seederModule as any)[seederFunctionName] : undefined
+      if (seederFunc && typeof seederFunc === 'function') {
         console.log(`🔄 Seeding from: ${file} -> ${seederFunctionName}()`)
-        await seederModule[seederFunctionName]()
+        await seederFunc()
       } else {
         console.warn(`⚠️  No valid seed function found in: ${file}`)
       }
@@ -64,8 +63,7 @@ async function seedFromReverse() {
       console.error(`❌ Failed to load seeder from ${file}: ${err.message}`)
     }
   }
-
-  console.log('\n✅ All reverse seeders executed.')
+  console.log('\n✅ Semua reverse seeder selesai dijalankan.')
 }
 
 async function main() {

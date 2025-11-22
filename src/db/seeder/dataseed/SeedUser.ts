@@ -1,9 +1,6 @@
-
 import prisma from '@/config/database'
 import { hashPassword } from '../../../utilities/PasswordHandler'
 import { User } from 'generated/prisma/client'
-
-
 
 export async function seedUser() {
   console.log('Seed data inserted user')

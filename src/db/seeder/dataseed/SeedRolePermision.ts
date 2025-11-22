@@ -1,5 +1,5 @@
-import prisma from "@/config/database"
-import { RolePermission } from "generated/prisma/client"
+import prisma from '@/config/database'
+import { RolePermission } from 'generated/prisma/client'
 
 type PermissionList = 'Dashboard' | 'User_Management' | 'Master_Data'
 // add more permissions as needed
