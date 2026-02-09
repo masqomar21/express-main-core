@@ -58,9 +58,8 @@ export const CONFIG = {
       universe_domain: 'googleapis.com',
     },
     googleDoc: {
-      registerCard:
-        process.env.GOOGLE_DOCUMENTS_ID_REGISTER_CARD ||
-        '1z8oN_CCUkYMcXKqQ9UOgEvMNxGoN2Nq9PQDlQ52XV2M',
+      templateFolderId: process.env.GOOGLE_DOC_TEMPLATE_FOLDER_ID || '',
+      macrosUrl : process.env.GOOGLE_DOC_MACROS_URL || '',
     },
     GoogleOAuthConfig: {
       clientID: (process.env.GOOGLE_OAUTH_CLIENT_ID as string) || '',

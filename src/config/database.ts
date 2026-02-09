@@ -3,6 +3,10 @@ import { PrismaClient } from 'generated/prisma/client'
 import { LogDefinition } from 'generated/prisma/internal/prismaNamespace'
 import { CONFIG } from '.'
 
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
 const logOptions: LogDefinition[] = [
   {
     emit: 'event',
@@ -22,36 +26,33 @@ const logOptions: LogDefinition[] = [
   },
 ]
 
-const adapter = new PrismaPg({ connectionString: CONFIG.database.connectionString })
+if (!globalForPrisma.prisma) {
+  const adapter = new PrismaPg({
+    connectionString: CONFIG.database.connectionString,
+  })
 
-const prisma = new PrismaClient({ log: logOptions, adapter: adapter }).$extends({
-  name: 'query-logger',
-  query: {
-    $allModels: {
-      $allOperations: async ({ model, operation, args, query }) => {
-        const start = performance.now()
-        const result = await query(args)
-        const elapsed = (performance.now() - start).toFixed(1)
+  const baseClient = new PrismaClient({
+    adapter,
+    log: logOptions,
+  })
 
-        // You can swap console.log with pino/winston here
-        console.log(
-          `[Prisma] ${model}.${operation} (${elapsed}ms)`,
-          // JSON.stringify(args),
-        )
+  globalForPrisma.prisma = baseClient.$extends({
+    name: 'query-logger',
+    query: {
+      $allModels: {
+        async $allOperations({ model, operation, args, query }) {
+          const start = performance.now()
+          const result = await query(args)
+          const elapsed = (performance.now() - start).toFixed(1)
 
-        return result
+          console.log(`[Prisma] ${model}.${operation} (${elapsed}ms)`)
+
+          return result
+        },
       },
     },
-  },
-})
+  }) as PrismaClient
+}
 
-prisma
-  .$connect()
-  .then(() => {
-    console.log('Connected to the database')
-  })
-  .catch((error) => {
-    console.error('Error connecting to the database:', error)
-  })
-
+const prisma = globalForPrisma.prisma
 export default prisma
