@@ -2,6 +2,8 @@ import Redis from 'ioredis'
 import { CONFIG } from '.'
 import logger from '@/utilities/Log'
 
+import { ConnectionOptions } from 'bullmq'
+
 const redisBullConnection = new Redis({
   host: CONFIG.redis.host,
   port: Number(CONFIG.redis.port),
@@ -17,4 +19,4 @@ redisBullConnection.on('error', (err: Error) => {
   logger.error('❌ Redis BullMQ error:', err)
 })
 
-export default redisBullConnection
+export default redisBullConnection as ConnectionOptions
