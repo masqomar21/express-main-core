@@ -35,6 +35,7 @@ interface PDFExportOptions {
   printBackground?: boolean
   orientation?: 'portrait' | 'landscape'
   preferCSSPageSize?: boolean
+  defaultEmptyValue?: string
   margin?: {
     top?: string
     right?: string
@@ -74,6 +75,31 @@ interface ExcelFileExportOptions extends ExcelExportOptions {
   fileName: string
   outputDir?: string
 }
+
+
+// combine export
+type PrintTableFormat = 'pdf' | 'excel'
+
+interface PrintTableColumn {
+  header: string
+  key: string
+  width?: number | string
+  align?: 'left' | 'center' | 'right'
+}
+
+interface PrintTableResponse {
+  title?: string
+  fileName?: string
+  sheetName?: string
+  columns: PrintTableColumn[]
+  data: Record<string, any>[]
+  pdfOptions?: Omit<PDFExportOptions, 'title'>
+}
+
+interface PrintTableControllerOptions {
+  defaultFormat?: PrintTableFormat
+}
+
 
 type AwsUploadJobData = {
   tempFilePath: string

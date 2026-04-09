@@ -7,6 +7,7 @@ import { ResponseData } from '@/utilities/Response'
 import NotificationServices from '@/services/NotificationService'
 import { createTemplateFile } from '@/services/google/PdfGeneratorSevice'
 import { extractIndexFromFieldname } from '@/utilities/ValidateHandler'
+import { CreatePrintTableController } from '@/utilities/PrintHelper'
 
 const TestController = {
   testFileUploadToS3: async (req: Request, res: Response) => {
@@ -112,6 +113,35 @@ const TestController = {
       return ResponseData.serverError(res, error)
     }
   },
+
+  testExportTeble : CreatePrintTableController(async ( req:Request, res : Response) => {
+    const data = [
+      { id: 1, name: 'John Doe', email: 'john.doe@example.com' },
+      { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com' },
+    ]
+    return {
+      title: 'Test Export Table',
+      fileName: 'test-export',
+      columns: [
+        { header: 'ID', key: 'id' },
+        { header: 'Name', key: 'name' },
+        { header: 'Email', key: 'email' },
+      ],
+      data,
+      pdfOptions: {
+        pageSize: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20mm',
+          right: '20mm',
+          bottom: '20mm',
+          left: '20mm',
+        },
+        defaultEmptyValue : '-' // Nilai default untuk data yang kosong
+      }
+    }
+
+  }),
 
   async testMultyArrarFileUplad(req: Request, res: Response) {
     const file = req.files as Express.Multer.File[] | undefined

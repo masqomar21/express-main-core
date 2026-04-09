@@ -25,7 +25,8 @@ export class PDFExportService {
       .map((item) => {
         const cells = columns
           .map(
-            (col) => `<td style="text-align: ${col.align || 'left'}">${item[col.key] || ''}</td>`,
+            (col) =>
+              `<td style="text-align: ${col.align || 'left'}">${item[col.key] || options.defaultEmptyValue || ''}</td>`,
           )
           .join('')
         return `<tr>${cells}</tr>`
