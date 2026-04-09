@@ -3,10 +3,39 @@
 //   rows: T[];
 // }
 
+import { Response } from 'express'
+import { ResponseData } from './Response'
+
 export class Pagination {
   page: number
   limit: number
   offset: number
+  orderBy: Record<string, 'asc' | 'desc'> = {}
+  isOrderBySet: boolean = false
+
+  setOrderBy(orderBy: Record<string, 'asc' | 'desc'>) {
+    this.orderBy = orderBy
+    this.isOrderBySet = true
+  }
+
+  buildOrderBy(res: Response, orderByParams: string, validFields: string[]) {
+    const [field, direction] = orderByParams.split('_')
+
+    if (!validFields.includes(field)) {
+      return ResponseData.validateError(res, {
+        orderBy: `Invalid orderBy field. Valid fields are: ${validFields.join(', ')}`,
+      })
+    }
+
+    const validDirections = ['asc', 'desc']
+    if (!validDirections.includes(direction)) {
+      return ResponseData.validateError(res, {
+        orderBy: `Invalid orderBy direction. Valid directions are: ${validDirections.join(', ')}`,
+      })
+    }
+
+    this.setOrderBy({ [field]: direction as 'asc' | 'desc' })
+  }
 
   constructor(page: number | string, size: number | string) {
     this.page = parseInt(page as string) || 1
@@ -20,7 +49,7 @@ export class Pagination {
    * @param data - Array of items for the current page.
    * @returns An object containing pagination details.
    */
-  paginate<T>(count: number, data: T[]): any {
+  paginate<T>(count: number, data: T[], other?: any): any {
     const totalPages = Math.ceil(count / this.limit)
     return {
       total_items: count,
@@ -32,6 +61,7 @@ export class Pagination {
         prev: this.page > 1 ? `?page=${this.page - 1}&limit=${this.limit}` : null,
         next: this.page < totalPages ? `?page=${this.page + 1}&limit=${this.limit}` : null,
       },
+      other: other || undefined,
     }
   }
 }
