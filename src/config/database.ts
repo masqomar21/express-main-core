@@ -29,6 +29,9 @@ const logOptions: LogDefinition[] = [
 if (!globalForPrisma.prisma) {
   const adapter = new PrismaPg({
     connectionString: CONFIG.database.connectionString,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
   })
 
   const baseClient = new PrismaClient({

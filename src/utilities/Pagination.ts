@@ -3,7 +3,7 @@
 //   rows: T[];
 // }
 
-import { Response } from 'express'
+import { Response, Request} from 'express'
 import { ResponseData } from './Response'
 
 export class Pagination {
@@ -18,7 +18,11 @@ export class Pagination {
     this.isOrderBySet = true
   }
 
-  buildOrderBy(res: Response, orderByParams: string, validFields: string[]) {
+  buildOrderBy(res: Response, reqQuery : Request['query'], validFields: string[]) {
+    const orderByParams = reqQuery.orderBy
+    if (!orderByParams || typeof orderByParams !== 'string') {
+      return
+    }
     const [field, direction] = orderByParams.split('_')
 
     if (!validFields.includes(field)) {
@@ -37,9 +41,9 @@ export class Pagination {
     this.setOrderBy({ [field]: direction as 'asc' | 'desc' })
   }
 
-  constructor(page: number | string, size: number | string) {
-    this.page = parseInt(page as string) || 1
-    this.limit = parseInt(size as string) || 10
+  constructor(page: any, size: any) {
+    this.page = isNaN(Number(page)) ? 1 : Number(page)
+    this.limit = isNaN(Number(size)) ? 10 : Number(size)
     this.offset = (this.page - 1) * this.limit
   }
 
