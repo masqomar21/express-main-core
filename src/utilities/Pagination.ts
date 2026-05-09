@@ -3,7 +3,7 @@
 //   rows: T[];
 // }
 
-import { Response, Request} from 'express'
+import { Response, Request } from 'express'
 import { ResponseData } from './Response'
 
 export class Pagination {
@@ -18,7 +18,7 @@ export class Pagination {
     this.isOrderBySet = true
   }
 
-  buildOrderBy(res: Response, reqQuery : Request['query'], validFields: string[]) {
+  buildOrderBy(res: Response, reqQuery: Request['query'], validFields: string[]) {
     const orderByParams = reqQuery.orderBy
     if (!orderByParams || typeof orderByParams !== 'string') {
       return

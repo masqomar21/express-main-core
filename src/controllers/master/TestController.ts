@@ -114,7 +114,7 @@ const TestController = {
     }
   },
 
-  testExportTeble : CreatePrintTableController(async ( req:Request, res : Response) => {
+  testExportTeble: CreatePrintTableController(async (req: Request, res: Response) => {
     const data = [
       { id: 1, name: 'John Doe', email: 'john.doe@example.com' },
       { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com' },
@@ -137,10 +137,9 @@ const TestController = {
           bottom: '20mm',
           left: '20mm',
         },
-        defaultEmptyValue : '-' // Nilai default untuk data yang kosong
-      }
+        defaultEmptyValue: '-', // Nilai default untuk data yang kosong
+      },
     }
-
   }),
 
   async testMultyArrarFileUplad(req: Request, res: Response) {

@@ -76,7 +76,6 @@ interface ExcelFileExportOptions extends ExcelExportOptions {
   outputDir?: string
 }
 
-
 // combine export
 type PrintTableFormat = 'pdf' | 'excel'
 
@@ -99,7 +98,6 @@ interface PrintTableResponse {
 interface PrintTableControllerOptions {
   defaultFormat?: PrintTableFormat
 }
-
 
 type AwsUploadJobData = {
   tempFilePath: string
