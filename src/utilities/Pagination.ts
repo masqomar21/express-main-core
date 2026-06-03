@@ -13,11 +13,6 @@ export class Pagination {
   orderBy: Record<string, 'asc' | 'desc'> = {}
   isOrderBySet: boolean = false
 
-  setOrderBy(orderBy: Record<string, 'asc' | 'desc'>) {
-    this.orderBy = orderBy
-    this.isOrderBySet = true
-  }
-
   buildOrderBy(res: Response, reqQuery: Request['query'], validFields: string[]) {
     const orderByParams = reqQuery.orderBy
     if (!orderByParams || typeof orderByParams !== 'string') {
@@ -38,7 +33,8 @@ export class Pagination {
       })
     }
 
-    this.setOrderBy({ [field]: direction as 'asc' | 'desc' })
+    this.orderBy = { [field]: direction as 'asc' | 'desc' }
+    this.isOrderBySet = true
   }
 
   constructor(
