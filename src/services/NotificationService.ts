@@ -4,6 +4,7 @@ import { getIO } from '../config/socket'
 import logger from '@/utilities/Log'
 import { webpush } from '@/config/webPush'
 import { CONFIG } from '@/config'
+import axios from 'axios'
 
 export const NotificationSets = new Set(['messageFormDeveloper', 'user', 'admin', 'other'] as const)
 
@@ -69,6 +70,38 @@ async function sendPushToSubscription(
   }
 }
 
+/**
+ * Send mobile push notification via Expo
+ * @param token Array of Expo push tokens
+ * @param title Notification title
+ * @param payload Notification body
+ * @returns A promise that resolves to a boolean indicating success or failure
+ */
+async function sendMobilePushNotif(token: string[], title: string, payload: any): Promise<boolean> {
+  if (token.length === 0) return false
+  const expoNotifUrl = 'https://exp.host/--/api/v2/push/send'
+  try {
+    const res = await axios.post(
+      expoNotifUrl,
+      {
+        to: token.map((t) => `ExponentPushToken[${t}]`),
+        title,
+        body: payload,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    console.log('Mobile push notification sent:', res.data)
+    return true
+  } catch (error) {
+    logger.error('Failed to send mobile push notification', error)
+    return false
+  }
+}
+
 const NotificationServices = {
   /**
    * Join a user to their personal socket room
@@ -91,12 +124,6 @@ const NotificationServices = {
    * @param data The notification data
    * @returns The created notification
    */
-  /**
-   * Send a notification to a list of users
-   * @param targetUserIds The IDs of the target users
-   * @param data The notification data
-   * @returns The created notification
-   */
   sendNotification: async (
     targetUserIds: number[],
     data: {
@@ -109,135 +136,63 @@ const NotificationServices = {
       | { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }
       | undefined = undefined,
   ) => {
-    // Jalankan pengiriman notifikasi secara asynchronous/background task agar tidak menghambat siklus request utama.
-    ;(async () => {
-      const io = getIO()
-      if (!io) {
-        console.error('Socket.io is not initialized!')
-        return
-      }
+    const io = getIO()
+    if (!io) {
+      console.error('Socket.io is not initialized!')
+      return
+    }
 
-      try {
-        const notif = await prisma.notification.create({
-          data: {
-            type: data.type,
-            refId: data.refId ? String(data.refId) : null,
-            message: data.message,
-            recipients: {
-              createMany: {
-                data: targetUserIds.map((uid) => ({
-                  userId: uid,
-                  deliveredAt: new Date(),
-                })),
-                skipDuplicates: true,
-              },
+    try {
+      const notif = await prisma.notification.create({
+        data: {
+          type: data.type,
+          refId: data.refId ? String(data.refId) : null,
+          message: data.message,
+          recipients: {
+            createMany: {
+              data: targetUserIds.map((uid) => ({
+                userId: uid,
+                deliveredAt: new Date(),
+              })),
+              skipDuplicates: true,
             },
           },
-          select: { id: true, type: true, message: true, refId: true, createdAt: true },
-        })
+        },
+        select: { id: true, type: true, message: true, refId: true, createdAt: true },
+      })
 
-        // Emit ke setiap room user
-        targetUserIds.forEach((uid) => {
-          io.to(`user-${uid}`).emit('receive_notification', {
-            id: notif.id,
-            type: notif.type,
-            message: notif.message,
+      // Emit ke setiap room user
+      targetUserIds.forEach((uid) => {
+        io.to(`user-${uid}`).emit('receive_notification', {
+          id: notif.id,
+          type: notif.type,
+          message: notif.message,
+          refId: notif.refId,
+          createdAt: notif.createdAt,
+        })
+      })
+
+      if (CONFIG.pushNotif) {
+        const subs = await getSubscriptionsByUserIds(targetUserIds)
+        const payload = {
+          id: notif.id,
+          title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
+          body: notif.message,
+          data: {
             refId: notif.refId,
+            type: notif.type,
             createdAt: notif.createdAt,
-          })
-        })
-
-        if (CONFIG.pushNotif) {
-          const subs = await getSubscriptionsByUserIds(targetUserIds)
-          const payload = {
-            id: notif.id,
-            title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
-            body: notif.message,
-            data: {
-              refId: notif.refId,
-              type: notif.type,
-              createdAt: notif.createdAt,
-            },
-          }
-          await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
+          },
         }
-      } catch (error) {
-        logger.error('Failed to send notification asynchronously:', error)
+        await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
       }
-    })()
+
+      return notif
+    } catch (error) {
+      logger.error(error)
+      throw new Error('Failed to send notification')
+    }
   },
-  // sendNotification: async (
-  //   targetUserIds: number[],
-  //   data: {
-  //     message: string
-  //     type: NotificationKind
-  //     refId?: string | number
-  //     title?: string
-  //   },
-  //   config:
-  //     | { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }
-  //     | undefined = undefined,
-  // ) => {
-  //   const io = getIO()
-  //   if (!io) {
-  //     console.error('Socket.io is not initialized!')
-  //     return
-  //   }
-
-  //   try {
-  //     const notif = await prisma.notification.create({
-  //       data: {
-  //         type: data.type,
-  //         refId: data.refId ? String(data.refId) : null,
-  //         message: data.message,
-  //         recipients: {
-  //           createMany: {
-  //             data: targetUserIds.map((uid) => ({
-  //               userId: uid,
-  //               deliveredAt: new Date(),
-  //             })),
-  //             skipDuplicates: true,
-  //           },
-  //         },
-  //       },
-  //       select: { id: true, type: true, message: true, refId: true, createdAt: true },
-  //     })
-
-  //     // Emit ke setiap room user
-  //     targetUserIds.forEach((uid) => {
-  //       io.to(`user-${uid}`).emit('receive_notification', {
-  //         id: notif.id,
-  //         type: notif.type,
-  //         message: notif.message,
-  //         refId: notif.refId,
-  //         createdAt: notif.createdAt,
-  //       })
-  //     })
-
-  //     if (CONFIG.pushNotif) {
-  //       const subs = await getSubscriptionsByUserIds(targetUserIds)
-  //       const payload = {
-  //         id: notif.id,
-  //         title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
-  //         body: notif.message,
-  //         data: {
-  //           refId: notif.refId,
-  //           type: notif.type,
-  //           createdAt: notif.createdAt,
-  //         },
-  //         // icon, badge bisa ditambah di SW
-  //       }
-  //       await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
-  //     }
-
-  //     // Paralel & cleanup invalid sub
-
-  //     return notif
-  //   } catch (error) {
-  //     logger.error(error)
-  //     throw new Error('Failed to send notification')
-  //   }
-  // },
 
   // === Tandai satu notif sebagai sudah dibaca ===
   readNotification: async (userId: number, notificationId: number) => {
