@@ -91,6 +91,12 @@ const NotificationServices = {
    * @param data The notification data
    * @returns The created notification
    */
+  /**
+   * Send a notification to a list of users
+   * @param targetUserIds The IDs of the target users
+   * @param data The notification data
+   * @returns The created notification
+   */
   sendNotification: async (
     targetUserIds: number[],
     data: {
@@ -103,66 +109,135 @@ const NotificationServices = {
       | { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }
       | undefined = undefined,
   ) => {
-    const io = getIO()
-    if (!io) {
-      console.error('Socket.io is not initialized!')
-      return
-    }
-
-    try {
-      const notif = await prisma.notification.create({
-        data: {
-          type: data.type,
-          refId: data.refId ? String(data.refId) : null,
-          message: data.message,
-          recipients: {
-            createMany: {
-              data: targetUserIds.map((uid) => ({
-                userId: uid,
-                deliveredAt: new Date(),
-              })),
-              skipDuplicates: true,
-            },
-          },
-        },
-        select: { id: true, type: true, message: true, refId: true, createdAt: true },
-      })
-
-      // Emit ke setiap room user
-      targetUserIds.forEach((uid) => {
-        io.to(`user-${uid}`).emit('receive_notification', {
-          id: notif.id,
-          type: notif.type,
-          message: notif.message,
-          refId: notif.refId,
-          createdAt: notif.createdAt,
-        })
-      })
-
-      if (CONFIG.pushNotif) {
-        const subs = await getSubscriptionsByUserIds(targetUserIds)
-        const payload = {
-          id: notif.id,
-          title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
-          body: notif.message,
-          data: {
-            refId: notif.refId,
-            type: notif.type,
-            createdAt: notif.createdAt,
-          },
-          // icon, badge bisa ditambah di SW
-        }
-        await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
+    // Jalankan pengiriman notifikasi secara asynchronous/background task agar tidak menghambat siklus request utama.
+    ;(async () => {
+      const io = getIO()
+      if (!io) {
+        console.error('Socket.io is not initialized!')
+        return
       }
 
-      // Paralel & cleanup invalid sub
+      try {
+        const notif = await prisma.notification.create({
+          data: {
+            type: data.type,
+            refId: data.refId ? String(data.refId) : null,
+            message: data.message,
+            recipients: {
+              createMany: {
+                data: targetUserIds.map((uid) => ({
+                  userId: uid,
+                  deliveredAt: new Date(),
+                })),
+                skipDuplicates: true,
+              },
+            },
+          },
+          select: { id: true, type: true, message: true, refId: true, createdAt: true },
+        })
 
-      return notif
-    } catch (error) {
-      logger.error(error)
-      throw new Error('Failed to send notification')
-    }
+        // Emit ke setiap room user
+        targetUserIds.forEach((uid) => {
+          io.to(`user-${uid}`).emit('receive_notification', {
+            id: notif.id,
+            type: notif.type,
+            message: notif.message,
+            refId: notif.refId,
+            createdAt: notif.createdAt,
+          })
+        })
+
+        if (CONFIG.pushNotif) {
+          const subs = await getSubscriptionsByUserIds(targetUserIds)
+          const payload = {
+            id: notif.id,
+            title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
+            body: notif.message,
+            data: {
+              refId: notif.refId,
+              type: notif.type,
+              createdAt: notif.createdAt,
+            },
+          }
+          await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
+        }
+      } catch (error) {
+        logger.error('Failed to send notification asynchronously:', error)
+      }
+    })()
   },
+  // sendNotification: async (
+  //   targetUserIds: number[],
+  //   data: {
+  //     message: string
+  //     type: NotificationKind
+  //     refId?: string | number
+  //     title?: string
+  //   },
+  //   config:
+  //     | { TTL?: number; urgency?: 'very-low' | 'low' | 'normal' | 'high' }
+  //     | undefined = undefined,
+  // ) => {
+  //   const io = getIO()
+  //   if (!io) {
+  //     console.error('Socket.io is not initialized!')
+  //     return
+  //   }
+
+  //   try {
+  //     const notif = await prisma.notification.create({
+  //       data: {
+  //         type: data.type,
+  //         refId: data.refId ? String(data.refId) : null,
+  //         message: data.message,
+  //         recipients: {
+  //           createMany: {
+  //             data: targetUserIds.map((uid) => ({
+  //               userId: uid,
+  //               deliveredAt: new Date(),
+  //             })),
+  //             skipDuplicates: true,
+  //           },
+  //         },
+  //       },
+  //       select: { id: true, type: true, message: true, refId: true, createdAt: true },
+  //     })
+
+  //     // Emit ke setiap room user
+  //     targetUserIds.forEach((uid) => {
+  //       io.to(`user-${uid}`).emit('receive_notification', {
+  //         id: notif.id,
+  //         type: notif.type,
+  //         message: notif.message,
+  //         refId: notif.refId,
+  //         createdAt: notif.createdAt,
+  //       })
+  //     })
+
+  //     if (CONFIG.pushNotif) {
+  //       const subs = await getSubscriptionsByUserIds(targetUserIds)
+  //       const payload = {
+  //         id: notif.id,
+  //         title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
+  //         body: notif.message,
+  //         data: {
+  //           refId: notif.refId,
+  //           type: notif.type,
+  //           createdAt: notif.createdAt,
+  //         },
+  //         // icon, badge bisa ditambah di SW
+  //       }
+  //       await Promise.all(subs.map((s) => sendPushToSubscription(s, payload, config)))
+  //     }
+
+  //     // Paralel & cleanup invalid sub
+
+  //     return notif
+  //   } catch (error) {
+  //     logger.error(error)
+  //     throw new Error('Failed to send notification')
+  //   }
+  // },
 
   // === Tandai satu notif sebagai sudah dibaca ===
   readNotification: async (userId: number, notificationId: number) => {

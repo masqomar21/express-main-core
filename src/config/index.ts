@@ -95,12 +95,12 @@ export const CONFIG = {
 
   database : {
     dbUserName : process.env.DB_USERNAME || 'postgres',
-    dbPassword : process.env.DB_PASSWORD || 'password',
+    dbPassword : process.env.DB_PASSWORD || '',
     dbHost : process.env.DB_HOST || 'localhost',
     dbName : process.env.DB_NAME || 'maincore_db',
     dbPort : process.env.DB_PORT || '5432',
     dbTimeZone : process.env.DB_TIMEZONE || 'UTC',
-    connectionString: `postgresql://${process.env.DB_USERNAME || 'postgres'}:${process.env.DB_PASSWORD || 'password'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'maincore_db'}?timezone=${process.env.DB_TIMEZONE || 'UTC'}`,
+    connectionString: `postgresql://${process.env.DB_USERNAME || 'postgres'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}/${process.env.DB_NAME || 'maincore_db'}?timezone=${process.env.DB_TIMEZONE || 'UTC'}`,
   }
 }
 
