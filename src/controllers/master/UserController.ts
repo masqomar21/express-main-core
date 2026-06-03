@@ -15,10 +15,7 @@ const UserController = {
   getAllUser: async (req: Request, res: Response): Promise<any> => {
     try {
       const { startDate, endDate } = req.query
-      const page = new Pagination(
-        parseInt(req.query.page as string),
-        parseInt(req.query.limit as string),
-      )
+      const page = new Pagination(req.query)
 
       const userLogin = req.user
 

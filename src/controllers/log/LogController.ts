@@ -7,7 +7,7 @@ import { Prisma } from 'generated/prisma/client'
 const LogController = {
   async getUserLog(req: Request, res: Response) {
     const userLogin = req.user as jwtPayloadInterface
-    const paginate = new Pagination(Number(req.query.page) || 1, Number(req.query.limit) || 10)
+    const paginate = new Pagination(req.query)
     try {
       const whereCondition: Prisma.LogerWhereInput = {
         userId: userLogin.id,
@@ -40,7 +40,7 @@ const LogController = {
       return ResponseData.badRequest(res, 'User ID is required and must be a number')
     }
 
-    const paginate = new Pagination(Number(req.query.page) || 1, Number(req.query.limit) || 10)
+    const paginate = new Pagination(req.query)
     try {
       const whereCondition: Prisma.LogerWhereInput = {
         userId: Number(userId),
@@ -67,7 +67,7 @@ const LogController = {
   },
 
   async getAllLog(req: Request, res: Response) {
-    const paginate = new Pagination(Number(req.query.page) || 1, Number(req.query.limit) || 10)
+    const paginate = new Pagination(req.query)
     try {
       const [data, count] = await Promise.all([
         prisma.loger.findMany({

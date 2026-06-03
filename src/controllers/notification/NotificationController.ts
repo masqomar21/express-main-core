@@ -22,7 +22,7 @@ const NotificationController = {
       )
     }
 
-    const paginate = new Pagination(Number(req.query.page) || 1, Number(req.query.limit) || 10)
+    const paginate = new Pagination(req.query)
     const userLogin = req.user as jwtPayloadInterface
     try {
       const data = await NotificationServices.getNotifications(

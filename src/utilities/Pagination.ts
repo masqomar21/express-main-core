@@ -41,9 +41,15 @@ export class Pagination {
     this.setOrderBy({ [field]: direction as 'asc' | 'desc' })
   }
 
-  constructor(page: any, size: any) {
-    this.page = isNaN(Number(page)) ? 1 : Number(page)
-    this.limit = isNaN(Number(size)) ? 10 : Number(size)
+  constructor(
+    reqQuery: Request['query'],
+    option?: {
+      defaultLimit?: number
+      defaultPage?: number
+    },
+  ) {
+    this.page = isNaN(Number(reqQuery.page)) ? option?.defaultPage || 1 : Number(reqQuery.page)
+    this.limit = isNaN(Number(reqQuery.limit)) ? option?.defaultLimit || 10 : Number(reqQuery.limit)
     this.offset = (this.page - 1) * this.limit
   }
 

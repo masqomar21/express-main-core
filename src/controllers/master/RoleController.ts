@@ -21,7 +21,7 @@ const RoleController = {
   async getAllRole(req: Request, res: Response): Promise<Response> {
     const { search } = req.query
 
-    const paginate = new Pagination(Number(req.query.page) || 1, Number(req.query.limit) || 10)
+    const paginate = new Pagination(req.query)
 
     const whereCondition: Prisma.RoleWhereInput = {}
 
