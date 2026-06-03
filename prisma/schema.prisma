@@ -41,21 +41,22 @@ model RolePermission {
 }
 
 model User {
-  id                   Int                   @id @default(autoincrement())
-  email                String                @unique
-  name                 String?
-  password             String?
-  roleId               Int
-  role                 Role                  @relation(fields: [roleId], references: [id])
-  registeredViaGoogle  Boolean               @default(false)
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  deletedAt            DateTime?
-  sessions             Session[]
-  logers               Loger[]
-  notifications        NotificationUser[]
-  webPushSubscriptions WebPushSubscription[]
-  otp                  Otp?
+  id                     Int                     @id @default(autoincrement())
+  email                  String                  @unique
+  name                   String?
+  password               String?
+  roleId                 Int
+  role                   Role                    @relation(fields: [roleId], references: [id])
+  registeredViaGoogle    Boolean                 @default(false)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  deletedAt              DateTime?
+  sessions               Session[]
+  logers                 Loger[]
+  notifications          NotificationUser[]
+  webPushSubscriptions   WebPushSubscription[]
+  mobilPushSubscriptions MobilPushSubscription[]
+  otp                    Otp?
 }
 
 enum OtpPurpose {
@@ -142,6 +143,18 @@ model WebPushSubscription {
   userAgent      String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model MobilPushSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

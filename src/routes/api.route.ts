@@ -15,6 +15,7 @@ import { generatePermissionList } from '@/middleware/PermissionMidlleware'
 import { ProfileRoute } from './auth/ProfileRoute'
 import { ResetPasswordRoute } from './auth/ResetPasswordRoute'
 import { S3UtilsRoute } from './S3UtilsRoute'
+import { MobilePushNotifRouter } from './MobilePushRouter'
 
 // const fileUpload = fileUploadMiddleware.fileUploadHandler('uploads', {
 //   maxFileSize: CONFIG.maxFileSize as number,
@@ -63,6 +64,9 @@ export const appRouter = async function (app: Express): Promise<void> {
 
   //web push
   app.use(CONFIG.apiUrl + 'web-push', WebPushNotifRouter())
+
+  //mobile push
+  app.use(CONFIG.apiUrl + 'mobile-push', MobilePushNotifRouter())
 
   // notification route
   app.use(CONFIG.apiUrl + 'notification', NotificationRouter())
