@@ -8,6 +8,8 @@ import NotificationServices from '@/services/NotificationService'
 import { createTemplateFile } from '@/services/google/PdfGeneratorSevice'
 import { extractIndexFromFieldname } from '@/utilities/ValidateHandler'
 import { CreatePrintTableController } from '@/utilities/PrintHelper'
+import redisClient from '@/config/redis'
+import { CONFIG } from '@/config'
 
 const TestController = {
   testFileUploadToS3: async (req: Request, res: Response) => {
@@ -141,6 +143,17 @@ const TestController = {
       },
     }
   }),
+
+  async flushAllRedis(req: Request, res: Response) {
+    try {
+      if (CONFIG.appMode !== 'production') {
+        await redisClient.flushAll()
+      }
+      return ResponseData.ok(res, null, 'All Redis data flushed successfully')
+    } catch (error) {
+      return ResponseData.serverError(res, error)
+    }
+  },
 
   async testMultyArrarFileUplad(req: Request, res: Response) {
     const file = req.files as Express.Multer.File[] | undefined

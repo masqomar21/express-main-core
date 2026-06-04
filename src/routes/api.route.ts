@@ -46,6 +46,7 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.post(CONFIG.apiUrl + 'test-up-delete', TestController.deleteFileFromS3)
   app.post(CONFIG.apiUrl + 'test-notif', TestController.testNotif)
   app.get(CONFIG.apiUrl + 'test-template', TestController.testGenerateGoogleTemplate)
+  app.get(CONFIG.apiUrl + 'test-flush-redis', TestController.flushAllRedis)
 
   // auth route
   app.use(CONFIG.apiUrl + 'auth', AuthRoute())
