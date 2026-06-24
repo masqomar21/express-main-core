@@ -41,3 +41,32 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
     return ResponseData.unauthorized(res, `Unauthorized - ${error.message || 'An error occurred'}`)
   }
 }
+
+/**
+ * Role Middleware - Memvalidasi apakah user memiliki role yang diperlukan
+ * Harus digunakan SETELAH AuthMiddleware
+ * @param requiredRoles - Role type atau array dari role types yang diizinkan
+ * @returns Middleware function
+ * @example
+ * router.get('/admin', AuthMiddleware, RoleMiddleware('SUPER_ADMIN'), controllerFunction)
+ * router.get('/multi', AuthMiddleware, RoleMiddleware(['SUPER_ADMIN', 'OTHER']), controllerFunction)
+ */
+export const RoleMiddleware = (requiredRoles: JwtRoleType | JwtRoleType[]) => {
+  return async function (req: Request, res: Response, next: NextFunction) {
+    if (!req.user) {
+      return ResponseData.unauthorized(res, 'Unauthorized - No user found')
+    }
+
+    const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
+
+    if (!roles.includes(req.user.roleType)) {
+      return ResponseData.otherResponse(
+        res,
+        403,
+        `Forbidden - Required role(s): ${roles.join(', ')}. Your role: ${req.user.roleType}`,
+      )
+    }
+
+    next()
+  }
+}

@@ -1,12 +1,18 @@
 import jwt from 'jsonwebtoken'
 import logger from './Log'
+import { v4 as uuidv4 } from 'uuid'
 
 export const generateAccesToken = function (
   payload: jwtPayloadInterface,
   secretToken: string,
   expiresIn: number,
 ): string {
-  return jwt.sign(payload, secretToken, { expiresIn })
+  // Generate unique JWT ID (jti) for token revocation tracking
+  const tokenPayload = {
+    ...payload,
+    jti: uuidv4(), // Add unique identifier for this token
+  }
+  return jwt.sign(tokenPayload, secretToken, { expiresIn })
 }
 
 export const verifyAccesToken = function (

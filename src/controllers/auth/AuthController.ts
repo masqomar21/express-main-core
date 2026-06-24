@@ -186,12 +186,18 @@ const AuthController = {
     }
 
     try {
-      await prisma.session.delete({
+      // Delete session by token only (token is unique in database)
+      // Using deleteMany instead of delete to handle cases where session may not exist
+      const deletedSession = await prisma.session.deleteMany({
         where: {
-          userId: userLogin.id,
           token: token,
         },
       })
+
+      // Verify that session was actually deleted
+      if (deletedSession.count === 0) {
+        return ResponseData.unauthorized(res, 'Session not found or already invalidated')
+      }
 
       await logActivity(userLogin.id, 'LOGOUT', 'User logout')
 

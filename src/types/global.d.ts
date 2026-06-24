@@ -12,6 +12,7 @@ interface jwtPayloadInterface extends JwtPayload {
   role?: string
   roleType: JwtRoleType
   purpose: 'ACCESS_TOKEN' | 'RESET_PASSWORD' | 'VERIFY_EMAIL'
+  jti?: string // JWT ID - unique identifier for token revocation
 }
 
 interface ResponseDataAttributes<T> {

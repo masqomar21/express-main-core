@@ -13,8 +13,23 @@ export class Pagination {
   orderBy: Record<string, 'asc' | 'desc'> = {}
   isOrderBySet: boolean = false
 
-  buildOrderBy(res: Response, reqQuery: Request['query'], validFields: string[]) {
-    const orderByParams = reqQuery.orderBy
+  private query: Request['query']
+
+  constructor(
+    reqQuery: Request['query'],
+    option?: {
+      defaultLimit?: number
+      defaultPage?: number
+    },
+  ) {
+    this.query = reqQuery
+    this.page = isNaN(Number(reqQuery.page)) ? option?.defaultPage || 1 : Number(reqQuery.page)
+    this.limit = isNaN(Number(reqQuery.limit)) ? option?.defaultLimit || 10 : Number(reqQuery.limit)
+    this.offset = (this.page - 1) * this.limit
+  }
+
+  buildOrderBy(res: Response, validFields: string[]) {
+    const orderByParams = this.query.orderBy
     if (!orderByParams || typeof orderByParams !== 'string') {
       return
     }
@@ -35,18 +50,6 @@ export class Pagination {
 
     this.orderBy = { [field]: direction as 'asc' | 'desc' }
     this.isOrderBySet = true
-  }
-
-  constructor(
-    reqQuery: Request['query'],
-    option?: {
-      defaultLimit?: number
-      defaultPage?: number
-    },
-  ) {
-    this.page = isNaN(Number(reqQuery.page)) ? option?.defaultPage || 1 : Number(reqQuery.page)
-    this.limit = isNaN(Number(reqQuery.limit)) ? option?.defaultLimit || 10 : Number(reqQuery.limit)
-    this.offset = (this.page - 1) * this.limit
   }
 
   /**
