@@ -165,7 +165,22 @@ export class PDFExportService {
     try {
       const page = await browser.newPage()
       const html = this.generateStandardExportHTML(options)
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 })
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 })
+
+      // Wait for images to load (max 10 seconds)
+      await page.evaluate(async () => {
+        const images = Array.from(document.querySelectorAll('img'))
+        await Promise.all(
+          images.map((img) => {
+            if (img.complete) return
+            return new Promise((resolve) => {
+              img.addEventListener('load', resolve)
+              img.addEventListener('error', resolve)
+              setTimeout(resolve, 10000)
+            })
+          }),
+        )
+      })
 
       const pdfBuffer = await page.pdf({
         format: options.pageSize || 'A4',
@@ -219,7 +234,22 @@ export class PDFExportService {
     const browser = await this.launchBrowser()
     try {
       const page = await browser.newPage()
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30000 })
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 })
+
+      // Wait for images to load (max 10 seconds)
+      await page.evaluate(async () => {
+        const images = Array.from(document.querySelectorAll('img'))
+        await Promise.all(
+          images.map((img) => {
+            if (img.complete) return
+            return new Promise((resolve) => {
+              img.addEventListener('load', resolve)
+              img.addEventListener('error', resolve)
+              setTimeout(resolve, 10000)
+            })
+          }),
+        )
+      })
 
       const pdfBuffer = await page.pdf({
         format: options?.pageSize || 'A4',
