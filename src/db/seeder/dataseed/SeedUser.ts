@@ -1,6 +1,6 @@
 import prisma from '@/config/database'
 import { hashPassword } from '../../../utilities/PasswordHandler'
-import { User } from 'generated/prisma/client'
+import { Prisma } from 'generated/prisma/client'
 
 export async function seedUser() {
   console.log('Seed data inserted user')
@@ -9,7 +9,7 @@ export async function seedUser() {
 
   const role = await prisma.role.findMany()
 
-  const usersData: Array<Omit<User, 'id' | 'createdAt' | 'deletedAt'>> = []
+  const usersData: Array<Omit<Prisma.UserCreateManyInput, 'id' | 'createdAt' | 'deletedAt'>> = []
 
   role.forEach((role) => {
     usersData.push({
