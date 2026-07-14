@@ -3,15 +3,6 @@
  * Automatically removes sensitive data from response objects
  */
 
-export type SanitizeOptions = {
-  /** Custom sensitive keys to remove (in addition to default keys) */
-  customSensitiveKeys?: string[]
-  /** Deep sanitization - recursively sanitize nested objects and arrays */
-  deep?: boolean
-  /** If true, replace sensitive values with '[REDACTED]' instead of removing the key */
-  replaceWithRedacted?: boolean
-}
-
 /**
  * Default sensitive keys that will be removed from responses
  */
@@ -64,12 +55,32 @@ const DEFAULT_SENSITIVE_KEYS = [
   'swift',
   'encryptionKey',
   'encryption_key',
-]
+] as const
+
+export type SanitizeOptions = {
+  /** Custom sensitive keys to remove (in addition to default keys) */
+  customSensitiveKeys?: string[]
+  /** Keys that should NOT be sanitized even if they match sensitive patterns */
+  allowedSensitiveKeys?: (typeof DEFAULT_SENSITIVE_KEYS)[number][]
+  /** Deep sanitization - recursively sanitize nested objects and arrays */
+  deep?: boolean
+  /** If true, replace sensitive values with '[REDACTED]' instead of removing the key */
+  replaceWithRedacted?: boolean
+}
 
 /**
  * Check if a key should be sanitized
  */
-const isSensitiveKey = (key: string, customKeys: string[] = []): boolean => {
+const isSensitiveKey = (
+  key: string,
+  customKeys: string[] = [],
+  allowedKeys: string[] = [],
+): boolean => {
+  // If key is in allowed list, don't sanitize it
+  if (allowedKeys.some((allowedKey) => allowedKey.toLowerCase() === key.toLowerCase())) {
+    return false
+  }
+
   const allSensitiveKeys = [...DEFAULT_SENSITIVE_KEYS, ...customKeys]
   const keyLower = key.toLowerCase()
 
@@ -91,7 +102,12 @@ const sanitizeObject = <T extends Record<string, any>>(
   obj: T,
   options: SanitizeOptions = {},
 ): Partial<T> => {
-  const { customSensitiveKeys = [], deep = true, replaceWithRedacted = false } = options
+  const {
+    customSensitiveKeys = [],
+    allowedSensitiveKeys = [],
+    deep = true,
+    replaceWithRedacted = false,
+  } = options
 
   if (!obj || typeof obj !== 'object') {
     return obj
@@ -111,7 +127,7 @@ const sanitizeObject = <T extends Record<string, any>>(
 
   for (const [key, value] of Object.entries(obj)) {
     // Check if key is sensitive
-    if (isSensitiveKey(key, customSensitiveKeys)) {
+    if (isSensitiveKey(key, customSensitiveKeys, allowedSensitiveKeys)) {
       if (replaceWithRedacted) {
         sanitized[key] = '[REDACTED]'
       }
@@ -173,42 +189,11 @@ export const sanitizeResponse = <T>(data: T, options: SanitizeOptions = {}): Par
 }
 
 /**
- * Sanitize user object (common use case)
- * Removes password, tokens, and other sensitive fields from user objects
- */
-export const sanitizeUser = <T extends Record<string, any>>(user: T): Partial<T> => {
-  return sanitizeResponse(user, {
-    deep: true,
-    customSensitiveKeys: ['passwordResetExpires', 'emailVerificationToken', 'lastLoginIp'],
-  })
-}
-
-/**
- * Sanitize array of users
- */
-export const sanitizeUsers = <T extends Record<string, any>>(users: T[]): Partial<T>[] => {
-  return users.map((user) => sanitizeUser(user))
-}
-
-/**
- * Add custom sensitive keys to the default list for a specific sanitization
- */
-export const sanitizeWithCustomKeys = <T>(data: T, customKeys: string[]): Partial<T> => {
-  return sanitizeResponse(data, {
-    customSensitiveKeys: customKeys,
-    deep: true,
-  })
-}
-
-/**
  * Export sensitive keys list for reference
  */
 export const SENSITIVE_KEYS = DEFAULT_SENSITIVE_KEYS
 
 export default {
   sanitizeResponse,
-  sanitizeUser,
-  sanitizeUsers,
-  sanitizeWithCustomKeys,
   SENSITIVE_KEYS,
 }

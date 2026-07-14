@@ -69,7 +69,7 @@ const AuthController = {
         return ResponseData.unauthorized(res, 'Password not match')
       }
 
-      delete (userData as { password?: string }).password
+      // delete (userData as { password?: string }).password
 
       // test
       const tokenPayload: jwtPayloadInterface = {
@@ -96,7 +96,9 @@ const AuthController = {
         token,
       }
 
-      return ResponseData.ok(res, responseData, 'Success')
+      return ResponseData.ok(res, responseData, 'Success', {
+        allowedSensitiveKeys: ['token'],
+      })
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
