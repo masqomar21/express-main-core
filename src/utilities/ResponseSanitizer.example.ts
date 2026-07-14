@@ -104,12 +104,13 @@ console.log(sanitizedCustom)
 // ============================================
 import { Request, Response } from 'express'
 import { ResponseData } from './Response'
+import prisma from '@/config/database'
 
 export const getUserController = async (req: Request, res: Response) => {
   try {
     // Get user from database
     const user = await prisma.user.findUnique({
-      where: { id: req.params.id },
+      where: { id: Number(req.params.id) },
     })
 
     if (!user) {
