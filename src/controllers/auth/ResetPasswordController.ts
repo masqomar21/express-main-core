@@ -124,7 +124,9 @@ const ResetPasswordController = {
         15 * 60, // token berlaku 15 menit
       )
 
-      return ResponseData.ok(res, { message: 'OTP verified', token }, 'OTP verified successfully')
+      return ResponseData.ok(res, { message: 'OTP verified', token }, 'OTP verified successfully', {
+        allowedSensitiveKeys: 'token',
+      })
     } catch (error) {
       return ResponseData.serverError(res, error)
     }

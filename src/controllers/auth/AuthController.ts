@@ -97,7 +97,7 @@ const AuthController = {
       }
 
       return ResponseData.ok(res, responseData, 'Success', {
-        allowedSensitiveKeys: ['token'],
+        allowedSensitiveKeys: 'token',
       })
     } catch (error) {
       return ResponseData.serverError(res, error)

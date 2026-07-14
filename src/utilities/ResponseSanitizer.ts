@@ -61,7 +61,9 @@ export type SanitizeOptions = {
   /** Custom sensitive keys to remove (in addition to default keys) */
   customSensitiveKeys?: string[]
   /** Keys that should NOT be sanitized even if they match sensitive patterns */
-  allowedSensitiveKeys?: (typeof DEFAULT_SENSITIVE_KEYS)[number][]
+  allowedSensitiveKeys?:
+    | (typeof DEFAULT_SENSITIVE_KEYS)[number][]
+    | (typeof DEFAULT_SENSITIVE_KEYS)[number]
   /** Deep sanitization - recursively sanitize nested objects and arrays */
   deep?: boolean
   /** If true, replace sensitive values with '[REDACTED]' instead of removing the key */
@@ -104,10 +106,14 @@ const sanitizeObject = <T extends Record<string, any>>(
 ): Partial<T> => {
   const {
     customSensitiveKeys = [],
-    allowedSensitiveKeys = [],
+    allowedSensitiveKeys: rawAllowedKeys = [],
     deep = true,
     replaceWithRedacted = false,
   } = options
+
+  const allowedSensitiveKeys: string[] = Array.isArray(rawAllowedKeys)
+    ? rawAllowedKeys
+    : [rawAllowedKeys]
 
   if (!obj || typeof obj !== 'object') {
     return obj
