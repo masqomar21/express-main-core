@@ -71,6 +71,17 @@ export type SanitizeOptions = {
 }
 
 /**
+ * Returns true only for plain objects created via object literals or `Object.create(null)`.
+ * Instances of Date, Buffer, RegExp, Map, Set, etc. return false and will be skipped
+ * during recursive sanitization.
+ */
+const isPlainObject = (value: unknown): value is Record<string, any> => {
+  if (value === null || typeof value !== 'object') return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
+/**
  * Check if a key should be sanitized
  */
 const isSensitiveKey = (
@@ -122,9 +133,7 @@ const sanitizeObject = <T extends Record<string, any>>(
   // Handle arrays
   if (Array.isArray(obj)) {
     if (deep) {
-      return obj.map((item) =>
-        typeof item === 'object' ? sanitizeObject(item, options) : item,
-      ) as any
+      return obj.map((item) => (isPlainObject(item) ? sanitizeObject(item, options) : item)) as any
     }
     return obj as any
   }
@@ -142,15 +151,15 @@ const sanitizeObject = <T extends Record<string, any>>(
     }
 
     // Deep sanitization for nested objects
-    if (deep && value !== null && typeof value === 'object') {
-      if (Array.isArray(value)) {
-        sanitized[key] = value.map((item) =>
-          typeof item === 'object' && item !== null ? sanitizeObject(item, options) : item,
-        )
-      } else {
-        sanitized[key] = sanitizeObject(value, options)
-      }
+    if (deep && Array.isArray(value)) {
+      sanitized[key] = value.map((item) =>
+        isPlainObject(item) ? sanitizeObject(item, options) : item,
+      )
+    } else if (deep && isPlainObject(value)) {
+      sanitized[key] = sanitizeObject(value, options)
     } else {
+      // Primitives and non-plain objects (Date, Buffer, RegExp, Map, Set, …)
+      // are assigned directly without recursive processing.
       sanitized[key] = value
     }
   }
@@ -180,8 +189,8 @@ export const sanitizeResponse = <T>(data: T, options: SanitizeOptions = {}): Par
     return data as any
   }
 
-  // Handle primitive types
-  if (typeof data !== 'object') {
+  // Handle primitive types and non-plain objects (Date, Buffer, RegExp, …)
+  if (!isPlainObject(data) && !Array.isArray(data)) {
     return data as any
   }
 
@@ -190,7 +199,7 @@ export const sanitizeResponse = <T>(data: T, options: SanitizeOptions = {}): Par
     return data.map((item) => sanitizeResponse(item, options)) as any
   }
 
-  // Handle objects
+  // Handle plain objects
   return sanitizeObject(data as Record<string, any>, options) as Partial<T>
 }
 
