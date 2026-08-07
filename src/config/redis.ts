@@ -3,7 +3,7 @@ import { CONFIG } from '.'
 import logger from '@/utilities/Log'
 
 class RedisService {
-  private client: Redis
+  public client: Redis
   private pubClient: Redis | null = null
   private subClient: Redis | null = null
   private subscribers: Map<string, Set<(message: string) => void>> = new Map()
