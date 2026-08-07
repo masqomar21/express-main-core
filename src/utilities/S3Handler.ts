@@ -15,8 +15,8 @@ const s3Client = new S3Client({
     accessKeyId: CONFIG.s3.accessKeyId,
     secretAccessKey: CONFIG.s3.secretAccessKey,
   },
-  forcePathStyle: CONFIG.s3.endpoint ? true : false, // WAJIB untuk selain AWS
-  useAccelerateEndpoint: CONFIG.s3.endpoint ? false : true, // Gunakan endpoint percepatan jika ada
+  forcePathStyle: CONFIG.s3.forcePathStyle , // WAJIB untuk selain AWS
+  useAccelerateEndpoint: CONFIG.s3.useAccelerateEndpoint, // Gunakan endpoint percepatan jika ada
 })
 
 const pathToFolder: string = CONFIG.s3.path

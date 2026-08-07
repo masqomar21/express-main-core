@@ -39,6 +39,7 @@ export const CONFIG = {
     path: process.env.S3_PATH || 'default/path',
     bucket: process.env.S3_BUCKET || 'default-bucket',
     forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true' || false,
+    useAccelerateEndpoint : 
   },
 
   google: {
