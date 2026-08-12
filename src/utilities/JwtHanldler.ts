@@ -6,13 +6,13 @@ export const generateAccesToken = function (
   payload: jwtPayloadInterface,
   secretToken: string,
   expiresIn: number,
-): string {
+): { token: string, jti: string } {
   // Generate unique JWT ID (jti) for token revocation tracking
   const tokenPayload = {
     ...payload,
     jti: uuidv4(), // Add unique identifier for this token
   }
-  return jwt.sign(tokenPayload, secretToken, { expiresIn })
+  return { token: jwt.sign(tokenPayload, secretToken, { expiresIn }), jti: tokenPayload.jti }
 }
 
 export const verifyAccesToken = function (

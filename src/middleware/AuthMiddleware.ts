@@ -19,20 +19,23 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
   }
 
   try {
-    const cekSesionInDb = await prisma.session.findUnique({
-      where: {
-        token: token,
-      },
-    })
+    
 
-    if (!cekSesionInDb) {
-      return ResponseData.otherResponse(res, 498, 'Unauthorized - Invalid session')
-    }
 
     const decode = verifyAccesToken(token, CONFIG.secret.jwtSecret)
 
     if (!decode || decode.purpose !== 'ACCESS_TOKEN') {
       return ResponseData.otherResponse(res, 498, 'Unauthorized - Invalid token')
+    }
+
+    const cekSesionInDb = await prisma.session.findUnique({
+      where: {
+        token: decode.jti,
+      },
+    })
+
+    if (!cekSesionInDb) {
+      return ResponseData.otherResponse(res, 498, 'Unauthorized - Invalid session')
     }
 
     req.user = decode

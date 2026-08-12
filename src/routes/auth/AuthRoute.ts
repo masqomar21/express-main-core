@@ -83,11 +83,11 @@ export const AuthRoute = (): Router => {
           purpose: 'ACCESS_TOKEN',
         }
 
-        const token = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
+        const { token, jti } = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
 
         await prisma.session.create({
           data: {
-            token,
+            token: jti,
             userId: userData.id,
           },
         })

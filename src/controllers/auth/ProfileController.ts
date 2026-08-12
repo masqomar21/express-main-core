@@ -123,11 +123,12 @@ const ProfileController = {
           purpose: 'ACCESS_TOKEN',
         }
 
-        newToken = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
+        const { token, jti } = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
+        newToken = token
 
         await prisma.session.create({
           data: {
-            token: newToken,
+            token: jti,
             userId: userData.id,
           },
         })
