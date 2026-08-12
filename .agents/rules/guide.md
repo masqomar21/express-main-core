@@ -231,20 +231,31 @@ export default NewEntityController
 
 ### 4. Buat Router di `src/routes/`
 
+> 💡 **Ketentuan Middleware Pada Route:**
+> - Jika **Role Type** di aplikasi/fitur hanya ada 2 (yaitu `SUPER_ADMIN` dan `OTHER`), gunakan **`permissionMiddleware`** (akses berbasis permission granular `canRead`, `canWrite`, dll).
+> - Jika terdapat **Role Type** lain (misal role khusus selain 2 tipe tersebut), gunakan **`RoleMiddleware`**.
+
 ```ts
 // src/routes/master/NewEntityRoute.ts
 import NewEntityController from '@/controllers/master/NewEntityController'
 import { permissionMiddleware } from '@/middleware/PermissionMidlleware'
+import { RoleMiddleware } from '@/middleware/AuthMiddleware'
 import { Router } from 'express'
 
 export const NewEntityRouter = (): Router => {
   const router = Router()
+
+  // Opsi A: Jika Role Type hanya 2 (SUPER_ADMIN & OTHER) -> Pakai permissionMiddleware
   router.get('/', permissionMiddleware('Master_Data', 'canRead'), NewEntityController.getAll)
   router.get('/:id', permissionMiddleware('Master_Data', 'canRead'), NewEntityController.getById)
   router.post('/', permissionMiddleware('Master_Data', 'canWrite'), NewEntityController.create)
   router.put('/:id', permissionMiddleware('Master_Data', 'canUpdate'), NewEntityController.update)
   router.delete('/:id/soft', permissionMiddleware('Master_Data', 'canDelete'), NewEntityController.softDelete)
   router.patch('/:id/restore', permissionMiddleware('Master_Data', 'canRestore'), NewEntityController.restore)
+
+  // Opsi B: Jika terdapat Role Type lain -> Pakai RoleMiddleware
+  // router.get('/', RoleMiddleware(['SUPER_ADMIN', 'ROLE_LAIN']), NewEntityController.getAll)
+
   return router
 }
 ```
@@ -264,7 +275,7 @@ app.use(CONFIG.apiUrl + 'master/new-entity', NewEntityRouter())
 ### Middleware Chain (selalu ikuti urutan ini)
 
 ```
-AuthMiddleware → generatePermissionList → permissionMiddleware(name, action) → Controller
+AuthMiddleware → generatePermissionList → [permissionMiddleware / RoleMiddleware] → Controller
 ```
 
 Di `api.route.ts` sudah ada global:
@@ -272,7 +283,12 @@ Di `api.route.ts` sudah ada global:
 app.use(AuthMiddleware, generatePermissionList) // berlaku untuk semua route di bawahnya
 ```
 
-### Cara Pakai Permission di Route
+### Aturan Pemilihan Middleware (Permission vs Role)
+
+- **Gunakan `permissionMiddleware`**: Jika role type pada sistem/fitur hanya ada 2 (`SUPER_ADMIN` dan `OTHER`). Akses dikontrol via sistem permission granular (`canRead`, `canWrite`, `canUpdate`, `canDelete`, `canRestore`).
+- **Gunakan `RoleMiddleware`**: Jika terdapat role type lain / spesifik. Akses dikontrol langsung berdasarkan tipe role.
+
+### Cara Pakai Permission di Route (Jika Role Type = 2)
 
 ```ts
 // action: 'canRead' | 'canWrite' | 'canUpdate' | 'canDelete' | 'canRestore' | 'all'
@@ -283,7 +299,7 @@ router.delete('/:id/soft', permissionMiddleware('User_Management', 'canDelete'),
 router.patch('/:id/restore', permissionMiddleware('User_Management', 'canRestore'), controller.restore)
 ```
 
-### Cara Pakai Role Middleware (role-based, bypass permission check)
+### Cara Pakai Role Middleware (Jika terdapat Role Type lain)
 
 ```ts
 import { RoleMiddleware } from '@/middleware/AuthMiddleware'
@@ -291,10 +307,14 @@ router.get('/admin-only', RoleMiddleware('SUPER_ADMIN'), controller.adminAction)
 router.get('/multi-role', RoleMiddleware(['SUPER_ADMIN', 'OTHER']), controller.multiAction)
 ```
 
-### Tambah Permission Baru
+### Tambah Permission / Role Baru
 
 Tambahkan ke union type di `src/types/global.d.ts`:
 ```ts
+// Tambah Role Type baru jika terdapat tipe role lain
+type JwtRoleType = 'OTHER' | 'SUPER_ADMIN' | 'NEW_ROLE' -> sesuaikan dengan enum RoleType pada prisma, tidak boleh ada tambahan
+
+// Tambah Permission baru
 type PermissionList = 'Dashboard' | 'User_Management' | 'Master_Data' | 'New_Permission'
 ```
 
