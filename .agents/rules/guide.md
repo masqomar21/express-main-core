@@ -379,17 +379,24 @@ const page = new Pagination(req.query)
 // Dengan custom default:
 const page = new Pagination(req.query, { defaultLimit: 20, defaultPage: 1 })
 
+// Dynamic OrderBy dari client query (misal ?orderBy=createdAt_desc)
+// Pass array field utama yang ada di tabel target:
+const invalidOrder = page.buildOrderBy(res, ['id', 'name', 'createdAt'])
+if (invalidOrder) return invalidOrder // jika field/direction tidak valid
+
 const [data, count] = await Promise.all([
   prisma.entity.findMany({
     where: { deletedAt: null },
     skip: page.offset,
     take: page.limit,
-    orderBy: { id: 'desc' },
+    orderBy: page.isOrderBySet ? page.orderBy : { id: 'desc' },
   }),
   prisma.entity.count({ where: { deletedAt: null } }),
 ])
 
-return ResponseData.ok(res, page.paginate(count, data))
+// Parameter ke-3 (other) bersifat opsional — untuk menyertakan data summary/tambahan
+const summaryData = { totalAmount: 500000 }
+return ResponseData.ok(res, page.paginate(count, data, summaryData))
 ```
 
 Shape response pagination:
@@ -400,7 +407,8 @@ Shape response pagination:
   "items": [...],
   "total_pages": 10,
   "current_page": 1,
-  "links": { "prev": null, "next": "?page=2&limit=10" }
+  "links": { "prev": null, "next": "?page=2&limit=10" },
+  "other": { "totalAmount": 500000 }
 }
 ```
 
