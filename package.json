@@ -6,6 +6,8 @@
   "scripts": {
     "db:seed": "ts-node ./src/db/seeder/index.ts",
     "db:seed:reverse": "ts-node ./scripts/generate-seeders.ts",
+    "migrate": "ts-node ./scripts/db-migrate.ts",
+    "migrate:deploy": "npm run prisma:emit && npm run prisma:migrate",
     "prisma:emit": "prisma contract emit",
     "prisma:plan": "prisma migration plan",
     "prisma:migrate": "prisma db migrate --advance-ref db",

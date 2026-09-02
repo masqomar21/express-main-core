@@ -18,6 +18,5 @@ build
 *.log
 
 # prisma
-client_generated
 generated/
 .prisma/
