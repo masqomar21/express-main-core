@@ -1,4 +1,4 @@
-import prisma from '@/config/database'
+import db from '@/config/database'
 
 import { ResponseData } from '@/utilities/Response'
 import { validateInput } from '@/utilities/ValidateHandler'
@@ -20,14 +20,16 @@ const MobilePushNotifController = {
 
     const reqBody = validateResult.data!
     try {
-      await prisma.mobilPushSubscription.upsert({
-        where: { token: reqBody.token },
-        create: {
+      const existing = await db.orm.public.MobilPushSubscription.where({
+        token: reqBody.token,
+      }).first()
+
+      if (!existing) {
+        await db.orm.public.MobilPushSubscription.create({
           userId: userLogin.id,
           token: reqBody.token,
-        },
-        update: {},
-      })
+        })
+      }
 
       return ResponseData.ok(res, {}, 'success upsert subcribe')
     } catch (error) {
@@ -45,9 +47,9 @@ const MobilePushNotifController = {
       return ResponseData.badRequest(res, undefined, validateResult.errors)
     }
     try {
-      await prisma.mobilPushSubscription.delete({
-        where: { token: validateResult.data!.token },
-      })
+      await db.orm.public.MobilPushSubscription.where({
+        token: validateResult.data!.token,
+      }).delete()
       return ResponseData.ok(res, {}, 'success unSubcribe')
     } catch (error) {
       return ResponseData.serverError(res, error)

@@ -1,4 +1,4 @@
-import prisma from '@/config/database'
+import db from '@/config/database'
 import { WebPushSubscriptionSchema } from '@/schema/WebPushNotifSchema'
 
 import { ResponseData } from '@/utilities/Response'
@@ -17,24 +17,29 @@ const WebPushNotifController = {
 
     const reqBody = validateResult.data!
     try {
-      await prisma.webPushSubscription.upsert({
-        where: { endpoint: reqBody.endpoint },
-        create: {
+      const existing = await db.orm.public.WebPushSubscription.where({
+        endpoint: reqBody.endpoint,
+      }).first()
+
+      if (existing) {
+        await db.orm.public.WebPushSubscription.where({
+          endpoint: reqBody.endpoint,
+        }).update({
+          p256dh: reqBody.keys.p256dh,
+          auth: reqBody.keys.auth,
+          expirationTime: reqBody.expirationTime ? new Date(reqBody.expirationTime) : null,
+          userAgent: reqBody.userAgent ?? null,
+        })
+      } else {
+        await db.orm.public.WebPushSubscription.create({
           userId: userLogin.id,
           endpoint: reqBody.endpoint,
           p256dh: reqBody.keys.p256dh,
           auth: reqBody.keys.auth,
           expirationTime: reqBody.expirationTime ? new Date(reqBody.expirationTime) : null,
-          userAgent: reqBody.userAgent,
-        },
-        update: {
-          //   userId  : userLogin.id,
-          p256dh: reqBody.keys.p256dh,
-          auth: reqBody.keys.auth,
-          expirationTime: reqBody.expirationTime ? new Date(reqBody.expirationTime) : null,
-          userAgent: reqBody.userAgent,
-        },
-      })
+          userAgent: reqBody.userAgent ?? null,
+        })
+      }
 
       return ResponseData.ok(res, {}, 'success upsert subcribe')
     } catch (error) {
@@ -52,9 +57,9 @@ const WebPushNotifController = {
       return ResponseData.badRequest(res, undefined, validateResult.errors)
     }
     try {
-      await prisma.webPushSubscription.delete({
-        where: { endpoint: validateResult.data!.endpoint },
-      })
+      await db.orm.public.WebPushSubscription.where({
+        endpoint: validateResult.data!.endpoint,
+      }).delete()
       return ResponseData.ok(res, {}, 'success unSubcribe')
     } catch (error) {
       return ResponseData.serverError(res, error)

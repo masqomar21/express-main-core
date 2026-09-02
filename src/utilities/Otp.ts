@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import prisma from '@/config/database'
+import db from '@/config/database'
 
 /**
  * Menghasilkan OTP numerik unik (tidak duplikat di tabel OTP)
@@ -16,7 +16,7 @@ export async function generateOtp(length: number = 6): Promise<string> {
 
   // Helper untuk cek apakah OTP sudah ada di DB
   const isUnique = async (code: string): Promise<boolean> => {
-    const existing = await prisma.otp.findUnique({ where: { code } })
+    const existing = await db.orm.public.Otp.where({ code }).first()
     return !existing
   }
 

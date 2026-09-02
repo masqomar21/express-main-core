@@ -1,5 +1,6 @@
-import prisma from '@/config/database'
-import { Process } from 'generated/prisma/enums'
+import db from '@/config/database'
+
+export type Process = 'CREATE' | 'UPDATE' | 'DELETE' | 'RESTORE' | 'LOGIN' | 'LOGOUT'
 
 /**
  * Log user activity in the database
@@ -8,11 +9,9 @@ import { Process } from 'generated/prisma/enums'
  * @param detail - Additional details about the action
  */
 export const logActivity = async (userId: number, process: Process, detail: string) => {
-  await prisma.loger.create({
-    data: {
-      userId,
-      process,
-      detail,
-    },
+  await db.orm.public.Loger.create({
+    userId,
+    process,
+    detail,
   })
 }

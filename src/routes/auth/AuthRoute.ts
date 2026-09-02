@@ -56,18 +56,9 @@ export const AuthRoute = (): Router => {
       }
 
       try {
-        const userData = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: {
-              select: { name: true, roleType: true },
-            },
-            // profileImage: true,
-          },
-        })
+        const userData = await prisma.orm.public.User.include('role')
+          .where({ id: user.id })
+          .first()
 
         if (!userData) {
           return res.redirect(
@@ -85,11 +76,9 @@ export const AuthRoute = (): Router => {
 
         const { token, jti } = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
 
-        await prisma.session.create({
-          data: {
-            token: jti,
-            userId: userData.id,
-          },
+        await prisma.orm.public.Session.create({
+          token: jti,
+          userId: userData.id,
         })
 
         await logActivity(userData.id, 'LOGIN', 'User login via Google OAuth')

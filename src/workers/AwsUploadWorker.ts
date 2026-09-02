@@ -54,7 +54,7 @@ const worker = new Worker(
 
       if (!uploadUrl) throw new Error('Upload ke AWS gagal')
 
-      const modelDelegate = (prisma as any)[modelName]
+      const modelDelegate = (prisma as any).orm?.public?.[modelName]
       if (!modelDelegate || typeof modelDelegate.update !== 'function') {
         throw new Error(`Model ${modelName} tidak ditemukan atau tidak memiliki method update`)
       }
@@ -64,10 +64,7 @@ const worker = new Worker(
         [fieldNameToUpdate]: uploadUrl,
       }
 
-      await modelDelegate.update({
-        where: { id: typeof recordId === 'string' ? Number(recordId) : recordId },
-        data: updatedPayload,
-      })
+      await modelDelegate.where({ id: typeof recordId === 'string' ? Number(recordId) : recordId }).update(updatedPayload)
 
       console.log('Upload URL:', uploadUrl)
       console.log('Update payload:', updatedPayload)

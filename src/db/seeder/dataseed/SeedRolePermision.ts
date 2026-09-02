@@ -1,5 +1,4 @@
-import prisma from '@/config/database'
-import { RolePermission } from 'generated/prisma/client'
+import db from '@/config/database'
 
 type PermissionList = 'Dashboard' | 'User_Management' | 'Master_Data'
 // add more permissions as needed
@@ -7,9 +6,8 @@ type PermissionList = 'Dashboard' | 'User_Management' | 'Master_Data'
 export async function seedRolePermission() {
   console.log('Seed data inserted role permissions')
 
-  const listRole = await prisma.role.findMany()
-
-  const listPermission = await prisma.permissions.findMany()
+  const listRole = await db.orm.public.Role.all()
+  const listPermission = await db.orm.public.Permissions.all()
 
   const listRolePermission: Array<{ roleId: number; permission: PermissionList[] }> = []
 
@@ -27,14 +25,17 @@ export async function seedRolePermission() {
     }
   })
 
-  const rolePermissionsData: Array<Omit<RolePermission, 'id'>> = []
-
-  listRolePermission.forEach((rolePerm) => {
-    listPermission.forEach((permission) => {
+  for (const rolePerm of listRolePermission) {
+    for (const permission of listPermission) {
       const hasPermission = rolePerm.permission.includes(permission.name as PermissionList)
 
-      if (permission.id !== undefined) {
-        rolePermissionsData.push({
+      const existing = await db.orm.public.RolePermission.where({
+        roleId: rolePerm.roleId,
+        permissionId: permission.id,
+      }).first()
+
+      if (!existing) {
+        await db.orm.public.RolePermission.create({
           roleId: rolePerm.roleId,
           permissionId: permission.id,
           canRead: hasPermission,
@@ -44,13 +45,6 @@ export async function seedRolePermission() {
           canUpdate: hasPermission,
         })
       }
-    })
-  })
-
-  // console.log('Role Permissions Data:', rolePermissionsData)
-
-  await prisma.rolePermission.createMany({
-    data: rolePermissionsData,
-    skipDuplicates: true,
-  })
+    }
+  }
 }

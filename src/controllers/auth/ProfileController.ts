@@ -1,5 +1,5 @@
 import { CONFIG } from '@/config'
-import prisma from '@/config/database'
+import db from '@/config/database'
 import redisClient from '@/config/redis'
 import { ChangePasswordSchema, ProfileSchemaForUpdate } from '@/schema/UserSchema'
 import { generateAccesToken } from '@/utilities/JwtHanldler'
@@ -24,39 +24,22 @@ const ProfileController = {
     }
 
     try {
-      const userData = await prisma.user.findUnique({
-        where: { id: userId },
-      })
+      const userData = await db.orm.public.User.where({ id: userId }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
 
-      //   const cekUnique = await prisma.user.findFirst({
-      //     where: {
-      //       id: { not: userId },
-      //       //   OR: [{ nik: validationResult.data!.nik }],
-      //     },
-      //   })
-      //   if (cekUnique) {
-      //     return ResponseData.badRequest(res, 'Email or NIK already exists')
-      //   }
-
-      const updatedUserData = await prisma.user.update({
-        where: { id: userId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-        data: {
-          name: validationResult.data!.name,
-        },
+      await db.orm.public.User.where({ id: userId }).update({
+        name: validationResult.data!.name,
       })
 
-      const userLogin = req.user as jwtPayloadInterface
+      const updatedUserData = await db.orm.public.User.select('id', 'name', 'email')
+        .where({ id: userId })
+        .first()
+
       await logActivity(userLogin.id, 'UPDATE', `update user ${userData.name}`)
-      await redisClient.del(`user_permissions:${updatedUserData.id}`)
+      await redisClient.del(`user_permissions:${updatedUserData!.id}`)
 
       return ResponseData.ok(res, updatedUserData, 'Success')
     } catch (error: any) {
@@ -78,14 +61,10 @@ const ProfileController = {
         return ResponseData.badRequest(res, 'Old password is required')
       }
 
-      const userData = await prisma.user.findUnique({
-        where: {
-          id: userLogin.roleType === 'SUPER_ADMIN' && userId ? Number(userId) : userLogin.id,
-        },
-        include: {
-          role: true,
-        },
-      })
+      const targetId =
+        userLogin.roleType === 'SUPER_ADMIN' && userId ? Number(userId) : userLogin.id
+
+      const userData = await db.orm.public.User.include('role').where({ id: targetId }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
@@ -103,14 +82,11 @@ const ProfileController = {
 
       const hashedNewPassword = await hashPassword(validationResult.data!.newPassword)
 
-      await prisma.user.update({
-        where: { id: userData.id },
-        data: { password: hashedNewPassword },
+      await db.orm.public.User.where({ id: userData.id }).update({
+        password: hashedNewPassword,
       })
 
-      await prisma.session.deleteMany({
-        where: { userId: userData.id },
-      })
+      await db.orm.public.Session.where({ userId: userData.id }).delete()
 
       let newToken = null
 
@@ -126,11 +102,9 @@ const ProfileController = {
         const { token, jti } = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
         newToken = token
 
-        await prisma.session.create({
-          data: {
-            token: jti,
-            userId: userData.id,
-          },
+        await db.orm.public.Session.create({
+          token: jti,
+          userId: userData.id,
         })
       }
 

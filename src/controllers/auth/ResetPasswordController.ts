@@ -1,5 +1,5 @@
 import { CONFIG } from '@/config'
-import prisma from '@/config/database'
+import db from '@/config/database'
 import MailService from '@/services/MailService'
 import { templateOtpHtml } from '@/template/OtpTemplate'
 import { generateAccesToken, verifyAccesToken } from '@/utilities/JwtHanldler'
@@ -24,31 +24,23 @@ const ResetPasswordController = {
     const reqBody = validateResult.data!
 
     try {
-      const cekuser = await prisma.user.findUnique({
-        where: {
-          email: reqBody.email,
-        },
-      })
+      const cekuser = await db.orm.public.User.where({
+        email: reqBody.email,
+      }).first()
 
       if (!cekuser) {
         return ResponseData.notFound(res, 'Akun tidak ditemukan, silahkan melakukan pendaftaran')
       }
 
-      await prisma.otp.deleteMany({
-        where: {
-          userId: cekuser.id,
-        },
-      })
+      await db.orm.public.Otp.where({ userId: cekuser.id }).delete()
 
       const otp = await generateOtp(6)
 
-      const data = await prisma.otp.create({
-        data: {
-          userId: cekuser.id,
-          code: otp,
-          purpose: 'RESET_PASSWORD',
-          expiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP berlaku 10 menit
-        },
+      const data = await db.orm.public.Otp.create({
+        userId: cekuser.id,
+        code: otp,
+        purpose: 'RESET_PASSWORD',
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // OTP berlaku 10 menit
       })
 
       const mail = new MailService()
@@ -85,18 +77,9 @@ const ResetPasswordController = {
     const reqBody = validateResult.data!
 
     try {
-      const cekOtp = await prisma.otp.findUnique({
-        where: {
-          code: reqBody.otp,
-        },
-        include: {
-          user: {
-            include: {
-              role: true,
-            },
-          },
-        },
-      })
+      const cekOtp = await db.orm.public.Otp.include('user', (u) => u.include('role')).where({
+        code: reqBody.otp,
+      }).first()
 
       if (!cekOtp) {
         return ResponseData.notFound(res, 'Kode OTP tidak valid')
@@ -107,16 +90,12 @@ const ResetPasswordController = {
       }
 
       // Hapus OTP setelah berhasil diverifikasi
-      await prisma.otp.deleteMany({
-        where: {
-          userId: cekOtp.userId,
-        },
-      })
+      await db.orm.public.Otp.where({ userId: cekOtp.userId }).delete()
 
       const token = generateAccesToken(
         {
-          id: cekOtp.user.id,
-          name: cekOtp.user.name || '',
+          id: Number(cekOtp.user.id),
+          name: String(cekOtp.user.name || ''),
           roleType: cekOtp.user.role.roleType,
           purpose: 'RESET_PASSWORD',
         },
@@ -160,24 +139,19 @@ const ResetPasswordController = {
         return ResponseData.unauthorized(res, 'Unauthorized - Invalid token')
       }
 
-      const cekuser = await prisma.user.findUnique({
-        where: {
-          id: decode.id,
-        },
-      })
+      const cekuser = await db.orm.public.User.where({
+        id: decode.id,
+      }).first()
 
       if (!cekuser) {
         return ResponseData.notFound(res, 'User not found')
       }
       const hashedPassword = await hashPassword(reqBody.newPassword)
 
-      await prisma.user.update({
-        where: {
-          id: cekuser.id,
-        },
-        data: {
-          password: hashedPassword,
-        },
+      await db.orm.public.User.where({
+        id: cekuser.id,
+      }).update({
+        password: hashedPassword,
       })
 
       return ResponseData.ok(res, {}, 'Password has been reset successfully')

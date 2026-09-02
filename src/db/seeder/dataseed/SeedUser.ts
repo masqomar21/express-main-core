@@ -1,29 +1,26 @@
-import prisma from '@/config/database'
+import db from '@/config/database'
 import { hashPassword } from '../../../utilities/PasswordHandler'
-import { Prisma } from 'generated/prisma/client'
 
 export async function seedUser() {
   console.log('Seed data inserted user')
 
   const passwordHash = await hashPassword('password')
 
-  const role = await prisma.role.findMany()
+  const roles = await db.orm.public.Role.all()
 
-  const usersData: Array<Omit<Prisma.UserCreateManyInput, 'id' | 'createdAt' | 'deletedAt'>> = []
+  for (const role of roles) {
+    const email = `${role.name.toLowerCase().replace(/ /g, '_')}@app.com`
+    const existing = await db.orm.public.User.where({ email }).first()
 
-  role.forEach((role) => {
-    usersData.push({
-      password: passwordHash,
-      name: role.name,
-      email: `${role.name.toLowerCase().replace(/ /g, '_')}@app.com`,
-      roleId: role.id,
-      registeredViaGoogle: false,
-      updatedAt: new Date(),
-    })
-  })
-
-  await prisma.user.createMany({
-    data: usersData,
-    skipDuplicates: true,
-  })
+    if (!existing) {
+      await db.orm.public.User.create({
+        password: passwordHash,
+        name: role.name,
+        email,
+        roleId: role.id,
+        registeredViaGoogle: false,
+        updatedAt: new Date(),
+      })
+    }
+  }
 }

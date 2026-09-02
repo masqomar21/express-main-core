@@ -1,0 +1,174 @@
+// use prisma-next
+// Contract inferred from the live database schema. Edit as needed, then run `prisma contract emit`.
+
+namespace public {
+  model Role {
+    id              Int               @id(map: "Role_pkey") @default(autoincrement())
+    name            String
+    roleType        pg.enum(RoleType) @default("OTHER")
+    rolePermissions RolePermission[]
+    users           User[]
+
+    @@map("Role")
+  }
+
+  model User {
+    id                     Int                     @id(map: "User_pkey") @default(autoincrement())
+    email                  String
+    name                   String?
+    password               String?
+    roleId                 Int
+    registeredViaGoogle    Boolean                 @default(false)
+    createdAt              Timestamp(3)            @default(now())
+    updatedAt              Timestamp(3)            @default(now())
+    deletedAt              Timestamp(3)?
+    logers                 Loger[]
+    mobilPushSubscriptions MobilPushSubscription[]
+    notificationUsers      NotificationUser[]
+    otp                    Otp?
+    sessions               Session[]
+    webPushSubscriptions   WebPushSubscription[]
+    role                   Role                    @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "User_roleId_fkey", index: false)
+
+    @@index([email], map: "User_email_key", unique: true)
+    @@map("User")
+  }
+
+  model Loger {
+    id        Int              @id(map: "Loger_pkey") @default(autoincrement())
+    userId    Int
+    process   pg.enum(Process)
+    detail    String
+    createdAt Timestamp(3)     @default(now())
+    user      User             @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "Loger_userId_fkey", index: false)
+
+    @@map("Loger")
+  }
+
+  model MobilPushSubscription {
+    id        Int          @id(map: "MobilPushSubscription_pkey") @default(autoincrement())
+    userId    Int
+    token     String
+    createdAt Timestamp(3) @default(now())
+    updatedAt Timestamp(3) @default(now())
+    user      User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "MobilPushSubscription_userId_fkey")
+
+    @@index([token], map: "MobilPushSubscription_token_key", unique: true)
+    @@index([userId], map: "MobilPushSubscription_userId_idx")
+    @@map("MobilPushSubscription")
+  }
+
+  model Notification {
+    id                Int                @id(map: "Notification_pkey") @default(autoincrement())
+    _type             String             @map("type")
+    refId             String?
+    message           String
+    createdAt         Timestamp(3)       @default(now())
+    notificationUsers NotificationUser[]
+
+    @@map("Notification")
+  }
+
+  model NotificationUser {
+    id             Int           @id(map: "NotificationUser_pkey") @default(autoincrement())
+    userId         Int
+    notificationId Int
+    readStatus     Boolean       @default(false)
+    readAt         Timestamp(3)?
+    deliveredAt    Timestamp(3)?
+    notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "NotificationUser_notificationId_fkey")
+    user           User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "NotificationUser_userId_fkey", index: false)
+
+    @@index([notificationId], map: "NotificationUser_notificationId_idx")
+    @@index([userId, notificationId], map: "NotificationUser_userId_notificationId_key", unique: true)
+    @@index([userId, readStatus], map: "NotificationUser_userId_readStatus_idx")
+    @@map("NotificationUser")
+  }
+
+  model Otp {
+    id        Int                 @id(map: "Otp_pkey") @default(autoincrement())
+    userId    Int                 @unique(map: "Otp_userId_key")
+    code      String
+    purpose   pg.enum(OtpPurpose)
+    createdAt Timestamp(3)        @default(now())
+    expiresAt Timestamp(3)
+    user      User                @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "Otp_userId_fkey")
+
+    @@index([code], map: "Otp_code_key", unique: true)
+    @@map("Otp")
+  }
+
+  model Permissions {
+    id              Int              @id(map: "Permissions_pkey") @default(autoincrement())
+    name            String
+    label           String
+    rolePermissions RolePermission[]
+
+    @@map("Permissions")
+  }
+
+  model RolePermission {
+    id           Int         @id(map: "RolePermission_pkey") @default(autoincrement())
+    roleId       Int
+    permissionId Int
+    canRead      Boolean     @default(false)
+    canWrite     Boolean     @default(false)
+    canUpdate    Boolean     @default(false)
+    canDelete    Boolean     @default(false)
+    canRestore   Boolean     @default(false)
+    permission   Permissions @relation(fields: [permissionId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "RolePermission_permissionId_fkey", index: false)
+    role         Role        @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "RolePermission_roleId_fkey", index: false)
+
+    @@map("RolePermission")
+  }
+
+  model Session {
+    id        Int           @id(map: "Session_pkey") @default(autoincrement())
+    token     String
+    userId    Int
+    createdAt Timestamp(3)  @default(now())
+    updatedAt Timestamp(3)  @default(now())
+    deletedAt Timestamp(3)?
+    user      User          @relation(fields: [userId], references: [id], onDelete: Restrict, onUpdate: Cascade, map: "Session_userId_fkey", index: false)
+
+    @@index([token], map: "Session_token_key", unique: true)
+    @@map("Session")
+  }
+
+  model WebPushSubscription {
+    id             Int           @id(map: "WebPushSubscription_pkey") @default(autoincrement())
+    userId         Int
+    endpoint       String
+    p256dh         String
+    auth           String
+    expirationTime Timestamp(3)?
+    userAgent      String?
+    createdAt      Timestamp(3)  @default(now())
+    updatedAt      Timestamp(3)  @default(now())
+    user           User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "WebPushSubscription_userId_fkey")
+
+    @@index([endpoint], map: "WebPushSubscription_endpoint_key", unique: true)
+    @@index([userId], map: "WebPushSubscription_userId_idx")
+    @@map("WebPushSubscription")
+  }
+
+  native_enum OtpPurpose {
+    LOGIN = "LOGIN"
+    RESET_PASSWORD = "RESET_PASSWORD"
+    VERIFY_EMAIL = "VERIFY_EMAIL"
+  }
+
+  native_enum Process {
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
+    RESTORE = "RESTORE"
+    LOGIN = "LOGIN"
+    LOGOUT = "LOGOUT"
+  }
+
+  native_enum RoleType {
+    OTHER = "OTHER"
+    SUPER_ADMIN = "SUPER_ADMIN"
+  }
+}

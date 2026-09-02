@@ -63,29 +63,11 @@ export const generatePermissionList = async function (
       return next()
     }
 
-    const userPermissions = await prisma.user.findUnique({
-      where: { id: userLogin.id },
-      select: {
-        role: {
-          select: {
-            rolePermissions: {
-              select: {
-                permission: {
-                  select: {
-                    name: true,
-                  },
-                },
-                canRead: true,
-                canWrite: true,
-                canUpdate: true,
-                canDelete: true,
-                canRestore: true,
-              },
-            },
-          },
-        },
-      },
-    })
+    const userPermissions = await prisma.orm.public.User.include('role', (r) =>
+      r.include('rolePermissions', (rp) => rp.include('permission')),
+    )
+      .where({ id: userLogin.id })
+      .first()
 
     console.log('Fetching permissions from database')
     if (!userPermissions) {

@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io'
-import prisma from '../config/database'
+import db from '../config/database'
 import { getIO } from '../config/socket'
 import logger from '@/utilities/Log'
 import { webpush } from '@/config/webPush'
@@ -25,19 +25,13 @@ const notificationKindText: Record<NotificationKind, string> = {
  * @returns Array of web push subscriptions
  */
 async function getSubscriptionsByUserIds(userIds: number[]) {
-  const users = await prisma.user.findMany({
-    where: { id: { in: userIds } },
-    select: {
-      webPushSubscriptions: {
-        select: { id: true, endpoint: true, p256dh: true, auth: true, userId: true },
-      },
-      mobilPushSubscriptions: {
-        select: { token: true },
-      },
-    },
-  })
-  const web = users.flatMap((u) => u.webPushSubscriptions)
-  const mobileTokens = users.flatMap((u) => u.mobilPushSubscriptions.map((m) => m.token))
+  const users = await db.orm.public.User.include('webPushSubscriptions')
+    .include('mobilPushSubscriptions')
+    .where((u) => u.id.in(userIds))
+    .all()
+
+  const web = users.flatMap((u: any) => u.webPushSubscriptions as { endpoint: string; p256dh: string; auth: string }[])
+  const mobileTokens = users.flatMap((u: any) => u.mobilPushSubscriptions.map((m: any) => String(m.token)))
   return { web, mobileTokens }
 }
 
@@ -71,8 +65,8 @@ async function sendPushToSubscription(
   } catch (err: any) {
     // 404/410 biasanya subscription sudah invalid → hapus
     if (err?.statusCode === 404 || err?.statusCode === 410) {
-      await prisma.webPushSubscription
-        .delete({ where: { endpoint: sub.endpoint } })
+      await db.orm.public.WebPushSubscription.where({ endpoint: sub.endpoint })
+        .delete()
         .catch(() => null)
     }
     logger.error('Failed to send push notification', err)
@@ -155,29 +149,28 @@ const NotificationServices = {
       }
 
       try {
-        const notif = await prisma.notification.create({
-          data: {
-            type: data.type,
-            refId: data.refId ? String(data.refId) : null,
-            message: data.message,
-            recipients: {
-              createMany: {
-                data: targetUserIds.map((uid) => ({
-                  userId: uid,
-                  deliveredAt: new Date(),
-                })),
-                skipDuplicates: true,
-              },
-            },
-          },
-          select: { id: true, type: true, message: true, refId: true, createdAt: true },
+        const notif = await db.orm.public.Notification.create({
+          _type: data.type,
+          refId: data.refId ? String(data.refId) : null,
+          message: data.message,
         })
+
+        await Promise.all(
+          targetUserIds.map((uid) =>
+            db.orm.public.NotificationUser.create({
+              userId: uid,
+              notificationId: notif.id,
+              deliveredAt: new Date(),
+              readStatus: false,
+            }),
+          ),
+        )
 
         // Emit ke setiap room user
         targetUserIds.forEach((uid) => {
           io.to(`user-${uid}`).emit('receive_notification', {
             id: notif.id,
-            type: notif.type,
+            type: notif._type,
             message: notif.message,
             refId: notif.refId,
             createdAt: notif.createdAt,
@@ -188,11 +181,11 @@ const NotificationServices = {
           const { web, mobileTokens } = await getSubscriptionsByUserIds(targetUserIds)
           const payload = {
             id: notif.id,
-            title: data.title || `${notificationKindText[notif.type as NotificationKind]}`,
+            title: data.title || `${notificationKindText[notif._type as NotificationKind]}`,
             body: notif.message,
             data: {
               refId: notif.refId,
-              type: notif.type,
+              type: notif._type,
               createdAt: notif.createdAt,
             },
           }
@@ -208,10 +201,10 @@ const NotificationServices = {
   // === Tandai satu notif sebagai sudah dibaca ===
   readNotification: async (userId: number, notificationId: number) => {
     try {
-      return await prisma.notificationUser.update({
-        where: { userId_notificationId: { userId, notificationId } },
-        data: { readStatus: true, readAt: new Date() },
-      })
+      return await db.orm.public.NotificationUser.where({
+        userId,
+        notificationId,
+      }).update({ readStatus: true, readAt: new Date() })
     } catch (error) {
       logger.error(error)
       throw new Error('Failed to read notification')
@@ -221,10 +214,10 @@ const NotificationServices = {
   // === Tandai semua notif user sebagai dibaca ===
   readAllNotifications: async (userId: number) => {
     try {
-      await prisma.notificationUser.updateMany({
-        where: { userId, readStatus: false },
-        data: { readStatus: true, readAt: new Date() },
-      })
+      await db.orm.public.NotificationUser.where({
+        userId,
+        readStatus: false,
+      }).update({ readStatus: true, readAt: new Date() })
       return { ok: true }
     } catch (error) {
       logger.error(error)
@@ -247,54 +240,44 @@ const NotificationServices = {
       const size = option?.limit ?? 10
       const skip = option?.offset ?? 0
 
-      const whereReceipt: any = { userId }
+      const baseFilter: { userId: number; readStatus?: boolean } = { userId }
       if (typeof whereCondition?.readStatus === 'boolean') {
-        whereReceipt.readStatus = whereCondition.readStatus
+        baseFilter.readStatus = whereCondition.readStatus
       }
 
-      const [rows, total] = await prisma.$transaction([
-        prisma.notificationUser.findMany({
-          where: whereReceipt,
-          orderBy: { id: 'desc' },
-          skip,
-          take: size,
-          include: {
-            notification: {
-              select: {
-                id: true,
-                type: true,
-                message: true,
-                refId: true,
-                createdAt: true,
-              },
-            },
-          },
-        }),
-        prisma.notificationUser.count({ where: whereReceipt }),
+      const [rows, total] = await Promise.all([
+        db.orm.public.NotificationUser.include('notification')
+          .where(baseFilter)
+          .orderBy((nu) => nu.id.desc())
+          .offset(skip)
+          .limit(size)
+          .all(),
+        db.orm.public.NotificationUser.where(baseFilter).count(),
       ])
 
       // filter isi notification
-      const filtered = rows.filter((r) => {
+      const filtered = rows.filter((r: any) => {
         const notif = r.notification
         if (!notif) return false
-        if (whereCondition?.type && notif.type !== whereCondition.type) return false
+        if (whereCondition?.type && notif._type !== whereCondition.type) return false
         if (
           whereCondition?.search &&
+          typeof notif.message === 'string' &&
           !notif.message.toLowerCase().includes(whereCondition.search.toLowerCase())
         )
           return false
-        if (whereCondition?.since && notif.createdAt < whereCondition.since) return false
+        if (whereCondition?.since && notif.createdAt && new Date(notif.createdAt) < whereCondition.since) return false
         return true
       })
 
       return {
-        total,
+        total: Number(total),
         count: filtered.length,
         limit: size,
         offset: skip,
-        data: filtered.map((r) => ({
+        data: filtered.map((r: any) => ({
           id: r.notification.id,
-          type: r.notification.type,
+          type: r.notification._type,
           message: r.notification.message,
           refId: r.notification.refId,
           createdAt: r.notification.createdAt,
@@ -311,9 +294,7 @@ const NotificationServices = {
 
   deleteAllNotifications: async (userId: number) => {
     try {
-      await prisma.notificationUser.deleteMany({
-        where: { userId },
-      })
+      await db.orm.public.NotificationUser.where({ userId }).delete()
       return { ok: true }
     } catch (error) {
       logger.error(error)

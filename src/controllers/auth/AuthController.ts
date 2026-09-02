@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { validateInput } from '../../utilities/ValidateHandler'
 import { LoginSchema, RegisterSchema } from '../../schema/UserSchema'
-import prisma from '../../config/database'
+import db from '../../config/database'
 import { comparePassword, hashPassword } from '../../utilities/PasswordHandler'
 import { generateAccesToken } from '../../utilities/JwtHanldler'
 import { CONFIG } from '../../config'
@@ -18,9 +18,7 @@ const AuthController = {
     const reqBody = validationResult.data!
     try {
       // ajust asign role OTHER
-      const cekExistingRole = await prisma.role.findFirst({
-        where: { roleType: 'OTHER' },
-      })
+      const cekExistingRole = await db.orm.public.Role.where({ roleType: 'OTHER' }).first()
 
       if (!cekExistingRole) {
         return ResponseData.badRequest(res, 'Role not found')
@@ -28,13 +26,11 @@ const AuthController = {
 
       reqBody.password = await hashPassword(reqBody.password)
 
-      const userData = await prisma.user.create({
-        data: {
-          name: reqBody.name,
-          email: reqBody.email,
-          password: reqBody.password,
-          roleId: cekExistingRole.id,
-        },
+      const userData = await db.orm.public.User.create({
+        name: reqBody.name,
+        email: reqBody.email,
+        password: reqBody.password,
+        roleId: cekExistingRole.id,
       })
 
       return ResponseData.created(res, userData, 'Success')
@@ -52,12 +48,9 @@ const AuthController = {
     }
 
     try {
-      const userData = await prisma.user.findUnique({
-        where: {
-          email: reqBody.email,
-        },
-        include: { role: true },
-      })
+      const userData = await db.orm.public.User.include('role').where({
+        email: reqBody.email,
+      }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
@@ -69,24 +62,20 @@ const AuthController = {
         return ResponseData.unauthorized(res, 'Password not match')
       }
 
-      // delete (userData as { password?: string }).password
-
       // test
       const tokenPayload: jwtPayloadInterface = {
         id: userData.id,
         name: userData.name as string,
-        role: userData.role.name,
+        role: String(userData.role.name),
         roleType: userData.role.roleType as 'SUPER_ADMIN' | 'OTHER',
         purpose: 'ACCESS_TOKEN',
       }
 
       const { token, jti } = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
 
-      await prisma.session.create({
-        data: {
-          token: jti,
-          userId: userData.id,
-        },
+      await db.orm.public.Session.create({
+        token: jti,
+        userId: userData.id,
       })
 
       await logActivity(userData.id, 'LOGIN', 'User login')
@@ -108,36 +97,11 @@ const AuthController = {
     const userLogin = req.user as jwtPayloadInterface
 
     try {
-      const userData = await prisma.user.findUnique({
-        where: { id: userLogin.id },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          registeredViaGoogle: true,
-          role: {
-            select: {
-              name: true,
-              roleType: true,
-              rolePermissions: {
-                select: {
-                  id: true,
-                  canDelete: true,
-                  canRead: true,
-                  canRestore: true,
-                  canUpdate: true,
-                  canWrite: true,
-                  permission: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      })
+      const userData = await db.orm.public.User.include('role', (r) =>
+        r.include('rolePermissions', (rp) => rp.include('permission')),
+      )
+        .where({ id: userLogin.id })
+        .first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
@@ -165,9 +129,13 @@ const AuthController = {
       return ResponseData.ok(
         res,
         {
-          ...userData,
+          id: userData.id,
+          name: userData.name,
+          email: userData.email,
+          registeredViaGoogle: userData.registeredViaGoogle,
           role: {
-            ...userData.role,
+            name: userData.role.name,
+            roleType: userData.role.roleType,
             rolePermissions: mappedPermissions,
           },
         },
@@ -188,16 +156,11 @@ const AuthController = {
     }
 
     try {
-      // Delete session by token only (token is unique in database)
-      // Using deleteMany instead of delete to handle cases where session may not exist
-      const deletedSession = await prisma.session.deleteMany({
-        where: {
-          token: token,
-        },
-      })
+      const deletedSession = await db.orm.public.Session.where({
+        token: token,
+      }).delete()
 
-      // Verify that session was actually deleted
-      if (deletedSession.count === 0) {
+      if (!deletedSession || (Array.isArray(deletedSession) && deletedSession.length === 0)) {
         return ResponseData.unauthorized(res, 'Session not found or already invalidated')
       }
 

@@ -1,0 +1,1366 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.OtpPurpose",
+    "label": "Create enum type \"OtpPurpose\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "OtpPurpose"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"OtpPurpose\"",
+        "sql": "CREATE TYPE \"public\".\"OtpPurpose\" AS ENUM ('LOGIN', 'RESET_PASSWORD', 'VERIFY_EMAIL')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.Process",
+    "label": "Create enum type \"Process\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "Process"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"Process\"",
+        "sql": "CREATE TYPE \"public\".\"Process\" AS ENUM ('CREATE', 'UPDATE', 'DELETE', 'RESTORE', 'LOGIN', 'LOGOUT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.RoleType",
+    "label": "Create enum type \"RoleType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "RoleType"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"RoleType\"",
+        "sql": "CREATE TYPE \"public\".\"RoleType\" AS ENUM ('OTHER', 'SUPER_ADMIN')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Loger",
+    "label": "Create table \"Loger\"",
+    "summary": "Creates table \"Loger\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Loger"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Loger\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Loger\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Loger\"",
+        "sql": "CREATE TABLE \"public\".\"Loger\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"detail\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"process\" \"Process\" NOT NULL,\n  \"userId\" int4 NOT NULL,\n  CONSTRAINT \"Loger_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Loger\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Loger\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.MobilPushSubscription",
+    "label": "Create table \"MobilPushSubscription\"",
+    "summary": "Creates table \"MobilPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "MobilPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"MobilPushSubscription\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MobilPushSubscription\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"MobilPushSubscription\"",
+        "sql": "CREATE TABLE \"public\".\"MobilPushSubscription\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"token\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"userId\" int4 NOT NULL,\n  CONSTRAINT \"MobilPushSubscription_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"MobilPushSubscription\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MobilPushSubscription\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Notification",
+    "label": "Create table \"Notification\"",
+    "summary": "Creates table \"Notification\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Notification"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Notification\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Notification\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Notification\"",
+        "sql": "CREATE TABLE \"public\".\"Notification\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"message\" text NOT NULL,\n  \"refId\" text,\n  \"type\" text NOT NULL,\n  CONSTRAINT \"Notification_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Notification\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Notification\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.NotificationUser",
+    "label": "Create table \"NotificationUser\"",
+    "summary": "Creates table \"NotificationUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "NotificationUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"NotificationUser\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"NotificationUser\"",
+        "sql": "CREATE TABLE \"public\".\"NotificationUser\" (\n  \"deliveredAt\" timestamp(3),\n  \"id\" SERIAL NOT NULL,\n  \"notificationId\" int4 NOT NULL,\n  \"readAt\" timestamp(3),\n  \"readStatus\" bool DEFAULT false NOT NULL,\n  \"userId\" int4 NOT NULL,\n  CONSTRAINT \"NotificationUser_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"NotificationUser\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Otp",
+    "label": "Create table \"Otp\"",
+    "summary": "Creates table \"Otp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Otp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Otp\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Otp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Otp\"",
+        "sql": "CREATE TABLE \"public\".\"Otp\" (\n  \"code\" text NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"expiresAt\" timestamp(3) NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"purpose\" \"OtpPurpose\" NOT NULL,\n  \"userId\" int4 NOT NULL,\n  CONSTRAINT \"Otp_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Otp\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Otp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Permissions",
+    "label": "Create table \"Permissions\"",
+    "summary": "Creates table \"Permissions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Permissions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Permissions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Permissions\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Permissions\"",
+        "sql": "CREATE TABLE \"public\".\"Permissions\" (\n  \"id\" SERIAL NOT NULL,\n  \"label\" text NOT NULL,\n  \"name\" text NOT NULL,\n  CONSTRAINT \"Permissions_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Permissions\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Permissions\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Role",
+    "label": "Create table \"Role\"",
+    "summary": "Creates table \"Role\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Role"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Role\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Role\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Role\"",
+        "sql": "CREATE TABLE \"public\".\"Role\" (\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  \"roleType\" \"RoleType\" DEFAULT 'OTHER'::\"RoleType\" NOT NULL,\n  CONSTRAINT \"Role_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Role\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Role\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.RolePermission",
+    "label": "Create table \"RolePermission\"",
+    "summary": "Creates table \"RolePermission\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "RolePermission"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"RolePermission\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"RolePermission\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"RolePermission\"",
+        "sql": "CREATE TABLE \"public\".\"RolePermission\" (\n  \"canDelete\" bool DEFAULT false NOT NULL,\n  \"canRead\" bool DEFAULT false NOT NULL,\n  \"canRestore\" bool DEFAULT false NOT NULL,\n  \"canUpdate\" bool DEFAULT false NOT NULL,\n  \"canWrite\" bool DEFAULT false NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"permissionId\" int4 NOT NULL,\n  \"roleId\" int4 NOT NULL,\n  CONSTRAINT \"RolePermission_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"RolePermission\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"RolePermission\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Session",
+    "label": "Create table \"Session\"",
+    "summary": "Creates table \"Session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Session\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Session\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Session\"",
+        "sql": "CREATE TABLE \"public\".\"Session\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"deletedAt\" timestamp(3),\n  \"id\" SERIAL NOT NULL,\n  \"token\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"userId\" int4 NOT NULL,\n  CONSTRAINT \"Session_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Session\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Session\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.User",
+    "label": "Create table \"User\"",
+    "summary": "Creates table \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"User\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"User\"",
+        "sql": "CREATE TABLE \"public\".\"User\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"deletedAt\" timestamp(3),\n  \"email\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text,\n  \"password\" text,\n  \"registeredViaGoogle\" bool DEFAULT false NOT NULL,\n  \"roleId\" int4 NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  CONSTRAINT \"User_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"User\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.WebPushSubscription",
+    "label": "Create table \"WebPushSubscription\"",
+    "summary": "Creates table \"WebPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "WebPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"WebPushSubscription\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebPushSubscription\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"WebPushSubscription\"",
+        "sql": "CREATE TABLE \"public\".\"WebPushSubscription\" (\n  \"auth\" text NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"endpoint\" text NOT NULL,\n  \"expirationTime\" timestamp(3),\n  \"id\" SERIAL NOT NULL,\n  \"p256dh\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"userAgent\" text,\n  \"userId\" int4 NOT NULL,\n  CONSTRAINT \"WebPushSubscription_pkey\" PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"WebPushSubscription\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebPushSubscription\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Otp.Otp_userId_key",
+    "label": "Add unique constraint on \"Otp\" (userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Otp_userId_key",
+        "table": "Otp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Otp_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Otp_userId_key",
+          "public",
+          "\"public\".\"Otp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Otp_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"Otp\" ADD CONSTRAINT \"Otp_userId_key\" UNIQUE (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Otp_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Otp_userId_key",
+          "public",
+          "\"public\".\"Otp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.MobilPushSubscription.MobilPushSubscription_token_key",
+    "label": "Create index \"MobilPushSubscription_token_key\" on \"MobilPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "MobilPushSubscription_token_key",
+        "table": "MobilPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MobilPushSubscription_token_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MobilPushSubscription_token_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MobilPushSubscription_token_key\"",
+        "sql": "CREATE UNIQUE INDEX \"MobilPushSubscription_token_key\" ON \"public\".\"MobilPushSubscription\" (\"token\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MobilPushSubscription_token_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MobilPushSubscription_token_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.MobilPushSubscription.MobilPushSubscription_userId_idx",
+    "label": "Create index \"MobilPushSubscription_userId_idx\" on \"MobilPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "MobilPushSubscription_userId_idx",
+        "table": "MobilPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"MobilPushSubscription_userId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MobilPushSubscription_userId_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"MobilPushSubscription_userId_idx\"",
+        "sql": "CREATE INDEX \"MobilPushSubscription_userId_idx\" ON \"public\".\"MobilPushSubscription\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"MobilPushSubscription_userId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"MobilPushSubscription_userId_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.NotificationUser.NotificationUser_notificationId_idx",
+    "label": "Create index \"NotificationUser_notificationId_idx\" on \"NotificationUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "NotificationUser_notificationId_idx",
+        "table": "NotificationUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"NotificationUser_notificationId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser_notificationId_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"NotificationUser_notificationId_idx\"",
+        "sql": "CREATE INDEX \"NotificationUser_notificationId_idx\" ON \"public\".\"NotificationUser\" (\"notificationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"NotificationUser_notificationId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser_notificationId_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.NotificationUser.NotificationUser_userId_notificationId_key",
+    "label": "Create index \"NotificationUser_userId_notificationId_key\" on \"NotificationUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "NotificationUser_userId_notificationId_key",
+        "table": "NotificationUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"NotificationUser_userId_notificationId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser_userId_notificationId_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"NotificationUser_userId_notificationId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"NotificationUser_userId_notificationId_key\" ON \"public\".\"NotificationUser\" (\"userId\", \"notificationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"NotificationUser_userId_notificationId_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser_userId_notificationId_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.NotificationUser.NotificationUser_userId_readStatus_idx",
+    "label": "Create index \"NotificationUser_userId_readStatus_idx\" on \"NotificationUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "NotificationUser_userId_readStatus_idx",
+        "table": "NotificationUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"NotificationUser_userId_readStatus_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser_userId_readStatus_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"NotificationUser_userId_readStatus_idx\"",
+        "sql": "CREATE INDEX \"NotificationUser_userId_readStatus_idx\" ON \"public\".\"NotificationUser\" (\"userId\", \"readStatus\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"NotificationUser_userId_readStatus_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"NotificationUser_userId_readStatus_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Otp.Otp_code_key",
+    "label": "Create index \"Otp_code_key\" on \"Otp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Otp_code_key",
+        "table": "Otp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Otp_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Otp_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Otp_code_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Otp_code_key\" ON \"public\".\"Otp\" (\"code\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Otp_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Otp_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Session.Session_token_key",
+    "label": "Create index \"Session_token_key\" on \"Session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Session_token_key",
+        "table": "Session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Session_token_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Session_token_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Session_token_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Session_token_key\" ON \"public\".\"Session\" (\"token\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Session_token_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Session_token_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.User.User_email_key",
+    "label": "Create index \"User_email_key\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "User_email_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"User_email_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_email_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"User_email_key\"",
+        "sql": "CREATE UNIQUE INDEX \"User_email_key\" ON \"public\".\"User\" (\"email\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"User_email_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_email_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebPushSubscription.WebPushSubscription_endpoint_key",
+    "label": "Create index \"WebPushSubscription_endpoint_key\" on \"WebPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebPushSubscription_endpoint_key",
+        "table": "WebPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebPushSubscription_endpoint_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebPushSubscription_endpoint_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebPushSubscription_endpoint_key\"",
+        "sql": "CREATE UNIQUE INDEX \"WebPushSubscription_endpoint_key\" ON \"public\".\"WebPushSubscription\" (\"endpoint\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebPushSubscription_endpoint_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebPushSubscription_endpoint_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebPushSubscription.WebPushSubscription_userId_idx",
+    "label": "Create index \"WebPushSubscription_userId_idx\" on \"WebPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebPushSubscription_userId_idx",
+        "table": "WebPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebPushSubscription_userId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebPushSubscription_userId_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebPushSubscription_userId_idx\"",
+        "sql": "CREATE INDEX \"WebPushSubscription_userId_idx\" ON \"public\".\"WebPushSubscription\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebPushSubscription_userId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebPushSubscription_userId_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Loger.Loger_userId_fkey",
+    "label": "Add foreign key \"Loger_userId_fkey\" on \"Loger\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Loger_userId_fkey",
+        "table": "Loger"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Loger_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Loger_userId_fkey",
+          "public",
+          "\"public\".\"Loger\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Loger_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Loger\"\nADD CONSTRAINT \"Loger_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Loger_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Loger_userId_fkey",
+          "public",
+          "\"public\".\"Loger\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.MobilPushSubscription.MobilPushSubscription_userId_fkey",
+    "label": "Add foreign key \"MobilPushSubscription_userId_fkey\" on \"MobilPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "MobilPushSubscription_userId_fkey",
+        "table": "MobilPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"MobilPushSubscription_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MobilPushSubscription_userId_fkey",
+          "public",
+          "\"public\".\"MobilPushSubscription\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"MobilPushSubscription_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"MobilPushSubscription\"\nADD CONSTRAINT \"MobilPushSubscription_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"MobilPushSubscription_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "MobilPushSubscription_userId_fkey",
+          "public",
+          "\"public\".\"MobilPushSubscription\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.NotificationUser.NotificationUser_notificationId_fkey",
+    "label": "Add foreign key \"NotificationUser_notificationId_fkey\" on \"NotificationUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "NotificationUser_notificationId_fkey",
+        "table": "NotificationUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"NotificationUser_notificationId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "NotificationUser_notificationId_fkey",
+          "public",
+          "\"public\".\"NotificationUser\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"NotificationUser_notificationId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"NotificationUser\"\nADD CONSTRAINT \"NotificationUser_notificationId_fkey\"\nFOREIGN KEY (\"notificationId\")\nREFERENCES \"public\".\"Notification\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"NotificationUser_notificationId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "NotificationUser_notificationId_fkey",
+          "public",
+          "\"public\".\"NotificationUser\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.NotificationUser.NotificationUser_userId_fkey",
+    "label": "Add foreign key \"NotificationUser_userId_fkey\" on \"NotificationUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "NotificationUser_userId_fkey",
+        "table": "NotificationUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"NotificationUser_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "NotificationUser_userId_fkey",
+          "public",
+          "\"public\".\"NotificationUser\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"NotificationUser_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"NotificationUser\"\nADD CONSTRAINT \"NotificationUser_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"NotificationUser_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "NotificationUser_userId_fkey",
+          "public",
+          "\"public\".\"NotificationUser\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Otp.Otp_userId_fkey",
+    "label": "Add foreign key \"Otp_userId_fkey\" on \"Otp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Otp_userId_fkey",
+        "table": "Otp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Otp_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Otp_userId_fkey",
+          "public",
+          "\"public\".\"Otp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Otp_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Otp\"\nADD CONSTRAINT \"Otp_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Otp_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Otp_userId_fkey",
+          "public",
+          "\"public\".\"Otp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.RolePermission.RolePermission_permissionId_fkey",
+    "label": "Add foreign key \"RolePermission_permissionId_fkey\" on \"RolePermission\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "RolePermission_permissionId_fkey",
+        "table": "RolePermission"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"RolePermission_permissionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RolePermission_permissionId_fkey",
+          "public",
+          "\"public\".\"RolePermission\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"RolePermission_permissionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"RolePermission\"\nADD CONSTRAINT \"RolePermission_permissionId_fkey\"\nFOREIGN KEY (\"permissionId\")\nREFERENCES \"public\".\"Permissions\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"RolePermission_permissionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RolePermission_permissionId_fkey",
+          "public",
+          "\"public\".\"RolePermission\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.RolePermission.RolePermission_roleId_fkey",
+    "label": "Add foreign key \"RolePermission_roleId_fkey\" on \"RolePermission\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "RolePermission_roleId_fkey",
+        "table": "RolePermission"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"RolePermission_roleId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RolePermission_roleId_fkey",
+          "public",
+          "\"public\".\"RolePermission\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"RolePermission_roleId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"RolePermission\"\nADD CONSTRAINT \"RolePermission_roleId_fkey\"\nFOREIGN KEY (\"roleId\")\nREFERENCES \"public\".\"Role\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"RolePermission_roleId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RolePermission_roleId_fkey",
+          "public",
+          "\"public\".\"RolePermission\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Session.Session_userId_fkey",
+    "label": "Add foreign key \"Session_userId_fkey\" on \"Session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Session_userId_fkey",
+        "table": "Session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Session_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Session_userId_fkey",
+          "public",
+          "\"public\".\"Session\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Session_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Session\"\nADD CONSTRAINT \"Session_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Session_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Session_userId_fkey",
+          "public",
+          "\"public\".\"Session\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.User.User_roleId_fkey",
+    "label": "Add foreign key \"User_roleId_fkey\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "User_roleId_fkey",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"User_roleId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_roleId_fkey",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"User_roleId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"User\"\nADD CONSTRAINT \"User_roleId_fkey\"\nFOREIGN KEY (\"roleId\")\nREFERENCES \"public\".\"Role\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"User_roleId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_roleId_fkey",
+          "public",
+          "\"public\".\"User\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WebPushSubscription.WebPushSubscription_userId_fkey",
+    "label": "Add foreign key \"WebPushSubscription_userId_fkey\" on \"WebPushSubscription\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WebPushSubscription_userId_fkey",
+        "table": "WebPushSubscription"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WebPushSubscription_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WebPushSubscription_userId_fkey",
+          "public",
+          "\"public\".\"WebPushSubscription\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WebPushSubscription_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WebPushSubscription\"\nADD CONSTRAINT \"WebPushSubscription_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WebPushSubscription_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WebPushSubscription_userId_fkey",
+          "public",
+          "\"public\".\"WebPushSubscription\""
+        ]
+      }
+    ]
+  }
+]

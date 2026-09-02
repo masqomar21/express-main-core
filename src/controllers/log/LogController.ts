@@ -1,33 +1,23 @@
-import prisma from '@/config/database'
+import db from '@/config/database'
 import { Pagination } from '@/utilities/Pagination'
 import { ResponseData } from '@/utilities/Response'
 import { Request, Response } from 'express'
-import { Prisma } from 'generated/prisma/client'
 
 const LogController = {
   async getUserLog(req: Request, res: Response) {
     const userLogin = req.user as jwtPayloadInterface
     const paginate = new Pagination(req.query)
     try {
-      const whereCondition: Prisma.LogerWhereInput = {
-        userId: userLogin.id,
-      }
-
       const [data, count] = await Promise.all([
-        prisma.loger.findMany({
-          where: whereCondition,
-          skip: paginate.offset,
-          take: paginate.limit,
-          orderBy: {
-            createdAt: 'desc',
-          },
-        }),
-        prisma.loger.count({
-          where: whereCondition,
-        }),
+        db.orm.public.Loger.where({ userId: userLogin.id })
+          .orderBy((l) => l.createdAt.desc())
+          .offset(paginate.offset)
+          .limit(paginate.limit)
+          .all(),
+        db.orm.public.Loger.where({ userId: userLogin.id }).count(),
       ])
 
-      return ResponseData.ok(res, paginate.paginate(count, data), 'User log retrieved successfully')
+      return ResponseData.ok(res, paginate.paginate(Number(count), data), 'User log retrieved successfully')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
@@ -42,25 +32,17 @@ const LogController = {
 
     const paginate = new Pagination(req.query)
     try {
-      const whereCondition: Prisma.LogerWhereInput = {
-        userId: Number(userId),
-      }
-
+      const targetUserId = Number(userId)
       const [data, count] = await Promise.all([
-        prisma.loger.findMany({
-          where: whereCondition,
-          skip: paginate.offset,
-          take: paginate.limit,
-          orderBy: {
-            createdAt: 'desc',
-          },
-        }),
-        prisma.loger.count({
-          where: whereCondition,
-        }),
+        db.orm.public.Loger.where({ userId: targetUserId })
+          .orderBy((l) => l.createdAt.desc())
+          .offset(paginate.offset)
+          .limit(paginate.limit)
+          .all(),
+        db.orm.public.Loger.where({ userId: targetUserId }).count(),
       ])
 
-      return ResponseData.ok(res, paginate.paginate(count, data), 'User log retrieved successfully')
+      return ResponseData.ok(res, paginate.paginate(Number(count), data), 'User log retrieved successfully')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }
@@ -70,17 +52,14 @@ const LogController = {
     const paginate = new Pagination(req.query)
     try {
       const [data, count] = await Promise.all([
-        prisma.loger.findMany({
-          skip: paginate.offset,
-          take: paginate.limit,
-          orderBy: {
-            createdAt: 'desc',
-          },
-        }),
-        prisma.loger.count(),
+        db.orm.public.Loger.orderBy((l) => l.createdAt.desc())
+          .offset(paginate.offset)
+          .limit(paginate.limit)
+          .all(),
+        db.orm.public.Loger.count(),
       ])
 
-      return ResponseData.ok(res, paginate.paginate(count, data), 'All logs retrieved successfully')
+      return ResponseData.ok(res, paginate.paginate(Number(count), data), 'All logs retrieved successfully')
     } catch (error) {
       return ResponseData.serverError(res, error)
     }

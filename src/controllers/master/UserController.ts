@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Pagination } from '@/utilities/Pagination'
-import prisma from '@/config/database'
+import db from '@/config/database'
 import { validateInput } from '@/utilities/ValidateHandler'
 import { UserSchemaForCreate, UserSchemaForUpdate } from '@/schema/UserSchema'
 import { hashPassword } from '@/utilities/PasswordHandler'
@@ -8,8 +8,6 @@ import { getIO } from '@/config/socket'
 import { logActivity } from '@/utilities/LogActivity'
 import { ResponseData } from '@/utilities/Response'
 import redisClient from '@/config/redis'
-import { buildDateFilter } from '@/utilities/PrismaFilter'
-import { Prisma } from 'generated/prisma/client'
 
 const UserController = {
   getAllUser: async (req: Request, res: Response): Promise<any> => {
@@ -17,42 +15,30 @@ const UserController = {
       const { startDate, endDate } = req.query
       const page = new Pagination(req.query)
 
-      const userLogin = req.user
+      let query = db.orm.public.User.where((u) => u.deletedAt.isNull())
 
-      console.log(userLogin?.role)
-
-      const whereCondition: Prisma.UserWhereInput = {
-        deletedAt: null,
+      if (startDate && !isNaN(Date.parse(startDate as string))) {
+        query = query.where((u) => u.createdAt.gte(new Date(startDate as string)))
       }
 
-      const filterData = buildDateFilter(startDate as string, endDate as string)
-
-      if (Object.keys(filterData).length > 0) {
-        whereCondition.createdAt = filterData
+      if (endDate && !isNaN(Date.parse(endDate as string))) {
+        const end = new Date(endDate as string)
+        end.setHours(23, 59, 59, 999)
+        query = query.where((u) => u.createdAt.lte(end))
       }
+
       const [userData, count] = await Promise.all([
-        prisma.user.findMany({
-          where: whereCondition,
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: {
-              select: {
-                name: true,
-              },
-            },
-          },
-          skip: page.offset,
-          take: page.limit,
-          orderBy: { id: 'desc' },
-        }),
-        prisma.user.count({
-          where: whereCondition,
-        }),
+        query
+          .include('role', (r) => r.select('name'))
+          .select('id', 'name', 'email')
+          .orderBy((u) => u.id.desc())
+          .offset(page.offset)
+          .limit(page.limit)
+          .all(),
+        query.count(),
       ])
 
-      return ResponseData.ok(res, page.paginate(count, userData), 'Success get all ')
+      return ResponseData.ok(res, page.paginate(Number(count), userData), 'Success get all ')
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
@@ -60,15 +46,13 @@ const UserController = {
   getUserById: async (req: Request, res: Response): Promise<any> => {
     try {
       const userId = parseInt(req.params.id as string)
-      const userData = await prisma.user.findUnique({
-        where: { id: userId },
-      })
-
-      delete (userData as { password?: string }).password
+      const userData = await db.orm.public.User.where({ id: userId }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
+
+      delete (userData as { password?: string }).password
 
       return ResponseData.ok(res, userData, 'Success get user by id')
     } catch (error: any) {
@@ -87,24 +71,21 @@ const UserController = {
         return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
       }
 
-      const existingUser = await prisma.user.findUnique({
-        where: { email: reqBody.email },
-      })
+      const existingUser = await db.orm.public.User.where({ email: reqBody.email }).first()
       if (existingUser) {
         return ResponseData.badRequest(res, 'Email already exists')
       }
 
-      const cekRole = await prisma.role.findUnique({
-        where: { id: reqBody.roleId },
-      })
+      const cekRole = await db.orm.public.Role.where({ id: reqBody.roleId }).first()
       if (!cekRole) {
         return ResponseData.badRequest(res, 'Role not found')
       }
 
-      validationResult.data!.password = await hashPassword(reqBody.password)
+      const hashedPassword = await hashPassword(reqBody.password)
 
-      const userData = await prisma.user.create({
-        data: validationResult.data!,
+      const userData = await db.orm.public.User.create({
+        ...validationResult.data!,
+        password: hashedPassword,
       })
 
       delete (userData as { password?: string }).password
@@ -135,18 +116,18 @@ const UserController = {
       return ResponseData.badRequest(res, 'Invalid Input', validationResult.errors)
     }
     try {
-      const userData = await prisma.user.findUnique({
-        where: { id: Number(id) },
-      })
+      const userData = await db.orm.public.User.where({ id: Number(id) }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
 
-      const updatedUserData = await prisma.user.update({
-        where: { id: Number(id) },
-        data: validationResult.data!,
-      })
+      await db.orm.public.User.where({ id: Number(id) }).update(validationResult.data!)
+
+      const updatedUserData = await db.orm.public.User.where({ id: Number(id) }).first()
+      if (updatedUserData) {
+        delete (updatedUserData as { password?: string }).password
+      }
 
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'UPDATE', `update user ${userData.name}`)
@@ -161,18 +142,15 @@ const UserController = {
     try {
       const userId = parseInt(req.params.id as string)
 
-      const userData = await prisma.user.findUnique({
-        where: { id: userId },
-      })
+      const userData = await db.orm.public.User.where({ id: userId }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
 
-      const deletedUserData = await prisma.user.update({
-        where: { id: userId },
-        data: { deletedAt: new Date() },
-      })
+      await db.orm.public.User.where({ id: userId }).update({ deletedAt: new Date() })
+
+      const deletedUserData = await db.orm.public.User.where({ id: userId }).first()
 
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)
@@ -187,20 +165,17 @@ const UserController = {
     try {
       const userId = parseInt(req.params.id as string)
 
-      const userData = await prisma.user.findUnique({
-        where: { id: userId },
-      })
+      const userData = await db.orm.public.User.where({ id: userId }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
 
-      const deletedUserData = await prisma.user.update({
-        where: { id: userId },
-        data: { deletedAt: null },
-      })
+      await db.orm.public.User.where({ id: userId }).update({ deletedAt: null })
 
-      return ResponseData.ok(res, deletedUserData, 'Success')
+      const restoredUserData = await db.orm.public.User.where({ id: userId }).first()
+
+      return ResponseData.ok(res, restoredUserData, 'Success')
     } catch (error: any) {
       return ResponseData.serverError(res, error)
     }
@@ -210,17 +185,13 @@ const UserController = {
     try {
       const userId = parseInt(req.params.id as string)
 
-      const userData = await prisma.user.findUnique({
-        where: { id: userId },
-      })
+      const userData = await db.orm.public.User.where({ id: userId }).first()
 
       if (!userData) {
         return ResponseData.notFound(res, 'User not found')
       }
 
-      await prisma.user.delete({
-        where: { id: userId },
-      })
+      await db.orm.public.User.where({ id: userId }).delete()
 
       const userLogin = req.user as jwtPayloadInterface
       await logActivity(userLogin.id, 'DELETE', `delete user ${userData.name}`)

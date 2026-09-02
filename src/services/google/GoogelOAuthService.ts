@@ -17,17 +17,15 @@ passport.use(
 
         // console.log('Google OAuth profile:', profile)
         let user = null
-        user = await prisma.user.findUnique({ where: { email } })
+        user = await prisma.orm.public.User.where({ email }).first()
 
         if (!user) {
-          const roleUser = await prisma.role.findFirst({ where: { roleType: 'OTHER' } })
-          user = await prisma.user.create({
-            data: {
-              name: profile.displayName,
-              email,
-              registeredViaGoogle: true,
-              roleId: roleUser?.id || 2, // default role user
-            },
+          const roleUser = await prisma.orm.public.Role.where({ roleType: 'OTHER' }).first()
+          user = await prisma.orm.public.User.create({
+            name: profile.displayName,
+            email,
+            registeredViaGoogle: true,
+            roleId: roleUser?.id || 2, // default role user
           })
           // return done(null, false, { message: 'User belum terdaftar. Silahkan Daftar' })
         }

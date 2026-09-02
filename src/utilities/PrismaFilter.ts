@@ -1,13 +1,16 @@
-import { Prisma } from 'generated/prisma/client'
+export interface DateTimeFilter {
+  gte?: Date
+  lte?: Date
+}
 
 /**
- * Membuat filter tanggal dinamis untuk Prisma.
+ * Membuat filter tanggal dinamis.
  * @param startDate string | undefined - tanggal mulai (format ISO atau yyyy-mm-dd)
  * @param endDate string | undefined - tanggal akhir (format ISO atau yyyy-mm-dd)
- * @returns Prisma.DateTimeFilter - berisi gte dan/atau lte sesuai input
+ * @returns DateTimeFilter - berisi gte dan/atau lte sesuai input
  */
-export function buildDateFilter(startDate?: string, endDate?: string): Prisma.DateTimeFilter {
-  const filterDate: Prisma.DateTimeFilter = {}
+export function buildDateFilter(startDate?: string, endDate?: string): DateTimeFilter {
+  const filterDate: DateTimeFilter = {}
 
   if (startDate && !isNaN(Date.parse(startDate))) {
     filterDate.gte = new Date(startDate)

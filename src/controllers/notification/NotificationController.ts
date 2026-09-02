@@ -1,4 +1,4 @@
-import prisma from '@/config/database'
+import db from '@/config/database'
 import NotificationServices, { NotificationKind } from '@/services/NotificationService'
 import { Pagination } from '@/utilities/Pagination'
 import { ResponseData } from '@/utilities/Response'
@@ -78,11 +78,9 @@ const NotificationController = {
       return ResponseData.badRequest(res, 'Notification ID is required')
     }
     try {
-      const cek = await prisma.notification.findUnique({
-        where: {
-          id: Number(notificationId),
-        },
-      })
+      const cek = await db.orm.public.Notification.where({
+        id: Number(notificationId),
+      }).first()
 
       if (!cek) {
         return ResponseData.notFound(res, 'Notification not found')

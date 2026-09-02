@@ -1,12 +1,6 @@
-import { CONFIG } from '@/config'
-import { PrismaPg } from '@prisma/adapter-pg'
+import db from '@/config/database'
 import fs from 'fs'
-import { PrismaClient } from 'generated/prisma/client'
 import path from 'path'
-
-const adapter = new PrismaPg({ connectionString: CONFIG.database.connectionString })
-
-const prisma = new PrismaClient({ adapter: adapter })
 
 function toPascalCase(str: string): string {
   return str.replace(/(^\w|_\w)/g, (match) => match.replace('_', '').toUpperCase())
@@ -24,16 +18,16 @@ async function main() {
     fs.mkdirSync(seedersDir)
   }
 
-  const models = Object.keys(prisma).filter((key) => {
-    const model = (prisma as any)[key]
-    return typeof model?.findMany === 'function'
-  })
+  const models = Object.keys(db.orm.public)
 
   console.log(`📦 Found models: ${models.join(', ')}`)
 
   for (const model of models) {
     try {
-      const data = await (prisma as any)[model].findMany()
+      const modelDelegate = (db.orm.public as any)[model]
+      if (typeof modelDelegate?.all !== 'function') continue
+
+      const data = await modelDelegate.all()
 
       if (!data.length) {
         console.log(`⏭️  Skip ${model}, no data found.`)
@@ -54,14 +48,13 @@ async function main() {
         2,
       )
 
-      const seederContent = `import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+      const seederContent = `import db from '@/config/database';
 
 export async function ${camelCaseName}() {
-  await prisma.${model}.createMany({
-    data: ${safeData},
-    skipDuplicates: true,
-  });
+  const items = ${safeData};
+  for (const item of items) {
+    await db.orm.public.${model}.create(item).catch(() => null);
+  }
 }
       `.trim()
 
@@ -72,8 +65,6 @@ export async function ${camelCaseName}() {
       console.warn(`⚠️ Gagal generate seeder untuk ${model}: ${err.message}`)
     }
   }
-
-  await prisma.$disconnect()
 }
 
 main().catch((err) => {
