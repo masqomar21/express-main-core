@@ -19,6 +19,9 @@ namespace public {
     password               String?
     roleId                 Int
     registeredViaGoogle    Boolean                 @default(false)
+    isActive               Boolean                 @default(true)
+    profile        String?
+
     createdAt              Timestamp(3)            @default(now())
     updatedAt              Timestamp(3)            @default(now())
     deletedAt              Timestamp(3)?

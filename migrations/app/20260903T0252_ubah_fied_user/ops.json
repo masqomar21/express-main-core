@@ -1,0 +1,86 @@
+[
+  {
+    "id": "dropColumn.User.profilePicture",
+    "label": "Drop column \"profilePicture\" from \"User\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "profilePicture",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"profilePicture\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "profilePicture"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"profilePicture\"",
+        "sql": "ALTER TABLE \"public\".\"User\" DROP COLUMN \"profilePicture\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"profilePicture\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "profilePicture"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.User.profile",
+    "label": "Add column \"profile\" to \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "profile",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"profile\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "profile"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"profile\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD COLUMN \"profile\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"profile\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "profile"
+        ]
+      }
+    ]
+  }
+]

@@ -6,6 +6,10 @@ function run(cmd: string) {
   execSync(cmd, { stdio: 'inherit' })
 }
 
+function runCapture(cmd: string): string {
+  return execSync(cmd, { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf-8' })
+}
+
 function promptName(): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -31,21 +35,42 @@ async function main() {
     name = args[0]
   }
 
-  if (!name) {
-    name = await promptName()
-  }
-
   try {
     console.log(`\n🚀 [1/3] Emitting contract...`)
     run('npx prisma contract emit')
 
-    console.log(`\n📋 [2/3] Planning migration: "${name}"...`)
-    run(`npx prisma migration plan --name "${name}"`)
+    // Cek status migrasi via JSON output
+    let needsPlanning = false
+    try {
+      const statusOutput = runCapture('npx prisma migration status')
+      const parsed = JSON.parse(statusOutput)
+      const appSpace = parsed.envelope?.result?.spaces?.find((s: any) => s.space === 'app')
+
+      if (appSpace) {
+        const { currentContract, targetContract } = appSpace
+        // Jika hash contract saat ini berbeda dengan hash target (ada perubahan schema)
+        if (currentContract !== targetContract) {
+          needsPlanning = true
+        }
+      }
+    } catch {
+      needsPlanning = true
+    }
+
+    if (needsPlanning) {
+      if (!name) {
+        name = await promptName()
+      }
+      console.log(`\n📋 [2/3] New schema changes detected. Planning migration: "${name}"...`)
+      run(`npx prisma migration plan --name "${name}"`)
+    } else {
+      console.log(`\n⏭️  [2/3] No schema changes to plan. Skipping plan step.`)
+    }
 
     console.log(`\n⚡ [3/3] Applying migration to database...`)
     run('npx prisma db migrate --advance-ref db')
 
-    console.log(`\n✅ Migration "${name}" successfully created and applied!\n`)
+    console.log(`\n✅ Database is up to date!\n`)
   } catch (error) {
     console.error('\n❌ Migration failed.')
     process.exit(1)
