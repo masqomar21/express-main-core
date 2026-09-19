@@ -80,7 +80,7 @@ const AuthController = {
         purpose: 'ACCESS_TOKEN',
       }
 
-      const { token, jti } = generateAccesToken(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
+      const { token, jti } = generateAccesToken<jwtPayloadInterface>(tokenPayload, CONFIG.secret.jwtSecret, 3600 * 24) // 1 day
 
       await prisma.session.create({
         data: {

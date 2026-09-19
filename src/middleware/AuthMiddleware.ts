@@ -22,7 +22,7 @@ export const AuthMiddleware = async function (req: Request, res: Response, next:
     
 
 
-    const decode = verifyAccesToken(token, CONFIG.secret.jwtSecret)
+    const decode = verifyAccesToken<jwtPayloadInterface>(token, CONFIG.secret.jwtSecret)
 
     if (!decode || decode.purpose !== 'ACCESS_TOKEN') {
       return ResponseData.otherResponse(res, 498, 'Unauthorized - Invalid token')

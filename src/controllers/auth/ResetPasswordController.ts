@@ -154,7 +154,7 @@ const ResetPasswordController = {
     const reqBody = validateResult.data!
 
     try {
-      const decode = verifyAccesToken(token, CONFIG.secret.jwtSecret)
+      const decode = verifyAccesToken<jwtPayloadInterface>(token, CONFIG.secret.jwtSecret)
 
       if (!decode || decode.purpose !== 'RESET_PASSWORD') {
         return ResponseData.unauthorized(res, 'Unauthorized - Invalid token')
