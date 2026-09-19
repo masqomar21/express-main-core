@@ -35,9 +35,11 @@ const uploadFileToS3WithOutRedis = async (
     const { mimetype, buffer, originalname } = file
     const uniqueFilename = `${originalname.split('.')[0]}_${Date.now()}.${originalname.split('.')[1]}`
 
+    const fileKey = `${pathToFolder}/${folderPath}/${uniqueFilename}`
+
     const uploadParams = {
       Bucket: CONFIG.s3.bucket,
-      Key: `${pathToFolder}/${folderPath}/${uniqueFilename}`,
+      Key: fileKey,
       Body: Buffer.from(buffer),
       ACL: ObjectCannedACL.public_read_write,
       ContentType: mimetype,
@@ -46,11 +48,19 @@ const uploadFileToS3WithOutRedis = async (
     const command = new PutObjectCommand(uploadParams)
     await s3Client.send(command)
 
+    if (!CONFIG.s3.returnFullUrl) {
+      return fileKey
+    }
+
+    if (CONFIG.s3.publicEndpoint) {
+      return `${CONFIG.s3.publicEndpoint}/${fileKey}`
+    }
+
     if (!CONFIG.s3.endpoint) {
-      return `https://${CONFIG.s3.bucket}.s3.${CONFIG.s3.region}.amazonaws.com/${pathToFolder}/${folderPath}/${uniqueFilename}`
+      return `https://${CONFIG.s3.bucket}.s3.${CONFIG.s3.region}.amazonaws.com/${fileKey}`
     }
     // Jika menggunakan endpoint khusus, gunakan format URL yang sesuai
-    return `${CONFIG.s3.endpoint}/${CONFIG.s3.bucket}/${pathToFolder}/${folderPath}/${uniqueFilename}`
+    return `${CONFIG.s3.endpoint}/${CONFIG.s3.bucket}/${fileKey}`
 
     // return  `${process.env.AWS_ENDPOINT}/${pathToFolder}/${folderPath}/${uniqueFilename}`
   } catch (error) {
@@ -84,7 +94,11 @@ export async function generateUploadUrl(
   const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 120 }) // 60 detik
 
   let fileUrl: string
-  if (!CONFIG.s3.endpoint) {
+  if (!CONFIG.s3.returnFullUrl) {
+    fileUrl = fileKey
+  } else if (CONFIG.s3.publicEndpoint) {
+    fileUrl = `${CONFIG.s3.publicEndpoint}/${fileKey}`
+  } else if (!CONFIG.s3.endpoint) {
     fileUrl = `https://${CONFIG.s3.bucket}.s3.${CONFIG.s3.region}.amazonaws.com/${fileKey}`
   } else {
     // Jika menggunakan endpoint khusus, gunakan format URL yang sesuai
@@ -95,16 +109,22 @@ export async function generateUploadUrl(
 }
 
 /**
- * Hapus file dari S3 berdasarkan URL
- * @param fileUrl - URL file yang akan dihapus
+ * Hapus file dari S3 berdasarkan URL atau path file
+ * @param fileUrl - URL file atau path file yang akan dihapus
  */
 const deleteFileFromS3 = async (fileUrl: string): Promise<void> => {
-  let indexSLice = 3 // Jika menggunakan endpoint, potong dari index ke-3, jika tidak potong dari index ke-4
+  let filePath = fileUrl
 
-  if (CONFIG.s3.endpoint) {
-    indexSLice = 4 // Jika menggunakan endpoint, potong dari index ke-2
+  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+    let indexSLice = 3 // Jika menggunakan endpoint, potong dari index ke-3, jika tidak potong dari index ke-4
+
+    if (CONFIG.s3.publicEndpoint && fileUrl.startsWith(CONFIG.s3.publicEndpoint)) {
+      indexSLice = 3
+    } else if (CONFIG.s3.endpoint) {
+      indexSLice = 4 // Jika menggunakan endpoint, potong dari index ke-2
+    }
+    filePath = fileUrl.split('/').slice(indexSLice).join('/') // Mengambil path file dari URL
   }
-  const filePath = fileUrl.split('/').slice(indexSLice).join('/') // Mengambil path file dari URL
   try {
     // console.log('filePath', filePath)
     const deleteParams = {

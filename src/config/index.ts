@@ -33,6 +33,8 @@ export const CONFIG = {
     : false,
   s3: {
     endpoint: process.env.S3_ENDPOINT || undefined,
+    publicEndpoint: process.env.S3_PUBLIC_ENDPOINT || undefined,
+    returnFullUrl: process.env.S3_RETURN_FULL_URL === 'true' || false,
     region: process.env.S3_REGION || 'us-east-1',
     accessKeyId: process.env.S3_ACCESS_KEY_ID || 'default_access_key_id',
     secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || 'default_secret_access_key',

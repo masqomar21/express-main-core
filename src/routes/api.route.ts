@@ -52,10 +52,11 @@ export const appRouter = async function (app: Express): Promise<void> {
   app.use(CONFIG.apiUrl + 'auth', AuthRoute())
   app.use(CONFIG.apiUrl + 'reset-password', ResetPasswordRoute())
 
+  // s3 route (sebelum AuthMiddleware & generatePermissionList agar dapat diakses tanpa auth/permission ketat)
+  app.use(CONFIG.apiUrl + 's3', S3UtilsRoute())
+
   // product route
   app.use(AuthMiddleware, generatePermissionList)
-
-  app.use(CONFIG.apiUrl + 's3', S3UtilsRoute())
 
   app.get(CONFIG.apiUrl + 'generate-permission', async (req: Request, res: Response) => {
     return ResponseData.ok(res, res.locals.permissionList, 'Success')
